@@ -1,0 +1,795 @@
+<div class="dashboard-wrapper">
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 header">
+            <h1 class="mb-0">{{ companyName }}</h1>
+
+            <button
+                class="btn btn--primary"
+                data-bs-toggle="modal"
+                data-bs-target="#postInternshipModal">
+                <i class="bi bi-plus"></i>
+                Post Internship
+            </button>
+        </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="row g-4">
+
+        <!-- Card 1 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <h5 class="card-title mb-1">Active Internships</h5>
+                            <div
+                                class="number fw-bold fs-4">{{activeInternships()}}</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="card-icon fs-2"
+                                style="background-color: #d894d86b;">
+                                <i class="bi bi-suitcase-lg"
+                                    style="color: purple;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <h5 class="card-title mb-1">Total Applicants</h5>
+                            <div
+                                class="number fw-bold fs-4">{{totalApplicants()}}</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="card-icon fs-2"
+                                style="    background-color: #b0b0e8a1;">
+                                <i class="bi bi-people"
+                                    style="color: blue;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <h5 class="card-title mb-1">Pending Reviews</h5>
+                            <div
+                                class="number fw-bold fs-4">{{totalPending()}}</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="card-icon fs-2"
+                                style="background-color: #f8ebb88a;">
+                                <i class="bi bi-clock-history"
+                                    style="color: #fac132;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-8">
+                            <h5 class="card-title mb-1">Accepted</h5>
+                            <div
+                                class="number fw-bold fs-4">{{totalAccepted()}}</div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="card-icon fs-2"
+                                style="background-color: #b7e8b79e;">
+                                <i class="bi bi-check2-circle"
+                                    style="color: green;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- navitems -->
+    <nav class="custom-tabs">
+        <div
+            class="tab-item"
+            style="cursor: pointer;"
+            [class.active]="breadcrumpSectionName == 'overview'"
+            (click)="setSection('overview')">
+            Overview
+        </div>
+
+        <div
+            class="tab-item"
+            style="cursor: pointer;"
+            [class.active]="breadcrumpSectionName == 'internship'"
+            (click)="setSection('internship')">
+            Internships
+        </div>
+
+        <div
+            class="tab-item"
+            style="cursor: pointer;"
+            [class.active]="breadcrumpSectionName == 'applications'"
+            (click)="setSection('applications')">
+            Applications
+        </div>
+    </nav>
+    <!-- OVERVIEW -->
+    @if(breadcrumpSectionName === 'overview'){
+    <div class="row mt-3">
+        <!-- First card -->
+        <div class="col-6">
+            <div class="card p-1 mb-3">
+                <div class="header mt-1">
+                    <h5>Closing Soon</h5>
+                    <p>Latest applications</p>
+                </div>
+                <div class="card-body d-flex flex-column gap-2">
+                    @for(internship of getClosingSoon(); track internship.id) {
+                    <div class="card p-2 background-card overview-clickable"
+                        (click)="setSection('internship')">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="card-title mb-1">{{internship.title}}</h5>
+                                <p class="card-text mb-0">Deadline: {{internship.submissionDeadline | date:'M/d/yyyy'}}</p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge pending">Closing Soon</span>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Second card -->
+        <div class="col-6">
+            <div class="card p-1 mb-3">
+                <div class="header mt-1">
+                    <h5>Top Candidate</h5>
+                    <p>Highest matching applicants</p>
+                </div>
+                <div class="card-body d-flex flex-column gap-2">
+                    @for(application of getTopCandidates(); track application.id) {
+                    <div class="card p-2 background-card">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="card-title mb-1">
+                                    {{getStudentById(application.studentId)?.first_name}}
+                                    {{getStudentById(application.studentId)?.last_name}}
+                                </h5>
+                                <p class="card-text mb-0">{{getStudentById(application.studentId)?.major}}</p>
+                            </div>
+                            <div class="col-auto d-flex align-items-center gap-2">
+                                <span class="match">{{application.matchScore}}%</span>
+                                <button class="view-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#ApplicationModal"
+                                    (click)="studentInfo(application.studentId, application)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Third card in a new row -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm p-4 mb-3"
+                style="border-radius: 15px;">
+                <div class="header mb-4">
+                    <h5 class="fw-bold mb-1">Internship Performance</h5>
+                    <p class="text-muted">Applications per internship
+                        posting</p>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="card border-0 p-3 mb-3"
+                        style="background-color: #f8f9fa; border-radius: 12px;">
+                        <div
+                            class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="fw-bold mb-1">Full Stack Developer
+                                    Intern</h6>
+                                <small class="text-muted">Posted
+                                    1/15/2026</small>
+                            </div>
+                            <span class="badge rounded-pill px-3 py-2"
+                                style="background-color: #e7f0ff; color: #0d6efd;">
+                                1 applications
+                            </span>
+                        </div>
+
+                        <div class="row text-start">
+                            <div class="col-4">
+                                <div class="small text-muted">Pending</div>
+                                <div class="fw-bold"
+                                    style="color: #ff9800;">0</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="small text-muted">Accepted</div>
+                                <div class="fw-bold"
+                                    style="color: #2e7d32;">1</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="small text-muted">Rejected</div>
+                                <div class="fw-bold"
+                                    style="color: #d32f2f;">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 p-3"
+                        style="background-color: #f8f9fa; border-radius: 12px;">
+                        <div
+                            class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="fw-bold mb-1">DevOps Intern</h6>
+                                <small class="text-muted">Posted
+                                    1/25/2026</small>
+                            </div>
+                            <span class="badge rounded-pill px-3 py-2"
+                                style="background-color: #e7f0ff; color: #0d6efd;">
+                                0 applications
+                            </span>
+                        </div>
+
+                        <div class="row text-start">
+                            <div class="col-4">
+                                <div class="small text-muted">Pending</div>
+                                <div class="fw-bold"
+                                    style="color: #ff9800;">0</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="small text-muted">Accepted</div>
+                                <div class="fw-bold"
+                                    style="color: #2e7d32;">0</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="small text-muted">Rejected</div>
+                                <div class="fw-bold"
+                                    style="color: #d32f2f;">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    }
+    @if(breadcrumpSectionName == 'internship'){
+    <!-- internship -->
+    <div class="row mt-3">
+        <!-- card -->
+        @for(internship of internships; track internship) {
+        <div class="col-12">
+            <div class="card p-4 mb-3 border-light-subtle shadow-sm">
+
+                <div class="d-flex align-items-center mb-2">
+                    <h4
+                        class="mb-0 me-2 fw-bold text-dark">{{internship.title}}</h4>
+                </div>
+
+                <p class="text-secondary mb-3">{{internship.description}}</p>
+
+                <div class="d-flex flex-wrap align-items-center gap-3 text-secondary mb-4">
+                    <div><i class="bi bi-geo-alt me-1"></i>
+                        {{internship.location}}</div>
+                    <div><i class="bi bi-clock me-1"></i>
+                        {{internship.duration}}</div>
+                    <div><i class="bi bi-currency-dollar me-1"></i>
+                        @if(internship.isPaid)
+                        {Paid}
+                        @else {Unpaid}
+                    </div>
+                    <div><i class="bi bi-calendar-event me-1"></i> Deadline:
+                        {{internship.submissionDeadline |
+                        date:'M/d/yyyy'}}</div>
+                </div>
+
+                <hr class="mt-0 mb-4 opacity-25">
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary px-3"
+                        (click)="editInternship(internship)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#postInternshipModal">
+                        <i class="bi bi-pencil-square me-1"></i> Edit
+                    </button>
+                    <button class="btn btn-outline-danger px-3"
+                        (click)="deleteInternship(internship.id)">
+                        <i class="bi bi-trash3 me-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>}
+    </div>}
+    <!-- Applications -->
+    @if(breadcrumpSectionName == 'applications'){
+    <div class="row mt-3">
+
+        @for(internship of internships; track internship.id){
+        @let apps = getApplicationsForInternship(internship.id);
+        @if(apps.length > 0){
+
+        <div class="col-12 mb-3">
+            <div class="internship-card">
+
+                <!-- Header -->
+                <div class="section-header">
+                    <div class="title-group">
+                        <h5 class="internship-title">{{ internship.title }}</h5>
+                        <small class="applications-count">
+                            {{ apps.length }} application{{apps.length !== 1 ? 's' : ''}}
+                        </small>
+                    </div>
+                    <div class="stats">
+                        <span class="badge pending">
+                            {{ countPending(internship.id) }} Pending
+                        </span>
+                        <span class="badge accepted">
+                            {{ countAccepted(internship.id) }} Accepted
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Applicants -->
+                <div class="applicants-container">
+                    @for(app of apps; track app.id){
+                    @let student = getStudentById(app.studentId);
+
+                    <div class="applicant-row"
+                        data-bs-toggle="modal"
+                        data-bs-target="#ApplicationModal"
+                        (click)="studentInfo(app.studentId, app)">
+
+                        <div class="applicant-left">
+                            <img class="avatar"
+                                src="https://static.vecteezy.com/system/resources/thumbnails/003/715/527/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-vector.jpg" />
+                            <div>
+                                <div class="name-row">
+                                    <span class="name">
+                                        {{ student?.first_name }} {{ student?.last_name }}
+                                    </span>
+                                    <span class="match">{{ app.matchScore }}%</span>
+                                </div>
+                                <div class="major">{{ student?.major }}</div>
+                            </div>
+                        </div>
+
+                        <div class="applicant-right">
+                            <div class="application-status"
+                                [class]="app.status === 0 ? 'pending' :
+                                         app.status === 1 ? 'accepted' :
+                                         app.status === 2 ? 'rejected' : ''">
+                                {{ applicationStatus[app.status] }}
+                            </div>
+                            <button class="view-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#ApplicationModal"
+                                (click)="studentInfo(app.studentId, app)">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+        }
+        }
+
+    </div>
+    }
+    <!-- Application detials modal -->
+    <div class="modal" tabindex="-1" id="ApplicationModal">
+        <div
+            class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content"
+                style="border-radius: 16px; border: none;">
+
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-2">
+                    <h6 class="modal-title fw-semibold text-muted">Application
+                        Details</h6>
+                    <button type="button " class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body px-4 py-2">
+
+                    <!-- User Info -->
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div
+                            class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width:52px; height:52px;">
+                            <i class="bi bi-person fs-4 text-muted"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">
+                                {{ applicationModalStudent?.first_name }}
+                                {{ applicationModalStudent?.last_name }}
+                            </h6>
+                            <small class="text-muted">{{
+                                applicationModalStudent?.major }}</small>
+                            <div class="d-flex align-items-center gap-2 mt-1">
+                                <span class="badge rounded-pill px-3 py-1"
+                                    style="background:#f0e6ff; color:#7c3aed; font-size:0.75rem;">
+                                    {{ applicationModalApplication?.matchScore
+                                    }}% Match
+                                </span>
+                                <span class="badge rounded-pill px-3 py-1"
+                                    style="font-size:0.75rem;"
+                                    [class]="applicationModalApplication?.status === 0 ? 'pending' :
+                                         applicationModalApplication?.status === 1 ? 'accepted' :
+                                         applicationModalApplication?.status === 2 ? 'rejected' : ''">
+                                    {{
+                                    applicationStatus[applicationModalApplication?.status
+                                    ?? 0] }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact -->
+                    <p class="text-muted mb-2"
+                        style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;">Contact</p>
+                    <div class="d-flex gap-4 mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-envelope text-muted"
+                                style="font-size:0.85rem;"></i>
+                            <div>
+                                <small class="text-muted d-block"
+                                    style="font-size:0.7rem;">Email</small>
+                                <span style="font-size:0.85rem;">{{
+                                    applicationModalStudent?.email }}</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-telephone text-muted"
+                                style="font-size:0.85rem;"></i>
+                            <div>
+                                <small class="text-muted d-block"
+                                    style="font-size:0.7rem;">Phone</small>
+                                <span style="font-size:0.85rem;">{{
+                                    applicationModalStudent?.phone }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Academic -->
+                    <p class="text-muted mb-2"
+                        style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;">Academic</p>
+                    <div class="d-flex gap-4 mb-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-mortarboard text-muted"
+                                style="font-size:0.85rem;"></i>
+                            <div>
+                                <small class="text-muted d-block"
+                                    style="font-size:0.7rem;">University</small>
+                                <span style="font-size:0.85rem;">{{
+                                    applicationModalStudent?.university
+                                    }}</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-award text-muted"
+                                style="font-size:0.85rem;"></i>
+                            <div>
+                                <small class="text-muted d-block"
+                                    style="font-size:0.7rem;">GPA</small>
+                                <span style="font-size:0.85rem;">{{
+                                    applicationModalStudent?.gpa }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <p class="text-muted mb-2"
+                        style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;">Skills</p>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        @for(skill of applicationModalStudent?.studentSkills;
+                        track skill) {
+                        <span
+                            class="badge rounded-pill border text-muted fw-normal px-3 py-1"
+                            style="font-size:0.78rem; background:#f8f9fa;">
+                            {{ skills[skill.skill_id].skill_name }}
+                        </span>
+                        }
+                    </div>
+
+                    <!-- Links -->
+                    <p class="text-muted mb-2"
+                        style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em;">Links</p>
+                    <div class="d-flex gap-2 mb-2">
+                        <a [href]="applicationModalStudent?.linkedInUrl"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                            <i class="bi bi-linkedin"></i> LinkedIn
+                        </a>
+                        <a [href]="applicationModalStudent?.gitHubUrl"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                            <i class="bi bi-github"></i> GitHub
+                        </a>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4 pt-2 gap-2">
+                    <button type="button" class="btn btn-sm px-4"
+                        style="background:#d1f0e0; color:#1a7a4a; border:none; border-radius:8px;"
+                        [disabled]="applicationModalApplication?.status === 1"
+                        (click)="updateApplicationStatus(1)">
+                        <i class="bi bi-check-lg me-1"></i> Accept
+                    </button>
+                    <button type="button" class="btn btn-sm px-4"
+                        style="background:#fde0e0; color:#c0392b; border:none; border-radius:8px;"
+                        [disabled]="applicationModalApplication?.status === 2"
+                        (click)="updateApplicationStatus(2)">
+                        <i class="bi bi-x-lg me-1"></i> Reject
+                    </button>
+                    <button type="button" class="btn btn-sm px-4"
+                        data-bs-dismiss="modal"
+                        style="background:#f0f0f0; color:#555; border:none; border-radius:8px;">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- Internship detials modal -->
+    <!-- Internship posting modal -->
+    <div class="modal" tabindex="-1" id="postInternshipModal"
+        #postInternshipModal>
+        <div
+            class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Post New Internship</h5>
+                    <button type="button" class="btn-close"
+                        data-bs-dismiss="modal" aria-label="Close"
+                        (click)="clearModal()"></button>
+                </div>
+
+                <div class="modal-body px-4 py-3">
+                    <p class="text-muted small mb-3">
+                        Fields marked with <span class="text-danger">*</span>
+                        are required.
+                    </p>
+
+                    <form [formGroup]="internship_form">
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label
+                                class="form-label fw-semibold small text-muted text-uppercase">
+                                Internship Title <span
+                                    class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span
+                                    class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-briefcase text-primary"></i>
+                                </span>
+                                <input type="text"
+                                    class="form-control border-start-0 ps-0"
+                                    placeholder="e.g. Frontend Developer"
+                                    formControlName="title"
+                                    [class.required-input-warning]="internship_form.get('title')?.invalid && internship_form.get('title')?.touched">
+                            </div>
+                        </div>
+
+                        <!-- Company Name -->
+                        <div class="mb-4">
+                            <label
+                                class="form-label fw-semibold small text-muted text-uppercase">
+                                Company Name <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span
+                                    class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-building text-primary"></i>
+                                </span>
+                                <input type="text"
+                                    class="form-control border-start-0 ps-0"
+                                    placeholder="e.g. InternPath"
+                                    formControlName="companyName"
+                                    [class.required-input-warning]="internship_form.get('companyName')?.invalid && internship_form.get('companyName')?.touched">
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label
+                                class="form-label fw-semibold small text-muted text-uppercase">
+                                Role Description <span
+                                    class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" rows="4"
+                                placeholder="Describe the role, responsibilities, and what the intern will learn..."
+                                formControlName="description"
+                                [class.required-input-warning]="internship_form.get('description')?.invalid && internship_form.get('description')?.touched">
+                        </textarea>
+                        </div>
+
+                        <!-- Deadline & Duration -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label
+                                    class="form-label fw-semibold small text-muted text-uppercase">
+                                    Application Deadline <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-text bg-white border-end-0">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </span>
+                                    <input type="date"
+                                        class="form-control border-start-0 ps-0"
+                                        formControlName="submissionDeadline"
+                                        [class.required-input-warning]="internship_form.get('submissionDeadline')?.invalid && internship_form.get('submissionDeadline')?.touched">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label
+                                    class="form-label fw-semibold small text-muted text-uppercase">
+                                    Duration <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control"
+                                    formControlName="duration"
+                                    placeholder="e.g. 3 months, 7 weeks..."
+                                    [class.required-input-warning]="internship_form.get('duration')?.invalid && internship_form.get('duration')?.touched">
+                            </div>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="mb-4">
+                            <label
+                                class="form-label fw-semibold small text-muted text-uppercase"
+                                for="skills-input">
+                                Required Skills <span
+                                    class="text-danger">*</span>
+                            </label>
+                            <div class="skills-field" id="skills-field"
+                                [class.required-input-warning]="pendingSkills.length === 0 && skillsTouched">
+                                <div class="skills-tags" id="skills-tags">
+                                    @for(skill of pendingSkills; track
+                                    skill.skillId) {
+                                    <span class="skill-tag">
+                                        {{ getSkillName(skill.skillId) }}
+                                        <button type="button"
+                                            (mousedown)="removeSkill(skill.skillId)">✕</button>
+                                    </span>
+                                    }
+                                </div>
+                                <div class="skills-input-row">
+                                    <input class="skills-input"
+                                        id="skills-input"
+                                        name="skills"
+                                        type="text"
+                                        placeholder="Search or add a skill…"
+                                        autocomplete="off"
+                                        [(ngModel)]="searchQuery"
+                                        [ngModelOptions]="{standalone: true}"
+                                        (input)="searchSkill($event.target.value)"
+                                        (blur)="skillsTouched = true">
+
+                                </div>
+                                <div class="skills-dropdown"
+                                    id="skills-dropdown">
+                                    @if(searchSkills.length > 0 ||
+                                    searchQuery.trim()) {
+                                    <ul>
+                                        @for(skill of searchSkills; track
+                                        skill.skill_id) {
+                                        <li (mousedown)="selectSkill(skill)">
+                                            {{ skill.skill_name }}
+                                        </li>
+                                        }
+                                    </ul>
+                                    }
+                                    @if(searchSkills.length === 0 &&
+                                    searchQuery.trim()) {
+                                    <div class="add-custom"
+                                        (mousedown)="addCustomSkill(searchQuery)">
+                                        + Add "{{ searchQuery }}"
+                                    </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location & Compensation -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label
+                                    class="form-label fw-semibold small text-muted text-uppercase">
+                                    Location Type <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <select class="form-select"
+                                    formControlName="location"
+                                    [class.required-input-warning]="internship_form.get('location')?.invalid && internship_form.get('location')?.touched">
+                                    <option [value]="0">🏢 On-site</option>
+                                    <option [value]="1">🏠 Remote</option>
+                                    <option [value]="2">🌐 Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label
+                                    class="form-label fw-semibold small text-muted text-uppercase">
+                                    Compensation <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <div class="d-flex gap-2 mt-1">
+                                    <input type="radio" class="btn-check"
+                                        name="isPaid" id="paidNo"
+                                        [value]="0"
+                                        formControlName="isPaid">
+                                    <label
+                                        class="btn btn-outline-secondary w-50"
+                                        for="paidNo">Unpaid</label>
+
+                                    <input type="radio" class="btn-check"
+                                        name="isPaid" id="paidYes"
+                                        [value]="1"
+                                        formControlName="isPaid">
+                                    <label class="btn btn-outline-primary w-50"
+                                        for="paidYes">Paid</label>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal" #submitBtn
+                        (click)="clearModal()">
+                        Close
+                    </button>
+                    <button type="button"
+                        class="btn btn-primary py-2 fw-bold"
+                        [disabled]="internship_form.invalid || pendingSkills.length === 0"
+                        (click)="postInternship()">
+                        Publish Internship
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

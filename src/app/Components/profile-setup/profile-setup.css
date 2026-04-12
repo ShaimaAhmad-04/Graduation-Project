@@ -1,0 +1,347 @@
+.setup-page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #f5f3ff 0%, #faf5ff 40%, #fce7f3 100%);
+  padding: 48px 24px 80px;
+}
+
+.setup-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.setup-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.setup-header p {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0 0 24px;
+}
+
+.progress-bar {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #111827;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.setup-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 720px;
+  margin: 0 auto;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.setup-card h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.step-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: -12px 0 0;
+}
+
+.upload-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 48px 24px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  gap: 8px;
+}
+
+.upload-zone:hover {
+  border-color: #7c3aed;
+}
+
+.upload-zone.uploaded {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.upload-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+}
+
+.upload-hint {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.upload-filename {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.upload-success-text {
+  font-size: 13px;
+  color: #16a34a;
+  margin: 0;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.skill-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.remove-skill {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.remove-skill:hover {
+  color: #dc2626;
+}
+
+.skills-hint {
+  font-size: 13px;
+  color: #6b7280;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.add-skill-row {
+  display: flex;
+  gap: 10px;
+}
+
+.add-skill-row input {
+  flex: 1;
+  padding: 12px 16px;
+  background: #f3f4f6;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.add-skill-row input:focus {
+  border-color: #7c3aed;
+  background: white;
+}
+
+.btn-add {
+  width: 44px;
+  height: 44px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 10px;
+  font-size: 22px;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.2s;
+}
+
+.btn-add:hover {
+  background: #7c3aed;
+  color: white;
+}
+
+.btn-continue {
+  width: 100%;
+  padding: 15px;
+  background: #111827;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 8px;
+}
+
+.btn-continue:hover {
+  opacity: 0.85;
+}
+
+/* STEP 2 FORM */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.full {
+  width: 100%;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px 16px;
+  background: #f3f4f6;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #7c3aed;
+  background: white;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.step2-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.btn-back {
+  padding: 13px 32px;
+  background: white;
+  color: #374151;
+  font-size: 15px;
+  font-weight: 500;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.btn-back:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+}
+
+.btn-complete {
+  flex: 1;
+  padding: 13px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-complete:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .setup-card {
+    padding: 24px 20px;
+  }
+}
+
+.btn-continue:hover:not(:disabled) {
+  background: #1f2937;
+  opacity: 0.9;
+}
+
+/* Disabled State */
+.btn-continue:disabled {
+  background: #9ca3af;
+  /* Gray color */
+  color: #f3f4f6;
+  cursor: not-allowed;
+  /* Shows the "red circle" cursor */
+  opacity: 0.7;
+  transform: none;
+  /* Prevents any hover scales if you had them */
+}
+
+.form-group input {
+  color: #111827;
+  /* Dark black for actual data */
+  font-weight: 500;
+}
+
+.form-group input::placeholder {
+  color: #9ca3af;
+  /* Light gray for placeholders */
+  font-weight: 400;
+}

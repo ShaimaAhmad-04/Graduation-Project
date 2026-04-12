@@ -1,0 +1,370 @@
+.container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+}
+
+.homepage-Body {
+    text-align: center;
+    padding-top: 4%;
+    background-color: #ffffff7a;
+    padding-bottom: 5%;
+    margin-top: 2%;
+}
+
+.title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.introduction {
+    margin-top: 2%;
+    padding-bottom: 4%;
+    justify-content: center;
+}
+
+.introduction-buttons {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.body-header {
+    justify-content: center;
+    margin-bottom: 3%;
+}
+
+.footer .row {
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer {
+    padding: 4%;
+    text-align: center;
+    background-color: #ffffff7a;
+    margin-top: 4%;
+}
+
+.row.colored-background {
+    max-width: 900px;
+    /* controls box width */
+    margin: 0 auto;
+    padding: 50px 40px;
+    /* controls height & inner spacing */
+    border-radius: 20px;
+    display: flex;
+    /* allows vertical alignment */
+    align-items: center;
+}
+
+/* TYPOGRAPHY */
+.title-heading {
+    margin-top: 1rem;
+    font-size: 42px;
+    font-weight: 700;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.homepage-Body,
+.container-fluid {
+    position: relative;
+    z-index: 1;
+}
+
+.icon-container,
+.hero-icon,
+.icon-container i {
+    font-size: 30px !important;
+    width: 40px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    z-index: 1;
+}
+
+.navbar {
+    z-index: 9999 !important;
+}
+
+.subtitle {
+    color: grey;
+    font-size: 1rem;
+}
+
+.card h5 {
+    margin: 6% 0;
+}
+
+/* GRADIENT TEXT */
+
+.gradient-text {
+    background: linear-gradient(to right, #a120ea, #bd2abb, #ce219e, #fe007a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* HERO SECTION */
+.icon-container {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: #d8b5d83d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.icon-box {
+    background-color: #d4a3d475;
+    border-radius: 10px;
+    padding: 7px;
+}
+
+/* BUTTONS */
+.btn-with-icon {
+  display: inline-flex;      /* keep text & icon on the same line */
+  align-items: center;
+  gap: 8px;                  /* space between text & icon */
+}
+
+.btn-with-icon .arrow-icon {
+  font-size: 26px;
+  transition: transform 0.3s ease;
+  color: lavenderblush;      /* simpler, works consistently */
+}
+
+.btn-with-icon:hover .arrow-icon {
+  transform: translateX(6px);
+}
+
+.btn-white-gradient {
+  background-color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* CARDS */
+.card {
+    width: auto;
+    text-align: left;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+}
+
+.body-cards i {
+    font-size: 35px;
+}
+
+/* BENEFIT LEFT */
+.benefit-icon-box {
+    width: 45px;
+    height: 45px;
+    background-color: #f3e8ff;
+    color: #8b5cf6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* SUCCESS GURANTEED */
+.success-card {
+    background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #db2777 100%);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.success-medal {
+    font-size: 3.5rem;
+    display: block;
+}
+
+.success-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+}
+
+.success-list li i {
+    font-size: 1.3rem;
+}
+
+/* ANIMATIONS */
+.fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.6s ease;
+}
+
+.fade-up.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.slide-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 1s ease;
+}
+
+.slide-left.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.pop-left {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.pop-left.active {
+    opacity: 1;
+    transform: scale(1);
+}
+.fade-in{
+    opacity: 0;
+    transition: opacity 0.7s ease;
+}
+.fade-in.active{
+    opacity: 1;
+
+}
+.homepage-main-wrapper {
+    padding-top: 0;
+    overflow-x: hidden;
+}
+
+.introduction-section {
+    padding: 80px 0;
+    background-color: #f8f9fa;
+}
+
+.hero-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Ensure the hero suitcase icon stays a reasonable size */
+.icon-container {
+    width: 80px !important;
+    height: 80px !important;
+    background-color: #f3e8ff;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-icon {
+    font-size: 40px !important;
+    color: #7c3aed;
+}
+
+.title-heading {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+/* Force the success card to not grow too huge */
+.success-card {
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Hero briefcase icon */
+.hero-icon-wrapper {
+    width: 88px;
+    height: 88px;
+    background: #ede9fe;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-briefcase-icon {
+    font-size: 2.4rem;
+    color: #7c3aed;
+}
+
+/* Stats row */
+.stats-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 32px;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #a120ea, #fe007a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.82rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 36px;
+    background-color: #e0e0e0;
+}
+
+/* Feature cards */
+.feature-card {
+    border-radius: 14px !important;
+    text-align: left;
+}
+
+.feature-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}

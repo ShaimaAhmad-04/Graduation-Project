@@ -1,0 +1,154 @@
+ .colored-background {
+    background: linear-gradient(to right, #a120ea, #bd2abb, #ce219e, #fe007a);
+    color: white;
+    /* font-weight: bold; */
+} /*
+    button {
+    border: none !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+
+}
+*/
+
+.btn--primary {
+    background: linear-gradient(to right, #a120ea, #bd2abb, #ce219e, #fe007a);
+    color: white;
+    border: none;
+}
+
+.btn--primary:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.btn--secondary {
+    background-color: white;
+    color: black;
+    border:none
+}
+
+.btn--secondary:hover {
+    color: #a120ea;
+    background-color: rgba(217, 193, 205, 0.17);
+}
+
+.btn{
+    font-weight: 500;
+    border: none;
+}
+
+
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Ensure modals appear above the fixed navbar */
+.modal-backdrop {
+    z-index: 10000 !important;
+}
+.modal {
+    z-index: 10001 !important;
+}
+
+/* Enforce top fixed app navbar globally */
+.navbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 20px !important;
+    height: 64px !important;
+    background-color: white !important;
+    border-bottom: 1px solid #f3f4f6 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+    z-index: 9999 !important;
+}
+
+.main-content,
+app-root .main-content {
+    padding-top: 64px !important;
+}
+
+.navbar__brand-link,
+.navbar__brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    max-width: 260px !important;
+}
+
+.navbar__logo-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, #a120ea, #fe007a) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.navbar__logo-suitcase {
+    font-size: 1.1rem !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+}
+
+.navbar__brand-text {
+    background: linear-gradient(to right, #a120ea, #fe007a) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+}
+
+.navbar__logo-icon svg,
+.navbar__logo-icon i,
+.hero-icon {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 18px !important;
+}
+
+.navbar__actions > button,
+.navbar__actions > a {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Reduce homepage giant branding rendering by default */
+.title-heading,
+.homepage-Body,
+.icon-container,
+.hero-icon,
+.row.colored-background {
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.title-heading {
+    font-size: 3rem !important;
+    margin-top: 1.5rem !important;
+}
+
+.icon-container {
+    width: 48px !important;
+    height: 48px !important;
+}
+
+.icon-container i,
+.hero-icon {
+    font-size: 24px !important;
+}

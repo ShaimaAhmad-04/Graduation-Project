@@ -1,0 +1,131 @@
+<div class="signup-page">
+
+
+  
+
+  <!-- Signup Card -->
+  <div class="signup-wrapper">
+    <div class="signup-card">
+
+      <!-- Logo -->
+      <div class="card-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+
+      <h1 class="card-title">Create Your Account</h1>
+      <p class="card-subtitle">Join InternPath and start your career journey</p>
+
+      <!-- Role Toggle -->
+      <div class="role-toggle">
+        <button
+          class="role-btn"
+          [class.active]="selectedRole === 'student'"
+          (click)="selectRole('student')">
+          I'm a Student
+        </button>
+        <button
+          class="role-btn"
+          [class.active]="selectedRole === 'recruiter'"
+          (click)="selectRole('recruiter')">
+          I'm a Recruiter
+        </button>
+      </div>
+
+      <!-- Error -->
+      <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <!-- Name Row -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" placeholder="John" [(ngModel)]="firstName" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" placeholder="Doe" [(ngModel)]="lastName" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group full">
+        <label>Email</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <polyline points="2,4 12,13 22,4"/>
+          </svg>
+          <input type="email" placeholder="your.email@psut.edu.jo" [(ngModel)]="email" />
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group full">
+        <label>Phone Number</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.38 2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/>
+          </svg>
+          <input type="tel" placeholder="+962791234567" [(ngModel)]="phone" />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group full">
+        <label>Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input type="password" placeholder="Create a strong password" [(ngModel)]="password" />
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group full">
+        <label>Confirm Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input type="password" placeholder="Confirm your password" [(ngModel)]="confirmPassword" />
+        </div>
+      </div>
+
+      <!-- Create Account Button -->
+      <button class="btn-create" (click)="onCreateAccount()">Create Account</button>
+
+      <!-- Login Link -->
+      <p class="login-text">
+        Already have an account?
+        <a class="login-link" (click)="goToLogin()">Login</a>
+      </p>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,140 @@
+<div class="settings-page">
+
+  <button class="back-btn" (click)="goBack()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Back
+  </button>
+
+  <h1 class="page-title">Settings</h1>
+  <p class="page-subtitle">Manage your account settings and preferences</p>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Profile
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Security
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      Notifications
+    </button>
+  </div>
+
+  <!-- SUCCESS / ERROR -->
+  <div class="success-msg" *ngIf="successMessage">{{ successMessage }}</div>
+  <div class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <!-- PROFILE TAB -->
+  <div class="settings-card" *ngIf="activeTab === 'profile'">
+    <h2>Profile Information</h2>
+    <p class="card-subtitle">Update your personal information</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" [(ngModel)]="firstName" />
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" [(ngModel)]="lastName" />
+      </div>
+    </div>
+
+    <div class="form-group full">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="email" />
+    </div>
+
+    <div class="form-group full">
+      <label>Phone Number</label>
+      <input type="tel" [(ngModel)]="phone" />
+    </div>
+
+    <button class="btn-save" (click)="saveProfile()">Save Changes</button>
+  </div>
+
+  <!-- SECURITY TAB -->
+  <div class="settings-card" *ngIf="activeTab === 'security'">
+    <h2>Security Settings</h2>
+    <p class="card-subtitle">Manage your password and security preferences</p>
+
+    <div class="form-group full">
+      <label>Current Password</label>
+      <input type="password" placeholder="Enter current password" [(ngModel)]="currentPassword" />
+    </div>
+    <div class="form-group full">
+      <label>New Password</label>
+      <input type="password" placeholder="Enter new password" [(ngModel)]="newPassword" />
+    </div>
+    <div class="form-group full">
+      <label>Confirm New Password</label>
+      <input type="password" placeholder="Confirm new password" [(ngModel)]="confirmNewPassword" />
+    </div>
+
+    <button class="btn-outline" (click)="updatePassword()">Update Password</button>
+  </div>
+
+  <!-- DANGER ZONE (only in security tab) -->
+  <div class="settings-card danger-card" *ngIf="activeTab === 'security'">
+    <h2 class="danger-title">Danger Zone</h2>
+    <p class="card-subtitle">Irreversible actions</p>
+    <button class="btn-delete" (click)="deleteAccount()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        <path d="M10 11v6M14 11v6"/>
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+      </svg>
+      Delete Account
+    </button>
+  </div>
+
+  <!-- NOTIFICATIONS TAB -->
+  <div class="settings-card" *ngIf="activeTab === 'notifications'">
+    <h2>Notification Preferences</h2>
+    <p class="card-subtitle">Choose what notifications you want to receive</p>
+
+    <div class="notification-item">
+      <div>
+        <p class="notif-title">Email Notifications</p>
+        <p class="notif-sub">Receive email updates about your applications</p>
+      </div>
+      <input type="checkbox" class="checkbox" [(ngModel)]="emailNotifications" />
+    </div>
+
+    <div class="notification-item">
+      <div>
+        <p class="notif-title">New Internship Alerts</p>
+        <p class="notif-sub">Get notified when new internships match your profile</p>
+      </div>
+      <input type="checkbox" class="checkbox" [(ngModel)]="internshipAlerts" />
+    </div>
+
+    <div class="notification-item">
+      <div>
+        <p class="notif-title">Application Status Updates</p>
+        <p class="notif-sub">Receive updates when your application status changes</p>
+      </div>
+      <input type="checkbox" class="checkbox" [(ngModel)]="statusUpdates" />
+    </div>
+
+    <button class="btn-save-dark" (click)="saveNotifications()">Save Preferences</button>
+  </div>
+
+</div>

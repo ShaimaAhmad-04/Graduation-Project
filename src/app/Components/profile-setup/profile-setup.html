@@ -1,0 +1,141 @@
+<div class="setup-page">
+
+  <div class="setup-header">
+    <h1>Complete Your Profile</h1>
+    <p>Let's get you set up to find the perfect internship</p>
+    <div class="progress-bar">
+      <div class="progress-fill"
+        [style.width]="currentStep === 1 ? '50%' : '100%'"></div>
+    </div>
+  </div>
+
+  @if (currentStep === 1) {
+  <div class="setup-card">
+    <h2>Step 1: Upload Your CV</h2>
+    <p class="step-subtitle">Upload your CV and we'll extract your skills
+      automatically</p>
+
+    <label class="upload-label">Upload CV (PDF, DOC, DOCX)</label>
+    <label class="upload-zone" [class.uploaded]="uploadSuccess">
+      <input type="file" accept=".pdf,.doc,.docx"
+        (change)="onFileSelected($event)" hidden />
+      @if (isExtracting) {
+      <div class="loader-container">
+        <div class="spinner"></div>
+        <p class="upload-text">AI is analyzing your CV...</p>
+        <p class="upload-hint">This usually takes 3-5 seconds</p>
+      </div>}
+      @else if (!uploadSuccess) {
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+        stroke="#9ca3af" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" y1="3" x2="12" y2="15" />
+      </svg>
+      <p class="upload-text">Click to upload your CV</p>
+      <p class="upload-hint">PDF, DOC, DOCX supported</p>
+      } @else {
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+        stroke="#16a34a" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+      <p class="upload-filename">{{ uploadedFileName }}</p>
+      <p class="upload-success-text">Skills extracted successfully!</p>
+      }
+    </label>
+
+    @if (extractedSkills.length > 0) {
+    <div>
+      <label class="upload-label">Extracted Skills</label>
+      <div class="skills-list">
+        @for (skill of extractedSkills; track skill) {
+        <span class="skill-chip">
+          {{ skill }}
+          <button class="remove-skill" (click)="removeSkill(skill)">×</button>
+        </span>
+        }
+      </div>
+      <p class="skills-hint">Review the extracted skills. You can remove
+        incorrect ones or add missing skills below.</p>
+
+      <label class="upload-label">Add Additional Skills</label>
+      <div class="add-skill-row">
+        <input type="text" placeholder="Enter a skill (e.g., Python, React)"
+          [(ngModel)]="newSkill" (keyup.enter)="addSkill()" />
+        <button class="btn-add" (click)="addSkill()">+</button>
+      </div>
+    </div>
+    }
+
+    <button class="btn-continue" (click)="goToStep2()"
+      [disabled]="isExtracting || !uploadSuccess">Continue to Next
+      Step</button>
+  </div>
+  }
+  <!-- STEP 2: PROFILE INFO -->
+  @if (currentStep === 2) {
+  <div class="setup-card" [formGroup]="student_form">
+    <h2>Step 2: Review & Complete Profile</h2>
+    <p class="step-subtitle">Review extracted information and fill in additional
+      details</p>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Major</label>
+        <input type="text" formControlName="major"
+          placeholder="Enter you major " />
+      </div>
+      <div class="form-group">
+        <label>University</label>
+        <input type="text" formControlName="university"
+          placeholder="PSUT, JUST, YU, ..." />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>GPA (out of 4.0)</label>
+        <input type="text" formControlName="gpa" step="0.1"
+          placeholder="3.8" />
+      </div>
+      <div class="form-group">
+        <label>Graduation Year</label>
+        <input type="text" formControlName="graduationYear"
+          placeholder="2015" />
+      </div>
+    </div>
+
+    <div class="form-group full">
+      <label>Experience (Optional)</label>
+      <textarea formControlName="experience" rows="4"></textarea>
+    </div>
+
+    <div class="form-group full">
+      <label>LinkedIn Profile</label>
+      <input type="text" formControlName="linkedInUrl"
+        placeholder="https://..." />
+    </div>
+
+    <div class="form-group full">
+      <label>GitHub Profile</label>
+      <input type="text" formControlName="gitHubUrl"
+        placeholder="https://..." />
+    </div>
+
+    <div class="form-group full">
+      <label>Certifications (comma-separated)</label>
+      <input type="text" formControlName="certifications"
+        placeholder="AWS, Azure, etc." />
+    </div>
+
+    <div class="step2-buttons">
+      <button type="button" class="btn-back" (click)="goBack()">Back</button>
+      <button type="button" class="btn-complete" (click)="completeProfile()">
+        Complete Profile
+      </button>
+    </div>
+  </div>
+  }
+
+</div>

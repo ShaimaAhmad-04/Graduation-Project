@@ -1,0 +1,38 @@
+<div class="card">
+  <div class="card-header">
+    <div class="company-info">
+      <div class="company-logo">
+        <i class="bi bi-building" style="font-size:1.1rem; color:white;"></i>
+      </div>
+      <span class="company-name">{{ companyName }}</span>
+    </div>
+    <span class="badge" [class.paid]="internship.isPaid" [class.unpaid]="!internship.isPaid">
+      {{ internship.isPaid ? 'Paid' : 'Unpaid' }}
+    </span>
+  </div>
+
+  <h3 class="title">{{ internship.title }}</h3>
+  <p class="description">{{ internship.description }}</p>
+
+  <div class="meta">
+    <div class="meta-item">
+      <span>{{ locationIcon }}</span>
+      <span>{{ locationLabel }}</span>
+    </div>
+    <div class="meta-item">
+      <span>🕐</span>
+      <span>{{ internship.duration }}</span>
+    </div>
+    <div class="meta-item">
+      <span>📈</span>
+      <span>Deadline: {{ internship.submissionDeadline | date:'dd/MM/yyyy' }}</span>
+    </div>
+  </div>
+
+  <div class="skills">
+    <span class="skill-tag" *ngFor="let skill of visibleSkills">{{ skill }}</span>
+    <span class="skill-tag extra" *ngIf="extraCount > 0">+{{ extraCount }}</span>
+  </div>
+
+  <button class="btn-view" (click)="goToDetail()">View Details</button>
+</div>

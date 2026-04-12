@@ -1,0 +1,83 @@
+<nav class="navbar">
+
+  <div class="navbar__brand">
+    <a class="navbar__brand-link" routerLink="/homepage">
+      <div class="navbar__logo-icon">
+        <i class="bi bi-suitcase-lg navbar__logo-suitcase"></i>
+      </div>
+      <span class="navbar__brand-text">InternPath</span>
+    </a>
+  </div>
+
+  <div class="navbar__actions">
+
+    <!-- NOT LOGGED IN -->
+    <ng-container *ngIf="!isLoggedIn">
+      <button type="button" class="btn btn--secondary" routerLink="/login">Login</button>
+      <button type="button" class="btn btn--primary" routerLink="/signup">Get Started</button>
+    </ng-container>
+
+    <!-- LOGGED IN AS STUDENT -->
+    <ng-container *ngIf="isLoggedIn">
+      <a class="navbar__browse" routerLink="/internships">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2"/>
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        </svg>
+        Browse Internships
+      </a>
+      <a class="navbar__browse" routerLink="/student-dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <!-- AVATAR DROPDOWN -->
+      <div class="navbar__dropdown-wrapper">
+        <button class="navbar__avatar-btn" (click)="toggleDropdown()">
+          <div class="navbar__avatar">{{ userInitial }}</div>
+          <span class="navbar__username">{{ userName }}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+
+        <!-- DROPDOWN MENU -->
+        <div class="navbar__dropdown" *ngIf="dropdownOpen">
+          <a class="navbar__dropdown-item" routerLink="/student-settings" (click)="closeDropdown()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Edit Profile
+          </a>
+          <div class="navbar__dropdown-divider"></div>
+          <button class="navbar__dropdown-item navbar__dropdown-item--danger" (click)="logout()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
+          </button>
+        </div>
+      </div>
+
+    </ng-container>
+
+  </div>
+
+</nav>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
