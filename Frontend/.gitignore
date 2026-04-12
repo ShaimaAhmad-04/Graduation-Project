@@ -1,0 +1,14 @@
+# The big one: ignore all downloaded libraries
+node_modules/
+
+# Ignore the Angular build cache
+.angular/
+
+# Ignore the final build output
+dist/
+
+# Ignore local environment settings (important for teams)
+Python/.env
+NodeJS/.env
+.env
+.vscode/
