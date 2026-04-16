@@ -1,3 +1,5 @@
 .env
 Python/.env
 NodeJS/.env
+node_modules/
+*/node_modules/

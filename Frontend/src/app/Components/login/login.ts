@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,37 +12,77 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.css']
 })
 export class LoginComponent {
-isLoggedIn = false;
+
   email = '';
   password = '';
   errorMessage = '';
+  isLoading = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onLogin(): void {
     if (!this.email || !this.password) {
       this.errorMessage = 'Please enter your email and password.';
       return;
     }
-    // CONNECT TO BACKEND: VERIFY CREDENTIALS VIA AUTH API
-    // CONNECT TO BACKEND: IF NEW USER NAVIGATE TO PROFILE-SETUP, IF EXISTING NAVIGATE TO STUDENT-DASHBOARD
-    this.errorMessage = 'Invalid credentials. (connect to backend)';
+    this.isLoading = true;
+    this.authService.login(this.email, this.password).subscribe({
+      next: (res) => {
+        this.authService.saveToken(res.token);
+        // Get user info after login
+        this.authService.getMe(res.token).subscribe({
+          next: (user) => {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userName', user.firstName);
+            localStorage.setItem('userRole', user.role.toString());
+            if (user.role === 0) {
+              this.authService.getStudentProfile(res.token).subscribe({
+                next: (profile) => {
+                  this.isLoading = false;
+                  if (!profile.university) {
+                    this.router.navigate(['/profile-setup']);
+                  } else {
+                    this.router.navigate(['/student-dashboard']);
+                  }
+                },
+                error: () => {
+                  this.isLoading = false;
+                  this.router.navigate(['/profile-setup']);
+                }
+              });
+            } else if (user.role === 1) {
+              this.isLoading = false;
+              this.router.navigate(['/recruiter-dashboard']);
+            } else {
+              this.isLoading = false;
+              this.router.navigate(['/homepage']);
+            }
+          }
+        });
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err.error?.message ?? 'Login failed. Please try again.';
+      }
+    });
   }
 
-loginAsStudent(): void {
-  localStorage.setItem('isLoggedIn', 'true');
-  localStorage.setItem('userName', 'Sama');
-  this.router.navigate(['/homepage']);
-}
+  loginAsStudent(): void {
+    this.email = 'sama@test.com';
+    this.password = '123456';
+    this.onLogin();
+  }
 
   loginAsRecruiter(): void {
-    // CONNECT TO BACKEND: AUTO-LOGIN WITH RECRUITER DEMO ACCOUNT TOKEN
-    this.router.navigate(['/recruiter-dashboard']);
+    this.email = 'recruiter@test.com';
+    this.password = '123456';
+    this.onLogin();
   }
 
   loginAsAdmin(): void {
-    // CONNECT TO BACKEND: AUTO-LOGIN WITH ADMIN DEMO ACCOUNT TOKEN
-    this.router.navigate(['/admin-dashboard']);
+    this.email = 'admin@test.com';
+    this.password = '123456';
+    this.onLogin();
   }
 
   goToSignup(): void {

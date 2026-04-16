@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-student-dashboard',
@@ -9,36 +10,86 @@ import { Router } from '@angular/router';
   templateUrl: './student-dashboard.html',
   styleUrls: ['./student-dashboard.css']
 })
-export class StudentDashboard {
+export class StudentDashboard implements OnInit {
 
-  // CONNECT TO BACKEND: REPLACE WITH REAL LOGGED-IN STUDENT DATA FROM API
+  private baseUrl = 'http://localhost:5002';
+
   student = {
-    firstName: 'Sama',
-    lastName: 'Al-Otaiby',
-    email: 'sama@student.psut.edu.jo',
-    phone: '+962791234567',
-    university: 'Princess Sumaya University for Technology',
-    gpa: '3.8/4.0',
-    major: 'Computer Science',
-    skills: ['React', 'Node.js', 'JavaScript', 'TypeScript'],
-    profileCompletion: 85
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    university: '',
+    gpa: '',
+    major: '',
+    skills: [] as string[],
+    profileCompletion: 0
   };
 
-  // CONNECT TO BACKEND: REPLACE WITH REAL APPLICATIONS FROM API
-  applications = [
-    {
-      id: 1,
-      title: 'Full Stack Developer Intern',
-      company: 'TechCorp Solutions',
-      appliedDate: new Date('2026-01-20'),
-      status: 'accepted',
-      matchScore: 92
-    }
-  ];
+  applications: {
+    id: number;
+    title: string;
+    company: string;
+    appliedDate: Date;
+    status: string;
+    matchScore: number;
+  }[] = [];
 
   activeTab: 'overview' | 'applications' = 'overview';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+    const headers = { Authorization: `Bearer ${token}` };
+
+    this.http.get<any>(`${this.baseUrl}/student/profile`, { headers }).subscribe({
+      next: (profile) => {
+        this.student = {
+          firstName: profile.user.firstName,
+          lastName: profile.user.lastName ?? '',
+          email: profile.user.email,
+          phone: profile.user.phoneNumber,
+          university: profile.university ?? '',
+          gpa: profile.gpa ? String(profile.gpa) : '',
+          major: profile.major ? String(profile.major) : '',
+          skills: this.student.skills,
+          profileCompletion: this.calcCompletion(profile)
+        };
+      },
+      error: () => this.router.navigate(['/login'])
+    });
+
+    this.http.get<any[]>(`${this.baseUrl}/student/applications`, { headers }).subscribe({
+      next: (apps) => {
+        const statusMap: Record<number, string> = { 0: 'pending', 1: 'accepted', 2: 'rejected' };
+        this.applications = apps.map(a => ({
+          id: a.id,
+          title: a.internship.title,
+          company: '',
+          appliedDate: new Date(),
+          status: statusMap[a.status] ?? 'pending',
+          matchScore: 0
+        }));
+      }
+    });
+
+    this.http.get<any[]>(`${this.baseUrl}/student/skills`, { headers }).subscribe({
+      next: (skills) => {
+        this.student.skills = skills.map(s => s.skill.name);
+      }
+    });
+  }
+
+  private calcCompletion(profile: any): number {
+    const fields = ['university', 'major', 'gpa', 'graduationYear', 'linkedinUrl', 'githubUrl', 'cvUrl', 'experience'];
+    const filled = fields.filter(f => profile[f] != null && profile[f] !== '').length;
+    return Math.round((filled / fields.length) * 100);
+  }
 
   get totalApplications(): number { return this.applications.length; }
   get pendingCount(): number { return this.applications.filter(a => a.status === 'pending').length; }
@@ -58,6 +109,11 @@ export class StudentDashboard {
   goToSettings(): void { this.router.navigate(['/student-settings']); }
   goToProfileSetup(): void { this.router.navigate(['/profile-setup']); }
 
-  // CONNECT TO BACKEND: LOGOUT SHOULD CLEAR AUTH TOKEN AND SESSION
-  logout(): void { this.router.navigate(['/homepage']); }
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    this.router.navigate(['/homepage']);
+  }
 }
