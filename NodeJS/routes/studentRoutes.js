@@ -1,7 +1,7 @@
 import express from "express"
 import authenticate from "../middleware/authenticate.js"
 import authorizeRole from "../middleware/authorizeRole.js"
-import { getStudentProfile, updateStudentProfile,getStudentCV,getStudentSkills,addStudentSkill,removeStudentSkill,getStudentApplications,getStudentRoadmaps } from "../controllers/studentController.js"
+import { getStudentProfile, updateStudentProfile,getStudentCV,getStudentSkills,addStudentSkill,removeStudentSkill,getStudentApplications,getStudentRoadmaps,applyToInternship } from "../controllers/studentController.js"
 
 
 const router = express.Router()
@@ -15,6 +15,7 @@ router.get("/skills", authenticate, authorizeRole(0), getStudentSkills)
 router.post("/skills", authenticate, authorizeRole(0), addStudentSkill)
 router.delete("/skills/:skillId", authenticate, authorizeRole(0), removeStudentSkill)
 router.get("/applications", authenticate, authorizeRole(0), getStudentApplications)
+router.post("/applications", authenticate, authorizeRole(0), applyToInternship)
 router.get("/roadmaps", authenticate, authorizeRole(0), getStudentRoadmaps)
 
 

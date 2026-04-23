@@ -48,6 +48,9 @@ export const getListings = async (req, res) => {
         //return internships that have at least one skill matching this skillId
       },
       include: {
+        company: {
+          select: { name: true }
+        },
         internshipSkills: {
           include: {
             skill: {
@@ -69,7 +72,15 @@ export const getListing = async (req, res) => {
     const listingId = parseInt(req.params.id); // cause the id isn't coming from the req.body but from the route
     // parseInt is used cause the route params apparently comes in string and not int
 
-    const listing = await prisma.internship.findUnique({ where: { id: listingId } });
+    const listing = await prisma.internship.findUnique({
+      where: { id: listingId },
+      include: {
+        company: { select: { name: true } },
+        internshipSkills: {
+          include: { skill: { select: { name: true } } }
+        }
+      }
+    });
 
     if (!listing) {
       return res.status(404).json({ message: "Listing not found!" });

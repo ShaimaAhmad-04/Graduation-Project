@@ -1,4 +1,4 @@
-import { ApplicationInitStatus, Component, ElementRef, ViewChild, viewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Internship } from '../../interfaces/iInternship';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe, CommonModule } from '@angular/common';
@@ -10,23 +10,29 @@ import { Status } from '../../ENUMs/applicationStatus';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { internship_location } from '../../ENUMs/internship-location';
 import { InternshipSkill } from '../../interfaces/internshipSkill';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'recruiter-dashboard',
   imports: [CommonModule, NgxPaginationModule, ReactiveFormsModule, DatePipe, FormsModule],
   templateUrl: './recruiter-dashboard.html',
-  styleUrls: ['./recruiter-dashboard.css'], // FIXED
+  styleUrls: ['./recruiter-dashboard.css'],
 })
 
-export class RecruiterDashboard {
+export class RecruiterDashboard implements OnInit {
 
-  // TODO (Backend): Inject services here
-  // constructor(
-  //   private internshipService: InternshipService,
-  //   private applicationService: ApplicationService,
-  //   private companyService: CompanyService
-  // ) {}
-  constructor() { }
+  private baseUrl = 'http://localhost:5002';
+
+  private get token(): string { return localStorage.getItem('token') ?? ''; }
+  private get headers() { return { Authorization: `Bearer ${this.token}` }; }
+
+  private locationToString: Record<number, string> = {
+    [internship_location.on_site]: 'In_site',
+    [internship_location.remote]: 'Remote',
+    [internship_location.hyprid]: 'Hybrid',
+  };
+
+  constructor(private http: HttpClient) { }
 
   @ViewChild('postInternshipModal') postInternshipModal!: ElementRef;
   @ViewChild('skills-input') skillsinput!: ElementRef;
@@ -48,6 +54,37 @@ companyName: string = 'InternPath';
   editingId: number | null = null;
 
 
+  ngOnInit(): void {
+    // Load this recruiter's own listings from the backend
+    const myId = parseInt(localStorage.getItem('userId') ?? '0');
+    this.http.get<any>(`${this.baseUrl}/listings`, { headers: this.headers }).subscribe({
+      next: (res) => {
+        this.internships = res.listings
+          .filter((l: any) => l.companyId === myId)
+          .map((l: any) => ({
+            id: l.id,
+            companyId: l.companyId,
+            title: l.title,
+            description: l.description ?? '',
+            postDate: new Date(l.postDate),
+            submissionDeadline: new Date(l.submissionDeadline),
+            duration: l.duration ?? '',
+            location: ({ 'In_site': internship_location.on_site, 'Remote': internship_location.remote, 'Hybrid': internship_location.hyprid } as any)[l.location] ?? internship_location.on_site,
+            active: l.status,
+            isPaid: l.isPaid,
+            skills: (l.internshipSkills ?? []).map((s: any) => ({ skillId: s.skillId, level: 0 }))
+          }));
+      },
+      error: (err) => console.error('Failed to load listings', err)
+    });
+
+    // Load company profile for company name
+    this.http.get<any>(`${this.baseUrl}/company/profile`, { headers: this.headers }).subscribe({
+      next: (company) => { this.companyName = company.name; },
+      error: () => {}
+    });
+  }
+
   internship_form = new FormGroup({
     title: new FormControl('', Validators.required),
     companyName: new FormControl('', Validators.required),
@@ -57,7 +94,7 @@ companyName: string = 'InternPath';
     submissionDeadline: new FormControl('', Validators.required),
     duration: new FormControl('', Validators.required),
     location: new FormControl(internship_location.on_site, Validators.required),
-    active: new FormControl(0, Validators.required),
+    active: new FormControl(1, Validators.required),
     isPaid: new FormControl(0, Validators.required),
   })
 
@@ -521,45 +558,59 @@ companyName: string = 'InternPath';
       return;
     }
 
-    if (this.isEditing && this.editingId !== null) {
-      // TODO (Backend): PUT /api/internships/{editingId}   Body: updated internship object
-      // this.internshipService.update(this.editingId, payload).subscribe(updated => { ... });
-      const index = this.internships.findIndex(x => x.id === this.editingId);
-      if (index !== -1) {
-        this.internships[index] = {
-          ...this.internships[index],
-          title: this.internship_form.value.title!,
-          companyName: this.internship_form.value.companyName!,
-          description: this.internship_form.value.description!,
-          submissionDeadline: new Date(this.internship_form.value.submissionDeadline!),
-          duration: this.internship_form.value.duration!,
-          location: this.internship_form.value.location!,
-          isPaid: this.internship_form.value.isPaid === 1,
-          skills: [...this.pendingSkills]
-        };
-      }
-    } else {
-      // TODO (Backend): POST /api/internships   Body: newInternship object
-      // this.internshipService.create(payload).subscribe(created => this.internships.push(created));
-      const newInternship: Internship = {
-        id: this.internships.length + 1,
-        companyId: this.internship_form.value.companyId!,
-        companyName: this.internship_form.value.companyName!,
-        title: this.internship_form.value.title!,
-        description: this.internship_form.value.description!,
-        postDate: new Date(),
-        submissionDeadline: new Date(this.internship_form.value.submissionDeadline!),
-        duration: this.internship_form.value.duration!,
-        location: this.internship_form.value.location!,
-        active: true,
-        isPaid: this.internship_form.value.isPaid === 1,
-        skills: [...this.pendingSkills]
-      };
-      this.internships.push(newInternship);
-    }
+    const payload = {
+      title: this.internship_form.value.title,
+      description: this.internship_form.value.description,
+      submissionDeadline: new Date(this.internship_form.value.submissionDeadline!).toISOString(),
+      duration: this.internship_form.value.duration,
+      location: this.locationToString[this.internship_form.value.location!],
+      isPaid: this.internship_form.value.isPaid === 1,
+      status: this.internship_form.value.active === 1,
+    };
 
-    this.closeModal();
-    this.clearModal();
+    if (this.isEditing && this.editingId !== null) {
+      this.http.put<any>(`${this.baseUrl}/listings/${this.editingId}`, payload, { headers: this.headers }).subscribe({
+        next: (res) => {
+          const index = this.internships.findIndex(x => x.id === this.editingId);
+          if (index !== -1) {
+            this.internships[index] = {
+              ...this.internships[index],
+              title: res.updatedListing.title,
+              description: res.updatedListing.description ?? '',
+              submissionDeadline: new Date(res.updatedListing.submissionDeadline),
+              duration: res.updatedListing.duration ?? '',
+              isPaid: res.updatedListing.isPaid,
+              active: res.updatedListing.status,
+            };
+          }
+          this.closeModal();
+          this.clearModal();
+        },
+        error: (err) => alert(err.error?.message ?? 'Failed to update listing')
+      });
+    } else {
+      this.http.post<any>(`${this.baseUrl}/listings`, payload, { headers: this.headers }).subscribe({
+        next: (res) => {
+          const l = res.listing;
+          this.internships.push({
+            id: l.id,
+            companyId: l.companyId,
+            title: l.title,
+            description: l.description ?? '',
+            postDate: new Date(l.postDate),
+            submissionDeadline: new Date(l.submissionDeadline),
+            duration: l.duration ?? '',
+            location: this.internship_form.value.location!,
+            active: l.status,
+            isPaid: l.isPaid,
+            skills: [...this.pendingSkills]
+          });
+          this.closeModal();
+          this.clearModal();
+        },
+        error: (err) => alert(err.error?.message ?? 'Failed to create listing')
+      });
+    }
   }
 
   editInternship(internship: Internship) {
@@ -580,9 +631,10 @@ companyName: string = 'InternPath';
     this.pendingSkills = [...internship.skills];
   }
   deleteInternship(internship_id: number) {
-    // TODO (Backend): DELETE /api/internships/{internship_id}
-    // this.internshipService.delete(internship_id).subscribe(() => { ... });
-    this.internships = this.internships.filter(x => x.id !== internship_id);
+    this.http.delete<any>(`${this.baseUrl}/listings/${internship_id}`, { headers: this.headers }).subscribe({
+      next: () => { this.internships = this.internships.filter(x => x.id !== internship_id); },
+      error: (err) => alert(err.error?.message ?? 'Failed to delete listing')
+    });
   }
 }
 

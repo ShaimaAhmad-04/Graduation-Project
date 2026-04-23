@@ -136,9 +136,10 @@
             </svg>
             {{ isCalculating ? 'Calculating...' : 'Calculate Match Score' }}
           </button>
-          <button class="btn-primary" (click)="applyNow()">
-            Apply Now
+          <button class="btn-primary" (click)="applyNow()" [disabled]="isApplying">
+            {{ isApplying ? 'Submitting...' : 'Apply Now' }}
           </button>
+          <p *ngIf="applyError" style="color:red; font-size:0.85rem; margin-top:8px;">{{ applyError }}</p>
         </ng-container>
 
         <!-- MATCH CALCULATED STATE -->
@@ -151,9 +152,10 @@
             </svg>
             {{ isCalculating ? 'Calculating...' : 'Calculate Match Score' }}
           </button>
-          <button class="btn-primary" (click)="applyNow()">
-            Apply Now
+          <button class="btn-primary" (click)="applyNow()" [disabled]="isApplying">
+            {{ isApplying ? 'Submitting...' : 'Apply Now' }}
           </button>
+          <p *ngIf="applyError" style="color:red; font-size:0.85rem; margin-top:8px;">{{ applyError }}</p>
           <button class="btn-outline" (click)="generateRoadmap()" [disabled]="roadmapRequested">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2">
@@ -161,6 +163,19 @@
             </svg>
             {{ roadmapRequested ? 'Roadmap Generated!' : 'Generate Learning Roadmap' }}
           </button>
+        </ng-container>
+
+        <!-- APPLIED STATE -->
+        <ng-container *ngIf="userState === 'applied'">
+          <div style="text-align:center; padding: 12px 0;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+              stroke="#16a34a" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <p style="color:#16a34a; font-weight:600; margin-top:8px;">Application Submitted!</p>
+            <p style="font-size:0.85rem; color:#6b7280;">You can track your status on the dashboard.</p>
+          </div>
         </ng-container>
 
       </div>

@@ -174,6 +174,28 @@ export const removeStudentSkill = async (req, res) => {
   }
 }
 
+export const applyToInternship = async (req, res) => {
+  try {
+    const { internshipId } = req.body
+    const studentId = req.userId
+
+    const existing = await prisma.application.findFirst({
+      where: { studentId, internshipId }
+    })
+    if (existing) {
+      return res.status(400).json({ message: "You have already applied to this internship" })
+    }
+
+    const application = await prisma.application.create({
+      data: { studentId, internshipId, status: 0 }
+    })
+
+    res.status(201).json(application)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
 export const getStudentApplications = async (req, res) => {
   try {
     const applications = await prisma.application.findMany({

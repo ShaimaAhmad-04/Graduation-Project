@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Internship } from '../../interfaces/iInternship';
 import { InternshipService } from '../internship-list/internship';
 import { internship_location } from '../../ENUMs/internship-location';
+import { AuthService } from '../../services/auth.service';
 
-type UserState = 'guest' | 'loggedIn' | 'matchCalculated';
+type UserState = 'guest' | 'loggedIn' | 'matchCalculated' | 'applied';
 
 @Component({
   selector: 'app-internship-detail',
@@ -30,18 +32,52 @@ export class InternshipDetailComponent implements OnInit {
   isCalculating = false;
   roadmapRequested = false;
 
+  isApplying = false;
+  applyError = '';
+
+  private baseUrl = 'http://localhost:5002';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private internshipService: InternshipService
+    private internshipService: InternshipService,
+    private authService: AuthService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.internship = this.internshipService.getById(id);
-    if (this.internship) {
-      this.companyName = this.internshipService.getCompanyName(this.internship.companyId);
-     this.skills = this.internshipService.getSkillNames(this.internship);
+
+    if (this.authService.isLoggedIn()) {
+      this.userState = 'loggedIn';
+      // Check if student already applied
+      const token = localStorage.getItem('token');
+      const role = localStorage.getItem('userRole');
+      if (role === '0' && token) {
+        this.http.get<any[]>(`${this.baseUrl}/student/applications`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).subscribe({
+          next: (apps) => {
+            if (apps.some(a => a.internshipId === id)) {
+              this.userState = 'applied';
+            }
+          }
+        });
+      }
+    }
+
+    const cached = this.internshipService.getById(id);
+    if (cached) {
+      this.internship = cached;
+      this.skills = this.internshipService.getSkillNames(cached);
+    } else {
+      this.internshipService.fetchById(id).subscribe({
+        next: (internship) => {
+          this.internship = internship;
+          this.skills = this.internshipService.getSkillNames(internship);
+        },
+        error: () => this.router.navigate(['/internships'])
+      });
     }
   }
 
@@ -61,9 +97,7 @@ get locationLabel(): string {
   }
 
   loginToApply(): void {
-    // Later: this.router.navigate(['/login'])
-    // For now simulate login
-    this.userState = 'loggedIn';
+    this.router.navigate(['/login']);
   }
 
   calculateMatch(): void {
@@ -92,8 +126,25 @@ get locationLabel(): string {
   }
 
   applyNow(): void {
-    // Laterrrrrr connect to backend application API
-    alert('Application submitted! (connect to backend)');
+    const token = localStorage.getItem('token');
+    if (!token || !this.internship) return;
+
+    this.isApplying = true;
+    this.applyError = '';
+
+    this.http.post<any>(`${this.baseUrl}/student/applications`,
+      { internshipId: this.internship.id },
+      { headers: { Authorization: `Bearer ${token}` } }
+    ).subscribe({
+      next: () => {
+        this.isApplying = false;
+        this.userState = 'applied';
+      },
+      error: (err) => {
+        this.isApplying = false;
+        this.applyError = err.error?.message ?? 'Failed to apply. Please try again.';
+      }
+    });
   }
 
   generateRoadmap(): void {
