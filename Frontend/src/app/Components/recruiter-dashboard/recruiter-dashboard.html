@@ -5,13 +5,19 @@
         <div class="col-12 header">
             <h1 class="mb-0">{{ companyName }}</h1>
 
-            <button
-                class="btn btn--primary"
-                data-bs-toggle="modal"
-                data-bs-target="#postInternshipModal">
-                <i class="bi bi-plus"></i>
-                Post Internship
-            </button>
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn--outline" (click)="goToSettings()">
+                    <i class="bi bi-gear"></i>
+                    Settings
+                </button>
+                <button
+                    class="btn btn--primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#postInternshipModal">
+                    <i class="bi bi-plus"></i>
+                    Post Internship
+                </button>
+            </div>
         </div>
     </div>
 
@@ -206,74 +212,39 @@
                 </div>
 
                 <div class="card-body p-0">
+                    @for(internship of internships; track internship.id) {
+                    @let apps = getApplicationsForInternship(internship.id);
                     <div class="card border-0 p-3 mb-3"
                         style="background-color: #f8f9fa; border-radius: 12px;">
-                        <div
-                            class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 class="fw-bold mb-1">Full Stack Developer
-                                    Intern</h6>
-                                <small class="text-muted">Posted
-                                    1/15/2026</small>
+                                <h6 class="fw-bold mb-1">{{ internship.title }}</h6>
+                                <small class="text-muted">Posted {{ internship.postDate | date:'M/d/yyyy' }}</small>
                             </div>
                             <span class="badge rounded-pill px-3 py-2"
                                 style="background-color: #e7f0ff; color: #0d6efd;">
-                                1 applications
+                                {{ apps.length }} application{{ apps.length !== 1 ? 's' : '' }}
                             </span>
                         </div>
-
                         <div class="row text-start">
                             <div class="col-4">
                                 <div class="small text-muted">Pending</div>
-                                <div class="fw-bold"
-                                    style="color: #ff9800;">0</div>
+                                <div class="fw-bold" style="color: #ff9800;">{{ countPending(internship.id) }}</div>
                             </div>
                             <div class="col-4">
                                 <div class="small text-muted">Accepted</div>
-                                <div class="fw-bold"
-                                    style="color: #2e7d32;">1</div>
+                                <div class="fw-bold" style="color: #2e7d32;">{{ countAccepted(internship.id) }}</div>
                             </div>
                             <div class="col-4">
                                 <div class="small text-muted">Rejected</div>
-                                <div class="fw-bold"
-                                    style="color: #d32f2f;">0</div>
+                                <div class="fw-bold" style="color: #d32f2f;">{{ apps.length - countPending(internship.id) - countAccepted(internship.id) }}</div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="card border-0 p-3"
-                        style="background-color: #f8f9fa; border-radius: 12px;">
-                        <div
-                            class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <h6 class="fw-bold mb-1">DevOps Intern</h6>
-                                <small class="text-muted">Posted
-                                    1/25/2026</small>
-                            </div>
-                            <span class="badge rounded-pill px-3 py-2"
-                                style="background-color: #e7f0ff; color: #0d6efd;">
-                                0 applications
-                            </span>
-                        </div>
-
-                        <div class="row text-start">
-                            <div class="col-4">
-                                <div class="small text-muted">Pending</div>
-                                <div class="fw-bold"
-                                    style="color: #ff9800;">0</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="small text-muted">Accepted</div>
-                                <div class="fw-bold"
-                                    style="color: #2e7d32;">0</div>
-                            </div>
-                            <div class="col-4">
-                                <div class="small text-muted">Rejected</div>
-                                <div class="fw-bold"
-                                    style="color: #d32f2f;">0</div>
-                            </div>
-                        </div>
-                    </div>
+                    }
+                    @if(internships.length === 0) {
+                    <p class="text-muted text-center py-3">No internships posted yet.</p>
+                    }
                 </div>
             </div>
         </div>

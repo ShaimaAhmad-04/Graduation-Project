@@ -6,6 +6,7 @@ import listingRoutes from './routes/listingRoutes.js'
 import studentRoutes from './routes/studentRoutes.js'
 import companyRoutes from './routes/companyRoutes.js'
 import skillRoutes from './routes/skillRoutes.js'
+import applicationRoutes from './routes/applicationRoutes.js'
 
 const app = express(); // Create an Express app instance.
 const PORT = 5002; // Define server port.
@@ -26,6 +27,7 @@ app.use('/listings',listingRoutes);
 app.use('/student', studentRoutes);
 app.use('/company', companyRoutes);
 app.use('/skills', skillRoutes)
+app.use('/applications', applicationRoutes)
 app.listen(PORT, () => { // Start server and listen on PORT.
   console.log(`Server running on http://localhost:${PORT}`); // Log server URL when started.
 });

@@ -68,24 +68,6 @@ export class LoginComponent {
     });
   }
 
-  loginAsStudent(): void {
-    this.email = 'sama@test.com';
-    this.password = '123456';
-    this.onLogin();
-  }
-
-  loginAsRecruiter(): void {
-    this.email = 'recruiter@test.com';
-    this.password = '123456';
-    this.onLogin();
-  }
-
-  loginAsAdmin(): void {
-    this.email = 'admin@test.com';
-    this.password = '123456';
-    this.onLogin();
-  }
-
   goToSignup(): void {
     this.router.navigate(['/signup']);
   }

@@ -220,6 +220,54 @@ export const getStudentApplications = async (req, res) => {
   }
 }
 
+const ROADMAP_STEPS = {
+  'Full Stack Developer':          ['Frontend Basics', 'Backend Development', 'Databases & APIs', 'Deployment & DevOps'],
+  'Frontend Developer':            ['HTML & CSS Fundamentals', 'JavaScript Mastery', 'Modern Frameworks', 'Performance & Testing'],
+  'Backend Developer':             ['Programming Fundamentals', 'Server & APIs', 'Databases & ORM', 'Security & Scalability'],
+  'Mobile App Developer':          ['Mobile UI Fundamentals', 'Cross-Platform Development', 'State & Storage', 'Publishing & Testing'],
+  'DevOps Engineer':               ['Linux & Networking', 'CI/CD Pipelines', 'Containers & Orchestration', 'Monitoring & Cloud'],
+  'Data Scientist':                ['Python & Statistics', 'Data Wrangling', 'Machine Learning Models', 'Data Visualization'],
+  'Machine Learning Engineer':     ['Math & Python Foundations', 'ML Algorithms', 'Deep Learning', 'MLOps & Deployment'],
+  'UI/UX Designer':                ['Design Principles', 'Wireframing & Prototyping', 'User Research', 'Design Systems'],
+  'Cybersecurity Analyst':         ['Networking Basics', 'Security Fundamentals', 'Ethical Hacking', 'Incident Response'],
+  'Cloud Infrastructure Engineer': ['Cloud Basics', 'Infrastructure as Code', 'Networking & Storage', 'Cost & Performance'],
+  'Business Intelligence Analyst': ['SQL & Data Modeling', 'BI Tools', 'Dashboard Design', 'Advanced Analytics'],
+  'Digital Marketing Specialist':  ['Marketing Fundamentals', 'SEO & Content', 'Social Media & Ads', 'Analytics & Reporting'],
+};
+
+export const createRoadmap = async (req, res) => {
+  try {
+    const { desiredPosition } = req.body;
+    const studentId = req.userId;
+
+    if (!desiredPosition) {
+      return res.status(400).json({ message: 'desiredPosition is required' });
+    }
+
+    const steps = ROADMAP_STEPS[desiredPosition] ?? ['Foundation Skills', 'Core Technologies', 'Build Projects', 'Advanced Concepts'];
+
+    const roadmap = await prisma.roadmap.create({
+      data: {
+        studentId,
+        desiredPosition,
+        generatedAt: new Date(),
+        nodes: {
+          create: steps.map((title, index) => ({
+            nodeId: index + 1,
+            title,
+            orderIndex: index + 1
+          }))
+        }
+      },
+      include: { nodes: { orderBy: { orderIndex: 'asc' } } }
+    });
+
+    res.status(201).json(roadmap);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 export const getStudentRoadmaps = async (req, res) => {
   try {
     const roadmaps = await prisma.roadmap.findMany({

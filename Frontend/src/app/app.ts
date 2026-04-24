@@ -15,6 +15,7 @@ export class App {
   isLoggedIn = false;
   userName = 'Sama';
   userInitial = 'S';
+  userRole = 0;
   dropdownOpen = false;
 
   constructor(private router: Router) {
@@ -35,6 +36,7 @@ export class App {
     if (this.isLoggedIn) {
       this.userName = localStorage.getItem('userName') ?? 'User';
       this.userInitial = this.userName[0].toUpperCase();
+      this.userRole = parseInt(localStorage.getItem('userRole') ?? '0', 10);
     }
   }
 

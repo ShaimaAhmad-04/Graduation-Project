@@ -17,9 +17,9 @@
       <button type="button" class="btn btn--primary" routerLink="/signup">Get Started</button>
     </ng-container>
 
-    <!-- LOGGED IN AS STUDENT -->
+    <!-- LOGGED IN -->
     <ng-container *ngIf="isLoggedIn">
-      <a class="navbar__browse" routerLink="/internships">
+      <a class="navbar__browse" routerLink="/internships" *ngIf="userRole === 0">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2">
           <rect x="2" y="7" width="20" height="14" rx="2"/>
@@ -27,7 +27,8 @@
         </svg>
         Browse Internships
       </a>
-      <a class="navbar__browse" routerLink="/student-dashboard">
+      <a class="navbar__browse"
+         [routerLink]="userRole === 1 ? '/recruiter-dashboard' : '/student-dashboard'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -51,7 +52,9 @@
 
         <!-- DROPDOWN MENU -->
         <div class="navbar__dropdown" *ngIf="dropdownOpen">
-          <a class="navbar__dropdown-item" routerLink="/student-settings" (click)="closeDropdown()">
+          <a class="navbar__dropdown-item"
+             [routerLink]="userRole === 1 ? '/recruiter-settings' : '/student-settings'"
+             (click)="closeDropdown()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>

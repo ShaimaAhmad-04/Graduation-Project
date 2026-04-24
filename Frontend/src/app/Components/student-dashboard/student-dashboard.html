@@ -76,6 +76,10 @@
       (click)="activeTab = 'applications'">
       My Applications ({{ totalApplications }})
     </button>
+    <button class="tab-btn" [class.active]="activeTab === 'roadmap'"
+      (click)="activeTab = 'roadmap'">
+      Learning Roadmap
+    </button>
   </div>
 
   <div class="tab-divider"></div>
@@ -202,6 +206,92 @@
           <button class="btn-update" (click)="goToProfileSetup()">Update Profile</button>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- ROADMAP TAB -->
+  <div class="tab-content" *ngIf="activeTab === 'roadmap'">
+
+    <!-- Generator card (shown when no roadmap yet OR to generate new) -->
+    <div class="card roadmap-generator" *ngIf="!currentRoadmap">
+      <div class="roadmap-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.5">
+          <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>
+        </svg>
+      </div>
+      <h2>Generate Your Learning Roadmap</h2>
+      <p>Select your desired position and get a personalized learning path to achieve your career goals</p>
+
+      <div class="roadmap-select-group">
+        <label>Desired Position</label>
+        <select [(ngModel)]="selectedPosition">
+          <option value="">Select a position...</option>
+          <option *ngFor="let p of positions" [value]="p">{{ p }}</option>
+        </select>
+      </div>
+
+      <div class="roadmap-ai-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div>
+          <strong>AI-Powered Recommendations</strong>
+          <p>Our system will analyze your current skills and generate a step-by-step learning path tailored to your goal</p>
+        </div>
+      </div>
+
+      <button class="btn-generate" (click)="generateRoadmap()" [disabled]="!selectedPosition || isGenerating">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        {{ isGenerating ? 'Generating...' : 'Generate Roadmap' }}
+      </button>
+    </div>
+
+    <!-- Roadmap result -->
+    <div *ngIf="currentRoadmap">
+      <div class="roadmap-result-header card">
+        <div>
+          <h2>{{ currentRoadmap.desiredPosition }} Learning Path</h2>
+          <p>Generated on {{ currentRoadmap.generatedAt | date:'M/d/yyyy' }}</p>
+        </div>
+        <button class="btn-generate-new" (click)="currentRoadmap = null; selectedPosition = ''">Generate New</button>
+      </div>
+
+      <div class="roadmap-steps">
+        <div class="roadmap-step card" *ngFor="let node of currentRoadmap.nodes; let i = index">
+          <div class="step-number">{{ node.orderIndex }}</div>
+          <div class="step-body">
+            <h3>{{ node.title }}</h3>
+            <p>{{ getStepMeta(node.title).description }}</p>
+            <div class="step-resources">
+              <span class="resources-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                Learning Resources
+              </span>
+              <a *ngFor="let r of getStepMeta(node.title).resources" [href]="r" target="_blank" class="resource-link">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                {{ r }}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Done card -->
+        <div class="roadmap-done card">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <div>
+            <strong>Ready to Start Learning</strong>
+            <p>Follow this roadmap step by step to achieve your goal of becoming a {{ currentRoadmap.desiredPosition }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
