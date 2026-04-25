@@ -286,3 +286,26 @@ export const getStudentRoadmaps = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+export const updateStudentUserInfo = async (req, res) => {
+  try {
+    const { firstName, lastName, phoneNumber } = req.body
+
+    const user = await prisma.user.update({
+      where: { id: req.userId },
+      data: { firstName, lastName, phoneNumber },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        email: true,
+        role: true
+      }
+    })
+
+    res.json(user)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}

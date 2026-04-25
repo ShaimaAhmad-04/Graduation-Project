@@ -18,7 +18,7 @@ router.get("/applications", authenticate, authorizeRole(0), getStudentApplicatio
 router.post("/applications", authenticate, authorizeRole(0), applyToInternship)
 router.get("/roadmaps", authenticate, authorizeRole(0), getStudentRoadmaps)
 router.post("/roadmaps", authenticate, authorizeRole(0), createRoadmap)
-
+router.put("/info", authenticate, authorizeRole(0), updateStudentUserInfo)
 
 
 export default router

@@ -20,5 +20,6 @@ router.get("/internships/closing-soon", authenticate, authorizeRole(1), getClosi
 router.get("/applicants/top-matching", authenticate, authorizeRole(1), getTopMatchingApplicants)
 router.get("/internships/stats", authenticate, authorizeRole(1), getInternshipStats)
 router.get("/dashboard", authenticate, authorizeRole(1), getCompanyDashboardSummary)
+router.put("/info", authenticate, authorizeRole(1), updateCompanyUserInfo)
 
 export default router
