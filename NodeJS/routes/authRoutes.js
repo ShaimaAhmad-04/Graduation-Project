@@ -23,4 +23,7 @@ router.get("/me", authenticate, me) // protected route
 //   res.json({ message: "Welcome company!" })
 // })
 
+//change password
+router.put("/change-password", authenticate, changePassword)
+
 export default router
