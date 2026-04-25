@@ -1,5 +1,8 @@
-.env
-Python/.env
-NodeJS/.env
 node_modules/
-*/node_modules/
+.env
+.venv/
+__pycache__/
+.idea/
+.angular/
+.DS_Store
+/generated/prisma
