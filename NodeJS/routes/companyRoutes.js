@@ -8,7 +8,8 @@ import {
   getClosingSoonInternships,
   getTopMatchingApplicants,
   getInternshipStats,
-  getCompanyDashboardSummary
+  getCompanyDashboardSummary,
+  updateCompanyUserInfo
 } from "../controllers/companyController.js"
 
 const router = express.Router()

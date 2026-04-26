@@ -1,7 +1,7 @@
 import express from "express"
 import authenticate from "../middleware/authenticate.js"
 import authorizeRole from "../middleware/authorizeRole.js"
-import { getStudentProfile, updateStudentProfile,getStudentCV,getStudentSkills,addStudentSkill,removeStudentSkill,getStudentApplications,getStudentRoadmaps,createRoadmap,applyToInternship } from "../controllers/studentController.js"
+import { getStudentProfile, updateStudentProfile,getStudentCV,getStudentSkills,addStudentSkill,removeStudentSkill,getStudentApplications,getStudentRoadmaps,createRoadmap,applyToInternship,updateStudentUserInfo } from "../controllers/studentController.js"
 
 
 const router = express.Router()

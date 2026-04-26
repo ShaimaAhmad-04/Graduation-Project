@@ -9,9 +9,8 @@ import skillRoutes from './routes/skillRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
 
 const app = express(); // Create an Express app instance.
-const PORT = 5002; // Define server port.
-
-app.use(cors()); // Enable CORS for incoming requests.
+const PORT = process.env.PORT || 5002;
+app.use(cors({ origin: 'http://localhost:4200' }));
 app.use(express.json()); // Parse JSON request bodies.
 
 app.get('/', (req, res) => { // Define GET route for root path.
@@ -23,7 +22,7 @@ app.get('/api/test', (req, res) => { // Define test endpoint.
 });
 
 app.use('/auth', authRoutes); // Mount auth routes under /auth prefix.
-app.use('/listings',listingRoutes);
+app.use('/listings', listingRoutes);
 app.use('/student', studentRoutes);
 app.use('/company', companyRoutes);
 app.use('/skills', skillRoutes)

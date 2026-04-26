@@ -9,8 +9,8 @@
     <button class="btn-browse" (click)="goToInternships()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
         stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
       Browse Internships
     </button>
@@ -24,9 +24,10 @@
         <p class="stat-value">{{ totalApplications }}</p>
       </div>
       <div class="stat-icon stat-icon--purple">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="7" width="20" height="14" rx="2"/>
-          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
         </svg>
       </div>
     </div>
@@ -36,9 +37,10 @@
         <p class="stat-value stat-value--yellow">{{ pendingCount }}</p>
       </div>
       <div class="stat-icon stat-icon--yellow">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
         </svg>
       </div>
     </div>
@@ -48,21 +50,24 @@
         <p class="stat-value stat-value--green">{{ acceptedCount }}</p>
       </div>
       <div class="stat-icon stat-icon--green">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-          <polyline points="22 4 12 14.01 9 11.01"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
       </div>
     </div>
     <div class="stat-card">
       <div>
         <p class="stat-label">Profile Completion</p>
-        <p class="stat-value stat-value--blue">{{ student.profileCompletion }}%</p>
+        <p class="stat-value stat-value--blue">{{ student.profileCompletion
+          }}%</p>
       </div>
       <div class="stat-icon stat-icon--blue">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-          <polyline points="17 6 23 6 23 12"/>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+          <polyline points="17 6 23 6 23 12" />
         </svg>
       </div>
     </div>
@@ -96,35 +101,41 @@
         <div class="profile-row">
           <div class="avatar">{{ student.firstName[0] }}</div>
           <div>
-            <p class="profile-name">{{ student.firstName }} {{ student.lastName }}</p>
+            <p class="profile-name">{{ student.firstName }} {{ student.lastName
+              }}</p>
             <p class="profile-major">{{ student.major }}</p>
           </div>
         </div>
 
         <div class="profile-details">
           <div class="detail-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="4" width="20" height="16" rx="2"/>
-              <polyline points="2,4 12,13 22,4"/>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <polyline points="2,4 12,13 22,4" />
             </svg>
             {{ student.email }}
           </div>
           <div class="detail-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18z"/>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 18z" />
             </svg>
             {{ student.phone }}
           </div>
           <div class="detail-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
             </svg>
             {{ student.university }}
           </div>
           <div class="detail-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
             </svg>
             GPA: {{ student.gpa }}
           </div>
@@ -133,11 +144,13 @@
         <div class="skills-section">
           <p class="skills-title">Skills</p>
           <div class="skills-list">
-            <span class="skill-tag" *ngFor="let skill of student.skills">{{ skill }}</span>
+            <span class="skill-tag" *ngFor="let skill of student.skills">{{
+              skill }}</span>
           </div>
         </div>
 
-        <button class="btn-edit" (click)="goToProfileSetup()">Edit Profile</button>
+        <button class="btn-edit" (click)="goToProfileSetup()">Edit
+          Profile</button>
       </div>
 
       <!-- RIGHT: Applications + Status -->
@@ -149,19 +162,23 @@
           <p class="card-subtitle">Your latest internship applications</p>
 
           <div *ngIf="applications.length === 0" class="empty-state">
-            No applications yet. <a (click)="goToInternships()" class="link">Browse internships</a>
+            No applications yet. <a (click)="goToInternships()"
+              class="link">Browse internships</a>
           </div>
 
-          <div class="application-item" *ngFor="let app of applications.slice(0,3)">
+          <div class="application-item"
+            *ngFor="let app of applications.slice(0,3)">
             <div class="app-info">
               <div class="app-title-row">
                 <p class="app-title">{{ app.title }}</p>
-                <span class="status-badge" [ngClass]="getStatusClass(app.status)">
+                <span class="status-badge"
+                  [ngClass]="getStatusClass(app.status)">
                   {{ app.status }}
                 </span>
               </div>
               <p class="app-company">{{ app.company }}</p>
-              <p class="app-date">Applied {{ app.appliedDate | date:'M/d/yyyy' }}</p>
+              <p class="app-date">Applied {{ app.appliedDate | date:'M/d/yyyy'
+                }}</p>
             </div>
             <div class="match-score">
               <p class="score-value">{{ app.matchScore }}%</p>
@@ -195,15 +212,17 @@
           <div class="improve-row">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
               stroke="#7c3aed" stroke-width="2">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-              <polyline points="17 6 23 6 23 12"/>
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+              <polyline points="17 6 23 6 23 12" />
             </svg>
             <div>
               <p class="improve-title">Improve Your Profile</p>
-              <p class="improve-sub">Complete your profile to get better matches</p>
+              <p class="improve-sub">Complete your profile to get better
+                matches</p>
             </div>
           </div>
-          <button class="btn-update" (click)="goToProfileSetup()">Update Profile</button>
+          <button class="btn-update" (click)="goToProfileSetup()">Update
+            Profile</button>
         </div>
 
       </div>
@@ -212,112 +231,49 @@
 
   <!-- ROADMAP TAB -->
   <div class="tab-content" *ngIf="activeTab === 'roadmap'">
+    <div *ngIf="currentRoadmap" class="roadmap-container">
 
-    <!-- Generator card (shown when no roadmap yet OR to generate new) -->
-    <div class="card roadmap-generator" *ngIf="!currentRoadmap">
-      <div class="roadmap-icon">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.5">
-          <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>
-        </svg>
-      </div>
-      <h2>Generate Your Learning Roadmap</h2>
-      <p>Select your desired position and get a personalized learning path to achieve your career goals</p>
-
-      <div class="roadmap-select-group">
-        <label>Desired Position</label>
-        <select [(ngModel)]="selectedPosition">
-          <option value="">Select a position...</option>
-          <option *ngFor="let p of positions" [value]="p">{{ p }}</option>
-        </select>
-      </div>
-
-      <div class="roadmap-ai-note">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <div>
-          <strong>AI-Powered Recommendations</strong>
-          <p>Our system will analyze your current skills and generate a step-by-step learning path tailored to your goal</p>
+      <div class="roadmap-result-header card card--purple">
+        <div class="header-content-left">
+          <div class="title-with-icon">
+            <h2>{{ currentRoadmap.desiredPosition }} Learning Path</h2>
+          </div>
+          <p class="meta-date">Generated on {{ currentRoadmap.generatedAt |
+            date:'M/d/yyyy' }}</p>
         </div>
-      </div>
 
-      <button class="btn-generate" (click)="generateRoadmap()" [disabled]="!selectedPosition || isGenerating">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </svg>
-        {{ isGenerating ? 'Generating...' : 'Generate Roadmap' }}
-      </button>
-    </div>
-
-    <!-- Roadmap result -->
-    <div *ngIf="currentRoadmap">
-      <div class="roadmap-result-header card">
-        <div>
-          <h2>{{ currentRoadmap.desiredPosition }} Learning Path</h2>
-          <p>Generated on {{ currentRoadmap.generatedAt | date:'M/d/yyyy' }}</p>
-        </div>
-        <button class="btn-generate-new" (click)="currentRoadmap = null; selectedPosition = ''">Generate New</button>
+        <button class="btn-generate-new"
+          (click)="currentRoadmap = null; selectedPosition = ''">
+          Generate New
+        </button>
       </div>
 
       <div class="roadmap-steps">
-        <div class="roadmap-step card" *ngFor="let node of currentRoadmap.nodes; let i = index">
-          <div class="step-number">{{ node.orderIndex }}</div>
-          <div class="step-body">
+        <div class="roadmap-step"
+          *ngFor="let node of currentRoadmap.nodes; let i = index; let last = last">
+
+          <div class="step-sidebar">
+            <div class="step-circle">{{ i + 1 }}</div>
+            <div class="step-line" *ngIf="!last"></div>
+          </div>
+
+          <div class="step-body card">
             <h3>{{ node.title }}</h3>
             <p>{{ getStepMeta(node.title).description }}</p>
+
             <div class="step-resources">
-              <span class="resources-label">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                </svg>
-                Learning Resources
-              </span>
-              <a *ngFor="let r of getStepMeta(node.title).resources" [href]="r" target="_blank" class="resource-link">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-                {{ r }}
-              </a>
+              <span class="res-label"> Learning Resources</span>
+              <div class="res-links">
+                <a *ngFor="let r of getStepMeta(node.title).resources"
+                  [href]="r" target="_blank" class="res-link">
+                  {{ r }}
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Done card -->
-        <div class="roadmap-done card">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-          <div>
-            <strong>Ready to Start Learning</strong>
-            <p>Follow this roadmap step by step to achieve your goal of becoming a {{ currentRoadmap.desiredPosition }}</p>
-          </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- APPLICATIONS TAB -->
-  <div class="tab-content" *ngIf="activeTab === 'applications'">
-    <div class="card">
-      <div *ngIf="applications.length === 0" class="empty-state">
-        <p>No applications yet.</p>
-        <button class="btn-browse" (click)="goToInternships()">Browse Internships</button>
-      </div>
-      <div class="application-item" *ngFor="let app of applications">
-        <div class="app-info">
-          <div class="app-title-row">
-            <p class="app-title">{{ app.title }}</p>
-            <span class="status-badge" [ngClass]="getStatusClass(app.status)">{{ app.status }}</span>
-          </div>
-          <p class="app-company">{{ app.company }}</p>
-          <p class="app-date">Applied {{ app.appliedDate | date:'M/d/yyyy' }}</p>
-        </div>
-        <div class="match-score">
-          <p class="score-value">{{ app.matchScore }}%</p>
-          <p class="score-label">Match</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </div>
