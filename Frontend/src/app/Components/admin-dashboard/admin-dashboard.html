@@ -44,6 +44,36 @@
       </div>
     </div>
 
+    <div class="stat-card">
+      <div>
+        <p class="stat-card__label">Total Students</p>
+        <p class="stat-card__value">{{ totalStudents }}</p>
+      </div>
+      <div class="stat-card__icon blue-bg">
+        <i class="bi bi-mortarboard" style="color:#3b82f6;"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div>
+        <p class="stat-card__label">Total Internships</p>
+        <p class="stat-card__value">{{ totalInternships }}</p>
+      </div>
+      <div class="stat-card__icon blue-bg">
+        <i class="bi bi-briefcase" style="color:#3b82f6;"></i>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div>
+        <p class="stat-card__label">Total Applications</p>
+        <p class="stat-card__value">{{ totalApplications }}</p>
+      </div>
+      <div class="stat-card__icon blue-bg">
+        <i class="bi bi-file-earmark-text" style="color:#3b82f6;"></i>
+      </div>
+    </div>
+
   </div>
 
   <!-- Tabs -->
@@ -53,7 +83,13 @@
     </div>
     <div class="tab-item" [class.active]="activeTab === 'companies'" (click)="setTab('companies')">
       Companies
-      <span class="tab-badge">{{ unverifiedCount }}</span>
+      @if(unverifiedCount > 0) {
+        <span class="tab-badge">{{ unverifiedCount }}</span>
+      }
+    </div>
+    <div class="tab-item" [class.active]="activeTab === 'users'" (click)="setTab('users')">
+      Users
+      <span class="tab-badge">{{ users.length }}</span>
     </div>
   </div>
 
@@ -65,6 +101,10 @@
       <h2 class="section-card__title">Unverified Companies</h2>
       <p class="section-card__sub">Companies pending verification</p>
 
+      @if(unverifiedCompanies.length === 0) {
+        <p style="color:#64748b; padding: 1rem 0;">All companies are verified.</p>
+      }
+
       <div class="company-list">
         @for(company of unverifiedCompanies; track company.id) {
         <div class="company-row">
@@ -72,7 +112,7 @@
             <div class="company-avatar">{{ getInitial(company.name) }}</div>
             <div>
               <p class="company-row__name">{{ company.name }}</p>
-              <p class="company-row__industry">{{ company.industry }}</p>
+              <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
             </div>
           </div>
           <span class="badge-unverified">
@@ -90,9 +130,14 @@
 
       <div class="platform-stats">
         <div class="platform-stat blue">
+          <i class="bi bi-mortarboard"></i>
+          <span class="platform-stat__number">{{ totalStudents }}</span>
+          <span class="platform-stat__label">Students</span>
+        </div>
+        <div class="platform-stat blue">
           <i class="bi bi-building"></i>
           <span class="platform-stat__number">{{ totalCompanies }}</span>
-          <span class="platform-stat__label">Total Companies</span>
+          <span class="platform-stat__label">Companies</span>
         </div>
         <div class="platform-stat green">
           <i class="bi bi-check2-circle"></i>
@@ -103,6 +148,16 @@
           <i class="bi bi-exclamation-circle"></i>
           <span class="platform-stat__number">{{ unverifiedCount }}</span>
           <span class="platform-stat__label">Need Review</span>
+        </div>
+        <div class="platform-stat blue">
+          <i class="bi bi-briefcase"></i>
+          <span class="platform-stat__number">{{ totalInternships }}</span>
+          <span class="platform-stat__label">Internships</span>
+        </div>
+        <div class="platform-stat blue">
+          <i class="bi bi-file-earmark-text"></i>
+          <span class="platform-stat__number">{{ totalApplications }}</span>
+          <span class="platform-stat__label">Applications</span>
         </div>
       </div>
     </div>
@@ -130,7 +185,6 @@
   <!-- ── COMPANIES TAB ────────────────────────────────────────────────────── -->
   @if(activeTab === 'companies') {
 
-    <!-- Search + Filter -->
     <div class="section-card">
       <div class="companies-toolbar">
         <div class="search-box">
@@ -147,7 +201,6 @@
         </div>
       </div>
 
-      <!-- Company Cards -->
       @for(company of filteredCompanies; track company.id) {
       <div class="company-card">
 
@@ -156,7 +209,7 @@
             <div class="company-avatar">{{ getInitial(company.name) }}</div>
             <div>
               <p class="company-row__name">{{ company.name }}</p>
-              <p class="company-row__industry">{{ company.industry }}</p>
+              <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
             </div>
           </div>
           @if(company.isVerified) {
@@ -166,14 +219,15 @@
           }
         </div>
 
-        <p class="company-card__desc">{{ company.description }}</p>
+        @if(company.description) {
+          <p class="company-card__desc">{{ company.description }}</p>
+        }
 
         <div class="company-card__meta">
           <span><i class="bi bi-envelope me-1"></i>{{ company.email }}</span>
-          <a [href]="company.website" target="_blank"><i class="bi bi-globe me-1"></i>Website</a>
-        </div>
-        <div class="company-card__meta">
-          <span><i class="bi bi-geo-alt me-1"></i>{{ company.location }}</span>
+          @if(company.website) {
+            <a [href]="company.website" target="_blank"><i class="bi bi-globe me-1"></i>Website</a>
+          }
         </div>
 
         @if(!company.isVerified) {
@@ -182,6 +236,53 @@
         </button>
         }
 
+      </div>
+      }
+
+    </div>
+
+  }
+
+  <!-- ── USERS TAB ──────────────────────────────────────────────────────── -->
+  @if(activeTab === 'users') {
+
+    <div class="section-card">
+      <div class="companies-toolbar">
+        <div class="search-box">
+          <i class="bi bi-search search-box__icon"></i>
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            [(ngModel)]="userSearchQuery" />
+        </div>
+      </div>
+
+      @for(user of filteredUsers; track user.id) {
+      <div class="company-card">
+        <div class="company-card__header">
+          <div class="company-row__left">
+            <div class="company-avatar">{{ getInitial(user.firstName) }}</div>
+            <div>
+              <p class="company-row__name">{{ user.firstName }} {{ user.lastName }}</p>
+              <p class="company-row__industry">{{ user.email }}</p>
+            </div>
+          </div>
+          <span class="badge-verified" style="background:#ede9fe; color:#7c3aed;">
+            {{ roleName(user.role) }}
+          </span>
+        </div>
+
+        @if(user.phoneNumber) {
+          <div class="company-card__meta">
+            <span><i class="bi bi-telephone me-1"></i>{{ user.phoneNumber }}</span>
+          </div>
+        }
+
+        @if(user.role !== 2) {
+        <button class="btn-verify" style="background:#fee2e2; color:#dc2626; border:none;" (click)="deleteUser(user)">
+          <i class="bi bi-trash me-2"></i> Delete User
+        </button>
+        }
       </div>
       }
 
