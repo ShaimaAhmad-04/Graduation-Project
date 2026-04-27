@@ -1,7 +1,10 @@
-import 'dotenv/config'; // Load environment variables from .env into process.env.
-import express from 'express'; // Import Express framework.
-import cors from 'cors'; // Import CORS middleware.
-import authRoutes from './routes/authRoutes.js'; // Import auth routes module.
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { mkdirSync } from 'fs';
+import authRoutes from './routes/authRoutes.js';
 import listingRoutes from './routes/listingRoutes.js'
 import studentRoutes from './routes/studentRoutes.js'
 import companyRoutes from './routes/companyRoutes.js'
@@ -9,10 +12,15 @@ import skillRoutes from './routes/skillRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 
-const app = express(); // Create an Express app instance.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+mkdirSync(join(__dirname, 'uploads'), { recursive: true });
+
+const app = express();
 const PORT = process.env.PORT || 5002;
 app.use(cors({ origin: 'http://localhost:4200' }));
-app.use(express.json()); // Parse JSON request bodies.
+app.use(express.json());
+app.use('/uploads', express.static(join(__dirname, 'uploads')));
 
 app.get('/', (req, res) => { // Define GET route for root path.
   res.send('Backend is Working'); // Send a plain-text health message.

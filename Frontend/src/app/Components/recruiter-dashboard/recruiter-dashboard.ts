@@ -75,6 +75,13 @@ export class RecruiterDashboard implements OnInit {
       error: () => { }
     });
 
+    // Load skills for the post-internship modal
+    this.http.get<any[]>(`${this.baseUrl}/skills`).subscribe({
+      next: (skills) => {
+        this.skills = skills.map(s => ({ skill_id: s.id, skill_name: s.name }));
+      }
+    });
+
     // Load listings then fetch applicants for each
     this.http.get<any>(`${this.baseUrl}/listings`, { headers: this.headers }).subscribe({
       next: (res) => {

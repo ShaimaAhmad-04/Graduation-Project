@@ -29,6 +29,10 @@ export class StudentSettings implements OnInit {
   linkedinUrl = '';
   githubUrl = '';
 
+  cvUrl: string | null = null;
+  selectedCvFile: File | null = null;
+  isUploadingCv = false;
+
   currentPassword = '';
   newPassword = '';
   confirmNewPassword = '';
@@ -64,14 +68,15 @@ export class StudentSettings implements OnInit {
     // Load student academic profile
     this.http.get<any>(`${this.baseUrl}/student/profile`, { headers: this.headers }).subscribe({
       next: (profile) => {
-        this.university = profile.university ?? '';
-        this.experience = profile.experience ?? '';
-        this.gpa = profile.gpa ?? null;
+        this.university     = profile.university ?? '';
+        this.experience     = profile.experience ?? '';
+        this.gpa            = profile.gpa ?? null;
         this.graduationYear = profile.graduationYear
           ? new Date(profile.graduationYear).getFullYear()
           : null;
-        this.linkedinUrl = profile.linkedinUrl ?? '';
-        this.githubUrl = profile.githubUrl ?? '';
+        this.linkedinUrl    = profile.linkedinUrl ?? '';
+        this.githubUrl      = profile.githubUrl ?? '';
+        this.cvUrl          = profile.cvUrl ?? null;
       }
     });
 
@@ -116,6 +121,32 @@ export class StudentSettings implements OnInit {
     this.http.delete(`${this.baseUrl}/student/skills/${skillId}`, { headers: this.headers }).subscribe({
       next: () => { this.mySkills = this.mySkills.filter(s => s.skillId !== skillId); },
       error: (err) => { this.errorMessage = err.error?.message ?? 'Failed to remove skill'; }
+    });
+  }
+
+  onCvFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedCvFile = input.files?.[0] ?? null;
+  }
+
+  uploadCv(): void {
+    if (!this.selectedCvFile) return;
+    this.isUploadingCv = true;
+    this.errorMessage = '';
+    const formData = new FormData();
+    formData.append('cv', this.selectedCvFile);
+    this.http.post<any>(`${this.baseUrl}/student/cv`, formData, { headers: this.headers }).subscribe({
+      next: (res) => {
+        this.cvUrl = res.cvUrl;
+        this.selectedCvFile = null;
+        this.isUploadingCv = false;
+        this.successMessage = 'CV uploaded successfully!';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        this.isUploadingCv = false;
+        this.errorMessage = err.error?.message ?? 'Failed to upload CV.';
+      }
     });
   }
 

@@ -132,6 +132,31 @@
     </div>
   </div>
 
+  <!-- CV UPLOAD CARD (profile tab) -->
+  <div class="settings-card" *ngIf="activeTab === 'profile'">
+    <h2>Resume / CV</h2>
+    <p class="card-subtitle">Upload a PDF — recruiters will be able to view it on your application</p>
+
+    <div *ngIf="cvUrl" style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      <span style="font-size:13px; color:#16a34a; font-weight:600;">CV uploaded</span>
+      <a [href]="'http://localhost:5002' + cvUrl" target="_blank"
+        style="font-size:13px; color:#7c3aed; text-decoration:underline;">View CV</a>
+    </div>
+
+    <div class="form-group full">
+      <label>{{ cvUrl ? 'Replace CV (PDF, max 5MB)' : 'Upload CV (PDF, max 5MB)' }}</label>
+      <input type="file" accept="application/pdf" (change)="onCvFileChange($event)" style="padding:8px;" />
+    </div>
+
+    <button class="btn-save" (click)="uploadCv()" [disabled]="!selectedCvFile || isUploadingCv">
+      {{ isUploadingCv ? 'Uploading...' : 'Upload CV' }}
+    </button>
+  </div>
+
   <!-- SECURITY TAB -->
   <div class="settings-card" *ngIf="activeTab === 'security'">
     <h2>Security Settings</h2>
