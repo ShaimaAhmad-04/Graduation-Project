@@ -11,7 +11,11 @@ import { internship_location } from '../../ENUMs/internship-location';
 import { InternshipSkill } from '../../interfaces/internshipSkill';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Majors } from '../../ENUMs/Majors';
+import {
+  MajorsLabels
 
+} from '../../ENUMs/MappedMajors';
 @Component({
   selector: 'recruiter-dashboard',
   imports: [CommonModule, NgxPaginationModule, ReactiveFormsModule, DatePipe, FormsModule],
@@ -23,6 +27,8 @@ export class RecruiterDashboard implements OnInit {
 
   private baseUrl = 'http://localhost:5002';
 
+  public majorLabels = MajorsLabels;
+  public majors = Majors
   private get token(): string { return localStorage.getItem('token') ?? ''; }
   private get headers() { return { Authorization: `Bearer ${this.token}` }; }
 
@@ -40,8 +46,10 @@ export class RecruiterDashboard implements OnInit {
 
   @ViewChild('postInternshipModal') postInternshipModal!: ElementRef;
   @ViewChild('skills-input') skillsinput!: ElementRef;
+  @ViewChild('applicationModalButton') ApplicationModalButton!: ElementRef;
 
-companyName: string = 'InternPath';
+
+  companyName: string = 'InternPath';
 
   paginationConfig = { itemsPerPage: 7, currentPage: 1 };
   breadcrumpSectionName: string = "overview";
@@ -64,7 +72,7 @@ companyName: string = 'InternPath';
     // Load company profile
     this.http.get<any>(`${this.baseUrl}/company/profile`, { headers: this.headers }).subscribe({
       next: (company) => { this.companyName = company.name; },
-      error: () => {}
+      error: () => { }
     });
 
     // Load listings then fetch applicants for each
@@ -113,7 +121,7 @@ companyName: string = 'InternPath';
                     phone: u?.phoneNumber ?? '',
                     password: '',
                     role: 'student',
-                    major: st?.major ?? '',
+                    major: parseInt(st?.major) || 0,
                     university: st?.university ?? '',
                     experience: st?.experience ?? null,
                     gpa: st?.gpa ?? 0,
@@ -244,9 +252,12 @@ companyName: string = 'InternPath';
           this.applications[index] = { ...this.applications[index], status };
         }
         this.applicationModalApplication = { ...this.applicationModalApplication!, status };
+        this.ApplicationModalButton.nativeElement.click()
+
       },
       error: (err) => alert(err.error?.message ?? 'Failed to update status')
     });
+
   }
   searchSkill(query: string) {
     this.searchQuery = query
@@ -396,6 +407,15 @@ companyName: string = 'InternPath';
       next: () => { this.internships = this.internships.filter(x => x.id !== internship_id); },
       error: (err) => alert(err.error?.message ?? 'Failed to delete listing')
     });
+  }
+  getStudentMajorLabel(studentId: number): string {
+    const student = this.getStudentById(studentId);
+    if (student?.major == null) return '';
+    return this.majorLabels[student.major as Majors] ?? '';
+  }
+  getModalStudentMajorLabel(): string {
+    if (this.applicationModalStudent?.major == null) return '';
+    return this.majorLabels[this.applicationModalStudent.major as Majors] ?? '';
   }
 }
 

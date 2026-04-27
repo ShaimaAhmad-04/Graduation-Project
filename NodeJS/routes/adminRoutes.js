@@ -10,6 +10,6 @@ router.get("/users", authenticate, authorizeRole(2), getAllUsers)
 router.delete("/users/:id", authenticate, authorizeRole(2), deleteUser)
 router.put("/companies/:id/verify", authenticate, authorizeRole(2), verifyCompany)
 router.get("/applications", authenticate, authorizeRole(2), getAllApplications)
-router.get("/search", authenticate, authorizeRole(2), searchUsers)
+// router.get("/search", authenticate, authorizeRole(2), searchUsers)
 
 export default router
