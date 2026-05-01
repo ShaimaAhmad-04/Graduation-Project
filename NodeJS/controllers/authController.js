@@ -120,3 +120,15 @@ export const changePassword = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+export const deleteAccount = async (req, res) => {
+  try {
+    await prisma.user.delete({
+      where: { id: req.userId }
+    })
+
+    res.json({ message: "Account deleted successfully" })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}

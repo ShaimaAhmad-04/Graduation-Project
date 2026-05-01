@@ -12,7 +12,7 @@ import {
 } from "../controllers/companyController.js"
 
 const router = express.Router()
-
+//role =1 for company
 router.get("/profile", authenticate, authorizeRole(1), getCompanyProfile)
 router.put("/profile", authenticate, authorizeRole(1), updateCompanyProfile)
 router.get("/applications", authenticate, authorizeRole(1), getCompanyApplications)

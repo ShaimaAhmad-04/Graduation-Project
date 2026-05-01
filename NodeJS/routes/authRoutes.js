@@ -25,5 +25,6 @@ router.get("/me", authenticate, me) // protected route
 
 //change password
 router.put("/change-password", authenticate, changePassword)
+router.delete("/delete-account", authenticate, deleteAccount)
 
 export default router
