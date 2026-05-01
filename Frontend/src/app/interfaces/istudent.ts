@@ -4,7 +4,7 @@ import { User } from "./iuser";
 import { student_skill } from "./student-skill";
 
 export interface Student extends User {
-    major: string | null;
+    major: number ;
     university: string | null;
     experience: string | null;
     gpa: number | null;

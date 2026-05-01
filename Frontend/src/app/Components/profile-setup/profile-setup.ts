@@ -4,6 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
+import { Majors } from '../../ENUMs/Majors';
 
 @Component({
   selector: 'app-profile-setup',
@@ -63,7 +64,7 @@ export class ProfileSetup {
           this.extractedCV = response.data
           const extractedData = response.data;
 
-          
+
           if (extractedData && extractedData.skills) {
             // 2. Since 'Skills' is already an array ['C++', 'C#', ...], 
             // just assign it and clean up whitespace
@@ -108,9 +109,12 @@ export class ProfileSetup {
     if (this.student_form.valid) {
       const rawValue = this.student_form.value;
 
-      // Transform data to match your Node.js Controller keys exactly
+      const token = localStorage.getItem('token');
+      let major_name = rawValue.major?.toLowerCase().replace(' ','')
+      let major_id = Majors[major_name as keyof typeof Majors];
+
       const profilePayload = {
-        major: rawValue.major,
+        major: major_id,
         university: rawValue.university,
         experience: rawValue.experience,
         gpa: rawValue.gpa, // Ensure it's a number for Prisma
@@ -118,13 +122,16 @@ export class ProfileSetup {
         linkedinUrl: rawValue.linkedInUrl, // Backend uses lowercase 'i'
         githubUrl: rawValue.gitHubUrl,     // Backend uses lowercase 'h'
         cvUrl: rawValue.cvUrl,
-        // Convert comma-separated string back to Array for Prisma
-        certifications: typeof rawValue.certifications === 'string'
-          ? rawValue.certifications.split(',').map(c => c.trim()).filter(c => c !== "")
-          : []
+        certifications: Array.isArray(rawValue.certifications)
+          ? rawValue.certifications.join(', ') // Joins them into "Cert 1, Cert 2, Cert 3"
+          : rawValue.certifications
       };
 
-      this._profilesetup_http.put('http://localhost:5002/student/profile', profilePayload)
+      const headers = {
+        'Authorization': `Bearer ${token}`
+      };
+
+      this._profilesetup_http.put('http://localhost:5002/student/profile', profilePayload, { headers })
         .subscribe({
           next: (res) => {
             console.log('Profile saved to DB!', res);

@@ -1,13 +1,13 @@
 import os
 import json
-import fitz  # PyMuPDF
+import fitz 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from openai import AsyncOpenAI  # Use the Async version!
+from openai import AsyncOpenAI 
 from dotenv import load_dotenv
-import httpx # Use this instead of requests
+import httpx 
 from docx2python import docx2python
-import aiofiles # For async file operations
+import aiofiles 
 import uvicorn
 
 load_dotenv()

@@ -27,10 +27,10 @@ model Student {
   university     String?  @db.VarChar(100)
   experience     String?  @db.VarChar(255)
   gpa            Decimal?
-  graduationYear DateTime?
+  graduationYear Int?
   linkedinUrl    String?  @db.VarChar(255)
   githubUrl      String?  @db.VarChar(255)
-  certifications String?
+  certifications String[]
   cvUrl          String?  @db.VarChar(255)
 
   // not columns — navigation helpers to access related records in code

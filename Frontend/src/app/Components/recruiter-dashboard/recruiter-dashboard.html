@@ -154,8 +154,11 @@
                         (click)="setSection('internship')">
                         <div class="row align-items-center">
                             <div class="col">
-                                <h5 class="card-title mb-1">{{internship.title}}</h5>
-                                <p class="card-text mb-0">Deadline: {{internship.submissionDeadline | date:'M/d/yyyy'}}</p>
+                                <h5
+                                    class="card-title mb-1">{{internship.title}}</h5>
+                                <p class="card-text mb-0">Deadline:
+                                    {{internship.submissionDeadline |
+                                    date:'M/d/yyyy'}}</p>
                             </div>
                             <div class="col-auto">
                                 <span class="badge pending">Closing Soon</span>
@@ -175,7 +178,8 @@
                     <p>Highest matching applicants</p>
                 </div>
                 <div class="card-body d-flex flex-column gap-2">
-                    @for(application of getTopCandidates(); track application.id) {
+                    @for(application of getTopCandidates(); track
+                    application.id) {
                     <div class="card p-2 background-card">
                         <div class="row align-items-center">
                             <div class="col">
@@ -183,10 +187,15 @@
                                     {{getStudentById(application.studentId)?.first_name}}
                                     {{getStudentById(application.studentId)?.last_name}}
                                 </h5>
-                                <p class="card-text mb-0">{{getStudentById(application.studentId)?.major}}</p>
-                            </div>
-                            <div class="col-auto d-flex align-items-center gap-2">
-                                <span class="match">{{application.matchScore}}%</span>
+                                <p class="card-text mb-0">
+                                    {{
+                                    getModalStudentMajorLabel()
+                                    }}
+                                </p> </div>
+                            <div
+                                class="col-auto d-flex align-items-center gap-2">
+                                <span
+                                    class="match">{{application.matchScore}}%</span>
                                 <button class="view-btn"
                                     data-bs-toggle="modal"
                                     data-bs-target="#ApplicationModal"
@@ -216,34 +225,44 @@
                     @let apps = getApplicationsForInternship(internship.id);
                     <div class="card border-0 p-3 mb-3"
                         style="background-color: #f8f9fa; border-radius: 12px;">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div
+                            class="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 class="fw-bold mb-1">{{ internship.title }}</h6>
-                                <small class="text-muted">Posted {{ internship.postDate | date:'M/d/yyyy' }}</small>
+                                <h6 class="fw-bold mb-1">{{ internship.title
+                                    }}</h6>
+                                <small class="text-muted">Posted {{
+                                    internship.postDate | date:'M/d/yyyy'
+                                    }}</small>
                             </div>
                             <span class="badge rounded-pill px-3 py-2"
                                 style="background-color: #e7f0ff; color: #0d6efd;">
-                                {{ apps.length }} application{{ apps.length !== 1 ? 's' : '' }}
+                                {{ apps.length }} application{{ apps.length !==
+                                1 ? 's' : '' }}
                             </span>
                         </div>
                         <div class="row text-start">
                             <div class="col-4">
                                 <div class="small text-muted">Pending</div>
-                                <div class="fw-bold" style="color: #ff9800;">{{ countPending(internship.id) }}</div>
+                                <div class="fw-bold" style="color: #ff9800;">{{
+                                    countPending(internship.id) }}</div>
                             </div>
                             <div class="col-4">
                                 <div class="small text-muted">Accepted</div>
-                                <div class="fw-bold" style="color: #2e7d32;">{{ countAccepted(internship.id) }}</div>
+                                <div class="fw-bold" style="color: #2e7d32;">{{
+                                    countAccepted(internship.id) }}</div>
                             </div>
                             <div class="col-4">
                                 <div class="small text-muted">Rejected</div>
-                                <div class="fw-bold" style="color: #d32f2f;">{{ apps.length - countPending(internship.id) - countAccepted(internship.id) }}</div>
+                                <div class="fw-bold" style="color: #d32f2f;">{{
+                                    apps.length - countPending(internship.id) -
+                                    countAccepted(internship.id) }}</div>
                             </div>
                         </div>
                     </div>
                     }
                     @if(internships.length === 0) {
-                    <p class="text-muted text-center py-3">No internships posted yet.</p>
+                    <p class="text-muted text-center py-3">No internships posted
+                        yet.</p>
                     }
                 </div>
             </div>
@@ -266,7 +285,8 @@
 
                 <p class="text-secondary mb-3">{{internship.description}}</p>
 
-                <div class="d-flex flex-wrap align-items-center gap-3 text-secondary mb-4">
+                <div
+                    class="d-flex flex-wrap align-items-center gap-3 text-secondary mb-4">
                     <div><i class="bi bi-geo-alt me-1"></i>
                         {{internship.location}}</div>
                     <div><i class="bi bi-clock me-1"></i>
@@ -314,7 +334,8 @@
                     <div class="title-group">
                         <h5 class="internship-title">{{ internship.title }}</h5>
                         <small class="applications-count">
-                            {{ apps.length }} application{{apps.length !== 1 ? 's' : ''}}
+                            {{ apps.length }} application{{apps.length !== 1 ?
+                            's' : ''}}
                         </small>
                     </div>
                     <div class="stats">
@@ -343,11 +364,14 @@
                             <div>
                                 <div class="name-row">
                                     <span class="name">
-                                        {{ student?.first_name }} {{ student?.last_name }}
+                                        {{ student?.first_name }} {{
+                                        student?.last_name }}
                                     </span>
-                                    <span class="match">{{ app.matchScore }}%</span>
+                                    <span class="match">{{ app.matchScore
+                                        }}%</span>
                                 </div>
-                                <div class="major">{{ student?.major }}</div>
+                                <div class="major">{{
+                                    getStudentMajorLabel(app.studentId) }}</div>
                             </div>
                         </div>
 
@@ -389,7 +413,7 @@
                 <div class="modal-header border-0 px-4 pt-4 pb-2">
                     <h6 class="modal-title fw-semibold text-muted">Application
                         Details</h6>
-                    <button type="button " class="btn-close"
+                    <button type="button " class="btn-close " #applicationModalButton
                         data-bs-dismiss="modal"></button>
                 </div>
 
@@ -409,7 +433,7 @@
                                 {{ applicationModalStudent?.last_name }}
                             </h6>
                             <small class="text-muted">{{
-                                applicationModalStudent?.major }}</small>
+                                getModalStudentMajorLabel() }}</small>
                             <div class="d-flex align-items-center gap-2 mt-1">
                                 <span class="badge rounded-pill px-3 py-1"
                                     style="background:#f0e6ff; color:#7c3aed; font-size:0.75rem;">

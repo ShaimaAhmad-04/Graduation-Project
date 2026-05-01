@@ -69,16 +69,24 @@ export const getStudentCV = async (req, res) => {
   try {
     const student = await prisma.student.findUnique({
       where: { userId: req.userId },
-      select: {
-        cvUrl: true
-      }
+      select: { cvUrl: true }
     })
-
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" })
-    }
-
+    if (!student) return res.status(404).json({ message: "Student not found" })
     res.json(student)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const uploadCV = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' })
+    const cvUrl = `/uploads/${req.file.filename}`
+    const student = await prisma.student.update({
+      where: { userId: req.userId },
+      data: { cvUrl }
+    })
+    res.json({ cvUrl: student.cvUrl })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

@@ -2,6 +2,7 @@ import express from "express"
 import { register, login, me } from '../controllers/authController.js'
 import authenticate from '../middleware/authenticate.js'
 import authorizeRole from '../middleware/authorizeRole.js'
+import { changePassword } from '../controllers/authController.js';
 
 const router = express.Router()  // creates a Express router object, it's a container for grouping
 // related routes together

@@ -29,11 +29,15 @@ export class StudentSettings implements OnInit {
   linkedinUrl = '';
   githubUrl = '';
 
+  cvUrl: string | null = null;
+  selectedCvFile: File | null = null;
+  isUploadingCv = false;
+
   currentPassword = '';
   newPassword = '';
   confirmNewPassword = '';
 
-mySkills: { skillId: number; name: string }[] = [];
+  mySkills: { skillId: number; name: string }[] = [];
   allSkills: { id: number; name: string }[] = [];
   filteredSkills: { id: number; name: string }[] = [];
   skillSearch = '';
@@ -45,7 +49,7 @@ mySkills: { skillId: number; name: string }[] = [];
   private baseUrl = 'http://localhost:5002';
   private get headers() { return { Authorization: `Bearer ${this.authService.getToken() ?? ''}` }; }
 
-  constructor(private router: Router, private authService: AuthService, private http: HttpClient) {}
+  constructor(private router: Router, private authService: AuthService, private http: HttpClient) { }
 
   ngOnInit(): void {
     const token = this.authService.getToken();
@@ -54,9 +58,9 @@ mySkills: { skillId: number; name: string }[] = [];
     this.authService.getMe(token).subscribe({
       next: (user) => {
         this.firstName = user.firstName;
-        this.lastName  = user.lastName ?? '';
-        this.email     = user.email;
-        this.phone     = user.phoneNumber;
+        this.lastName = user.lastName ?? '';
+        this.email = user.email;
+        this.phone = user.phoneNumber;
       },
       error: () => this.router.navigate(['/login'])
     });
@@ -72,6 +76,7 @@ mySkills: { skillId: number; name: string }[] = [];
           : null;
         this.linkedinUrl    = profile.linkedinUrl ?? '';
         this.githubUrl      = profile.githubUrl ?? '';
+        this.cvUrl          = profile.cvUrl ?? null;
       }
     });
 
@@ -119,6 +124,32 @@ mySkills: { skillId: number; name: string }[] = [];
     });
   }
 
+  onCvFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedCvFile = input.files?.[0] ?? null;
+  }
+
+  uploadCv(): void {
+    if (!this.selectedCvFile) return;
+    this.isUploadingCv = true;
+    this.errorMessage = '';
+    const formData = new FormData();
+    formData.append('cv', this.selectedCvFile);
+    this.http.post<any>(`${this.baseUrl}/student/cv`, formData, { headers: this.headers }).subscribe({
+      next: (res) => {
+        this.cvUrl = res.cvUrl;
+        this.selectedCvFile = null;
+        this.isUploadingCv = false;
+        this.successMessage = 'CV uploaded successfully!';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        this.isUploadingCv = false;
+        this.errorMessage = err.error?.message ?? 'Failed to upload CV.';
+      }
+    });
+  }
+
   goBack(): void {
     this.router.navigate(['/student-dashboard']);
   }
@@ -135,12 +166,12 @@ mySkills: { skillId: number; name: string }[] = [];
       : null;
 
     this.http.put(`${this.baseUrl}/student/profile`, {
-      university:     this.university || null,
-      experience:     this.experience || null,
-      gpa:            isNaN(gpaVal as any) ? null : gpaVal,
+      university: this.university || null,
+      experience: this.experience || null,
+      gpa: isNaN(gpaVal as any) ? null : gpaVal,
       graduationYear: graduationDate,
-      linkedinUrl:    this.linkedinUrl || null,
-      githubUrl:      this.githubUrl || null
+      linkedinUrl: this.linkedinUrl || null,
+      githubUrl: this.githubUrl || null
     }, { headers: this.headers }).subscribe({
       next: () => {
         this.successMessage = 'Profile updated successfully!';
@@ -151,8 +182,8 @@ mySkills: { skillId: number; name: string }[] = [];
       }
     });
   }
-
   updatePassword(): void {
+    // 1. Frontend Validation
     if (!this.currentPassword || !this.newPassword || !this.confirmNewPassword) {
       this.errorMessage = 'Please fill in all password fields.';
       return;
@@ -161,20 +192,57 @@ mySkills: { skillId: number; name: string }[] = [];
       this.errorMessage = 'New passwords do not match.';
       return;
     }
-    // CONNECT TO BACKEND: SEND PASSWORD CHANGE REQUEST TO API
-    this.successMessage = 'Password updated successfully!';
-    this.errorMessage = '';
-    this.currentPassword = '';
-    this.newPassword = '';
-    this.confirmNewPassword = '';
-    setTimeout(() => this.successMessage = '', 3000);
+
+    // 2. Prepare the payload (Match your backend's expected req.body keys)
+    const body = {
+      currentPassword: this.currentPassword,
+      newPassword: this.newPassword
+    };
+
+    // 3. The API Call
+    // Adjust '/auth/change-password' to match your actual backend route path
+    this.http.put(`${this.baseUrl}/auth/change-password`, body, { headers: this.headers })
+      .subscribe({
+        next: (res: any) => {
+          // Only show success if the backend actually confirms it
+          this.successMessage = res.message || 'Password updated successfully!';
+          this.errorMessage = '';
+
+          // Reset form fields
+          this.currentPassword = '';
+          this.newPassword = '';
+          this.confirmNewPassword = '';
+
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (err) => {
+          // Pull the specific error message from your Express 'res.status(400).json'
+          this.errorMessage = err.error?.message || 'Failed to update password.';
+          this.successMessage = '';
+        }
+      });
   }
 
   deleteAccount(): void {
     const confirmed = confirm('Are you sure you want to delete your account? This cannot be undone.');
+
     if (confirmed) {
-      // CONNECT TO BACKEND: SEND DELETE ACCOUNT REQUEST TO API
-      this.router.navigate(['/homepage']);
+      // 1. Call the backend
+      this.http.delete(`${this.baseUrl}/auth/delete`, { headers: this.headers }).subscribe({
+        next: (res: any) => {
+          // 2. Clear local session data
+          this.authService.logout();
+
+          // 3. Optional: Show a brief message before redirecting
+          alert(res.message || 'Account deleted successfully.');
+
+          // 4. Redirect to home/landing page
+          this.router.navigate(['/homepage']);
+        },
+        error: (err) => {
+          this.errorMessage = err.error?.message || 'Could not delete account.';
+        }
+      });
     }
   }
 

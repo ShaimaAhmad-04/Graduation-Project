@@ -120,6 +120,7 @@ export const changePassword = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+<<<<<<< HEAD
 
 export const deleteAccount = async (req, res) => {
   try {
@@ -132,3 +133,7 @@ export const deleteAccount = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+=======
+// user.controller.js
+
+>>>>>>> b3aefffe26936f62683f0e51ab35f1ee3ada8912
