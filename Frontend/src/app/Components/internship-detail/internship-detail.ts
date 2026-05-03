@@ -101,15 +101,35 @@ get locationLabel(): string {
   }
 
   calculateMatch(): void {
+    if (!this.internship) return;
     this.isCalculating = true;
-    // simulatation only rnn AI 
-    setTimeout(() => {
-      this.isCalculating = false;
-      this.userState = 'matchCalculated';
-      // Later replace with real AI score from backend
-      this.matchScore = 50;
-      this.updateMatchLabel();
-    }, 1500);
+    const token = localStorage.getItem('token');
+
+    this.http.get<any[]>(`${this.baseUrl}/student/skills`, {
+      headers: { Authorization: `Bearer ${token ?? ''}` }
+    }).subscribe({
+      next: (studentSkills) => {
+        const studentSkillIds = new Set(studentSkills.map(s => s.skillId));
+        const requiredSkillIds = this.internship!.skills.map(s => s.skillId);
+
+        if (requiredSkillIds.length === 0) {
+          this.matchScore = 100;
+        } else {
+          const matched = requiredSkillIds.filter(id => studentSkillIds.has(id)).length;
+          this.matchScore = Math.round((matched / requiredSkillIds.length) * 100);
+        }
+
+        this.isCalculating = false;
+        this.userState = 'matchCalculated';
+        this.updateMatchLabel();
+      },
+      error: () => {
+        this.isCalculating = false;
+        this.matchScore = 0;
+        this.userState = 'matchCalculated';
+        this.updateMatchLabel();
+      }
+    });
   }
 
   updateMatchLabel(): void {

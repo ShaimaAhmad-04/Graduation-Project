@@ -149,7 +149,7 @@
                     <p>Latest applications</p>
                 </div>
                 <div class="card-body d-flex flex-column gap-2">
-                    @for(internship of getClosingSoon(); track internship.id) {
+                    @for(internship of getClosingSoon(); track internship.title) {
                     <div class="card p-2 background-card overview-clickable"
                         (click)="setSection('internship')">
                         <div class="row align-items-center">
@@ -178,30 +178,15 @@
                     <p>Highest matching applicants</p>
                 </div>
                 <div class="card-body d-flex flex-column gap-2">
-                    @for(application of getTopCandidates(); track
-                    application.id) {
+                    @for(applicant of getTopCandidates(); track applicant.applicantName) {
                     <div class="card p-2 background-card">
                         <div class="row align-items-center">
                             <div class="col">
-                                <h5 class="card-title mb-1">
-                                    {{getStudentById(application.studentId)?.first_name}}
-                                    {{getStudentById(application.studentId)?.last_name}}
-                                </h5>
-                                <p class="card-text mb-0">
-                                    {{
-                                    getModalStudentMajorLabel()
-                                    }}
-                                </p> </div>
-                            <div
-                                class="col-auto d-flex align-items-center gap-2">
-                                <span
-                                    class="match">{{application.matchScore}}%</span>
-                                <button class="view-btn"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#ApplicationModal"
-                                    (click)="studentInfo(application.studentId, application)">
-                                    <i class="bi bi-eye"></i>
-                                </button>
+                                <h5 class="card-title mb-1">{{ applicant.applicantName }}</h5>
+                                <p class="card-text mb-0">{{ getMajorLabel(applicant.major) }}</p>
+                            </div>
+                            <div class="col-auto">
+                                <span class="match">{{ applicant.matchingScore }}%</span>
                             </div>
                         </div>
                     </div>
@@ -367,8 +352,7 @@
                                         {{ student?.first_name }} {{
                                         student?.last_name }}
                                     </span>
-                                    <span class="match">{{ app.matchScore
-                                        }}%</span>
+                                    <span class="match">{{ matchScoreMap[app.id] ?? 0 }}%</span>
                                 </div>
                                 <div class="major">{{
                                     getStudentMajorLabel(app.studentId) }}</div>
@@ -437,8 +421,7 @@
                             <div class="d-flex align-items-center gap-2 mt-1">
                                 <span class="badge rounded-pill px-3 py-1"
                                     style="background:#f0e6ff; color:#7c3aed; font-size:0.75rem;">
-                                    {{ applicationModalApplication?.matchScore
-                                    }}% Match
+                                    {{ matchScoreMap[applicationModalApplication?.id ?? 0] ?? 0 }}% Match
                                 </span>
                                 <span class="badge rounded-pill px-3 py-1"
                                     style="font-size:0.75rem;"
@@ -534,6 +517,16 @@
                             class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
                             <i class="bi bi-github"></i> GitHub
                         </a>
+                        <a *ngIf="applicationModalStudent?.cvUrl"
+                            [href]="'http://localhost:5002' + applicationModalStudent?.cvUrl"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                            <i class="bi bi-file-earmark-pdf"></i> View CV
+                        </a>
+                        <span *ngIf="!applicationModalStudent?.cvUrl"
+                            class="btn btn-sm btn-outline-secondary disabled d-flex align-items-center gap-1">
+                            <i class="bi bi-file-earmark-pdf"></i> No CV
+                        </span>
                     </div>
 
                 </div>
@@ -571,7 +564,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">Post New Internship</h5>
+                    <h5 class="modal-title">{{ isEditing ? 'Edit Internship' : 'Post New Internship' }}</h5>
                     <button type="button" class="btn-close"
                         data-bs-dismiss="modal" aria-label="Close"
                         (click)="clearModal()"></button>
@@ -780,7 +773,7 @@
                         class="btn btn-primary py-2 fw-bold"
                         [disabled]="internship_form.invalid || pendingSkills.length === 0"
                         (click)="postInternship()">
-                        Publish Internship
+                        {{ isEditing ? 'Save Changes' : 'Publish Internship' }}
                     </button>
                 </div>
 

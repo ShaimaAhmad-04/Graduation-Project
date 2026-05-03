@@ -149,7 +149,7 @@ export class StudentDashboard implements OnInit {
           company: '',
           appliedDate: new Date(),
           status: statusMap[a.status] ?? 'pending',
-          matchScore: 0
+          matchScore: a.matchScore ?? 0
         }));
       }
     });
@@ -211,7 +211,8 @@ export class StudentDashboard implements OnInit {
 
   goToInternships(): void { this.router.navigate(['/internships']); }
   goToSettings(): void { this.router.navigate(['/student-settings']); }
-  goToProfileSetup(): void { this.router.navigate(['/profile-setup']); }
+  goToProfileSetup(): void { this.router.navigate(['/student-settings']); }
+  goToCVParser(): void { this.router.navigate(['/profile-setup']); }
 
   logout(): void {
     localStorage.removeItem('token');

@@ -37,16 +37,44 @@ export const updateStudentProfile = async (req, res) => {
       university,
       experience,
       gpa,
-      graduationYear,
+      graduationYear: rawYear,
       linkedinUrl,
       githubUrl,
       certifications,
       cvUrl
     } = req.body
 
-    const student = await prisma.student.update({
-      where: { userId: req.userId },
-      data: {
+    // Accept both plain integer year (2026) and ISO date string ("2026-01-01T...")
+    let graduationYear = null
+    if (rawYear !== null && rawYear !== undefined) {
+      const parsed = typeof rawYear === 'string' && rawYear.includes('-')
+        ? new Date(rawYear).getFullYear()
+        : parseInt(rawYear, 10)
+      graduationYear = isNaN(parsed) ? null : parsed
+    }
+
+    const userId = parseInt(req.userId, 10)
+
+    const userExists = await prisma.user.findUnique({ where: { id: userId } })
+    if (!userExists) {
+      return res.status(404).json({ message: 'User not found. Please log out and sign in again.' })
+    }
+
+    const student = await prisma.student.upsert({
+      where: { userId },
+      update: {
+        major,
+        university,
+        experience,
+        gpa,
+        graduationYear,
+        linkedinUrl,
+        githubUrl,
+        certifications,
+        cvUrl
+      },
+      create: {
+        userId,
         major,
         university,
         experience,
@@ -206,8 +234,14 @@ export const applyToInternship = async (req, res) => {
 
 export const getStudentApplications = async (req, res) => {
   try {
+    const userId = parseInt(req.userId, 10)
+
+    // Get student's skills
+    const studentSkills = await prisma.studentSkill.findMany({ where: { studentId: userId } })
+    const studentSkillIds = new Set(studentSkills.map(s => s.skillId))
+
     const applications = await prisma.application.findMany({
-      where: { studentId: req.userId },
+      where: { studentId: userId },
       include: {
         internship: {
           select: {
@@ -216,13 +250,24 @@ export const getStudentApplications = async (req, res) => {
             location: true,
             isPaid: true,
             status: true,
-            submissionDeadline: true
+            submissionDeadline: true,
+            internshipSkills: { select: { skillId: true } }
           }
         }
       }
     })
 
-    res.json(applications)
+    const result = applications.map(a => {
+      const requiredSkillIds = a.internship.internshipSkills.map(s => s.skillId)
+      const matched = requiredSkillIds.filter(id => studentSkillIds.has(id)).length
+      const matchScore = requiredSkillIds.length > 0
+        ? Math.round((matched / requiredSkillIds.length) * 100)
+        : 0
+
+      return { ...a, matchScore }
+    })
+
+    res.json(result)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

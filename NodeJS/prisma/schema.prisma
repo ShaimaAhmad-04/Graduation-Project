@@ -25,7 +25,7 @@ model Student {
   user           User     @relation(fields: [userId], references: [id]) // defines the FK relationship
   major          Int?
   university     String?  @db.VarChar(100)
-  experience     String?  @db.VarChar(255)
+  experience     String?  @db.Text
   gpa            Decimal?
   graduationYear Int?
   linkedinUrl    String?  @db.VarChar(255)
@@ -68,7 +68,7 @@ model Internship {
   companyId          Int      // FK to Company
   company            Company  @relation(fields: [companyId], references: [userId])
   title              String   @db.VarChar(150)
-  description        String?  @db.VarChar(200)
+  description        String?  @db.Text
   postDate           DateTime @db.Date
   submissionDeadline DateTime @db.Date
   duration           String?  @db.VarChar(50)

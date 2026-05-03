@@ -95,53 +95,96 @@ export class ProfileSetup {
     }
   }
 
+  pendingSkillNames: string[] = [];
+
   goToStep2(): void {
+    this.pendingSkillNames = [...this.extractedSkills];
     this.currentStep = 2;
-    this.mapExtractedDataToForm(this.extractedCV)
-    console.log(this.extractedSkills)
-    this.extractedSkills = []
+    this.mapExtractedDataToForm(this.extractedCV);
+    this.extractedSkills = [];
   }
 
   goBack(): void {
     this.currentStep = 1;
   }
+  isSaving = false;
+  saveError = '';
+
   completeProfile(): void {
-    if (this.student_form.valid) {
-      const rawValue = this.student_form.value;
+    this.student_form.markAllAsTouched();
+    console.log('completeProfile called, form valid:', this.student_form.valid);
+    console.log('form errors:', this.student_form.errors);
+    console.log('major value:', this.student_form.get('major')?.value, 'valid:', this.student_form.get('major')?.valid);
+    console.log('university value:', this.student_form.get('university')?.value, 'valid:', this.student_form.get('university')?.valid);
 
-      const token = localStorage.getItem('token');
-      let major_name = rawValue.major?.toLowerCase().replace(' ','')
-      let major_id = Majors[major_name as keyof typeof Majors];
-
-      const profilePayload = {
-        major: major_id,
-        university: rawValue.university,
-        experience: rawValue.experience,
-        gpa: rawValue.gpa, // Ensure it's a number for Prisma
-        graduationYear: rawValue.graduationYear, // Ensure it's a number
-        linkedinUrl: rawValue.linkedInUrl, // Backend uses lowercase 'i'
-        githubUrl: rawValue.gitHubUrl,     // Backend uses lowercase 'h'
-        cvUrl: rawValue.cvUrl,
-        certifications: Array.isArray(rawValue.certifications)
-          ? rawValue.certifications.join(', ') // Joins them into "Cert 1, Cert 2, Cert 3"
-          : rawValue.certifications
-      };
-
-      const headers = {
-        'Authorization': `Bearer ${token}`
-      };
-
-      this._profilesetup_http.put('http://localhost:5002/student/profile', profilePayload, { headers })
-        .subscribe({
-          next: (res) => {
-            console.log('Profile saved to DB!', res);
-            this.router.navigate(['/student-dashboard']);
-          },
-          error: (err) => {
-            console.error('Database save failed:', err);
-          }
-        });
+    if (!this.student_form.valid) {
+      this.saveError = 'Please fill in all required fields (Major and University).';
+      return;
     }
+
+    const rawValue = this.student_form.value;
+    const token = localStorage.getItem('token');
+    console.log('token:', token ? 'found' : 'MISSING');
+
+    if (!token) {
+      this.saveError = 'You are not logged in. Please log in again.';
+      return;
+    }
+
+    this.isSaving = true;
+    this.saveError = '';
+
+    const major_name = rawValue.major?.toLowerCase().replace(/\s+/g, '');
+    const major_id = Majors[major_name as keyof typeof Majors];
+
+    const yearVal = rawValue.graduationYear ? parseInt(rawValue.graduationYear as any, 10) : null;
+    const certsRaw = rawValue.certifications ?? '';
+    const certsArray = Array.isArray(certsRaw)
+      ? certsRaw
+      : certsRaw.split(',').map((c: string) => c.trim()).filter((c: string) => c.length > 0);
+
+    const profilePayload = {
+      major: major_id,
+      university: rawValue.university,
+      experience: rawValue.experience,
+      gpa: rawValue.gpa ? parseFloat(rawValue.gpa as any) : null,
+      graduationYear: yearVal,
+      linkedinUrl: rawValue.linkedInUrl,
+      githubUrl: rawValue.gitHubUrl,
+      cvUrl: rawValue.cvUrl,
+      certifications: certsArray
+    };
+
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    this._profilesetup_http.put('http://localhost:5002/student/profile', profilePayload, { headers })
+      .subscribe({
+        next: () => {
+          if (this.pendingSkillNames.length > 0) {
+            this._profilesetup_http.get<any[]>('http://localhost:5002/skills').subscribe({
+              next: (allSkills) => {
+                const matched = allSkills.filter(s =>
+                  this.pendingSkillNames.some(n => n.toLowerCase() === s.name.toLowerCase())
+                );
+                matched.forEach(s => {
+                  this._profilesetup_http.post('http://localhost:5002/student/skills',
+                    { skillId: s.id, experience: 0 }, { headers }
+                  ).subscribe();
+                });
+                this.router.navigate(['/student-dashboard']);
+              },
+              error: () => this.router.navigate(['/student-dashboard'])
+            });
+          } else {
+            this.router.navigate(['/student-dashboard']);
+          }
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.saveError = err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to save profile.`;
+          console.error('Profile save failed:', err);
+        }
+      });
   }
   private mapExtractedDataToForm(data: any) {
     console.log(data)

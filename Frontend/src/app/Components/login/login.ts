@@ -52,11 +52,18 @@ export class LoginComponent {
                 }
               });
             } else if (user.role === 1) {
+              // For recruiters, show company name in navbar instead of personal name
+              this.authService.getCompanyProfile(res.token).subscribe({
+                next: (company) => {
+                  if (company?.name) localStorage.setItem('userName', company.name);
+                },
+                error: () => {}
+              });
               this.isLoading = false;
               this.router.navigate(['/recruiter-dashboard']);
             } else {
               this.isLoading = false;
-              this.router.navigate(['/homepage']);
+              this.router.navigate(['/admin-dashboard']);
             }
           }
         });

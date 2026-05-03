@@ -42,6 +42,8 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
   }
 
   isLoggedIn(): boolean {
@@ -50,6 +52,12 @@ export class AuthService {
 
   getStudentProfile(token: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/student/profile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  getCompanyProfile(token: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/company/profile`, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }

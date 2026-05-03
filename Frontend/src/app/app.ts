@@ -57,10 +57,13 @@ export class App {
   }
 
   logout(): void {
-    // CONNECT TO BACKEND: CLEAR AUTH TOKEN AND SESSION
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userName');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
     this.isLoggedIn = false;
+    this.userRole = 0;
     this.dropdownOpen = false;
     this.router.navigate(['/homepage']);
   }

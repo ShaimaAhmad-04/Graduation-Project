@@ -130,10 +130,14 @@
         placeholder="AWS, Azure, etc." />
     </div>
 
+    @if (saveError) {
+      <p style="color: red; margin-bottom: 8px;">{{ saveError }}</p>
+    }
+
     <div class="step2-buttons">
       <button type="button" class="btn-back" (click)="goBack()">Back</button>
-      <button type="button" class="btn-complete" (click)="completeProfile()">
-        Complete Profile
+      <button type="button" class="btn-complete" (click)="completeProfile()" [disabled]="isSaving">
+        {{ isSaving ? 'Saving...' : 'Complete Profile' }}
       </button>
     </div>
   </div>

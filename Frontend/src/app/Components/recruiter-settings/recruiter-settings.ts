@@ -70,6 +70,7 @@ export class RecruiterSettings implements OnInit {
       website:     this.website || null
     }, { headers: this.headers }).subscribe({
       next: () => {
+        localStorage.setItem('userName', this.companyName);
         this.successMessage = 'Company profile updated successfully!';
         setTimeout(() => this.successMessage = '', 3000);
       },
@@ -89,12 +90,23 @@ export class RecruiterSettings implements OnInit {
       this.errorMessage = 'New passwords do not match.';
       return;
     }
-    // Placeholder until a change-password endpoint is added
-    this.successMessage = 'Password updated successfully!';
-    this.currentPassword = '';
-    this.newPassword = '';
-    this.confirmNewPassword = '';
-    setTimeout(() => this.successMessage = '', 3000);
+
+    this.http.put(`${this.baseUrl}/auth/change-password`,
+      { currentPassword: this.currentPassword, newPassword: this.newPassword },
+      { headers: this.headers }
+    ).subscribe({
+      next: (res: any) => {
+        this.successMessage = res.message || 'Password updated successfully!';
+        this.errorMessage = '';
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmNewPassword = '';
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message ?? 'Failed to update password.';
+      }
+    });
   }
 
   goBack(): void {

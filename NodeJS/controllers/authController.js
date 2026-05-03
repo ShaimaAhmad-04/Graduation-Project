@@ -4,7 +4,8 @@ import jwt from "jsonwebtoken"
 
 export const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role, phoneNumber } = req.body
+    const { firstName, lastName, email, password, phoneNumber } = req.body
+    const role = parseInt(req.body.role, 10)
 
     const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
@@ -21,8 +22,6 @@ export const register = async (req, res) => {
         phoneNumber,
         password: hashedPassword,
         role,
-        //this create a student or company object based on role after registeration
-        //at first both objects are empty. then they get filled after student/company complete their profile and send request to update student/company routes
         ...(role === 0 && { student: { create: {} } }),
         ...(role === 1 && { company: { create: { name: firstName } } })
       },

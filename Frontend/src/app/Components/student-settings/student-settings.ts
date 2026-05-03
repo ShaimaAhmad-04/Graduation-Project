@@ -71,9 +71,7 @@ export class StudentSettings implements OnInit {
         this.university     = profile.university ?? '';
         this.experience     = profile.experience ?? '';
         this.gpa            = profile.gpa ?? null;
-        this.graduationYear = profile.graduationYear
-          ? new Date(profile.graduationYear).getFullYear()
-          : null;
+        this.graduationYear = profile.graduationYear ?? null;
         this.linkedinUrl    = profile.linkedinUrl ?? '';
         this.githubUrl      = profile.githubUrl ?? '';
         this.cvUrl          = profile.cvUrl ?? null;
@@ -156,20 +154,16 @@ export class StudentSettings implements OnInit {
 
   saveProfile(): void {
     this.errorMessage = '';
-    const gpaVal = this.gpa !== null && this.gpa !== undefined && this.gpa !== ('' as any)
+    const gpaVal = this.gpa !== null && this.gpa !== undefined && String(this.gpa) !== ''
       ? parseFloat(this.gpa as any) : null;
-    const yearVal = this.graduationYear !== null && this.graduationYear !== undefined && this.graduationYear !== ('' as any)
+    const yearVal = this.graduationYear !== null && this.graduationYear !== undefined && String(this.graduationYear) !== ''
       ? parseInt(this.graduationYear as any, 10) : null;
-
-    const graduationDate = (!isNaN(yearVal as any) && yearVal)
-      ? new Date(yearVal, 0, 1).toISOString()
-      : null;
 
     this.http.put(`${this.baseUrl}/student/profile`, {
       university: this.university || null,
       experience: this.experience || null,
-      gpa: isNaN(gpaVal as any) ? null : gpaVal,
-      graduationYear: graduationDate,
+      gpa: gpaVal !== null && !isNaN(gpaVal) ? gpaVal : null,
+      graduationYear: yearVal !== null && !isNaN(yearVal) ? yearVal : null,
       linkedinUrl: this.linkedinUrl || null,
       githubUrl: this.githubUrl || null
     }, { headers: this.headers }).subscribe({

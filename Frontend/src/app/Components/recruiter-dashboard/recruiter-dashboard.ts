@@ -51,6 +51,12 @@ export class RecruiterDashboard implements OnInit {
 
   companyName: string = 'InternPath';
 
+  dashboardStats = { activeInternships: 0, totalApplicants: 0, pendingReviews: 0, totalAccepted: 0 };
+  closingSoonList: { title: string; submissionDeadline: string; applicantsCount: number }[] = [];
+  topMatchingList: { applicantName: string; major: number | null; matchingScore: number }[] = [];
+  internshipStatsMap: Record<number, { totalApplications: number; pending: number; accepted: number; rejected: number }> = {};
+  matchScoreMap: Record<number, number> = {};
+
   paginationConfig = { itemsPerPage: 7, currentPage: 1 };
   breadcrumpSectionName: string = "overview";
   applicants: any;
@@ -73,6 +79,48 @@ export class RecruiterDashboard implements OnInit {
     this.http.get<any>(`${this.baseUrl}/company/profile`, { headers: this.headers }).subscribe({
       next: (company) => { this.companyName = company.name; },
       error: () => { }
+    });
+
+    // Load dashboard summary stats
+    this.http.get<any>(`${this.baseUrl}/company/dashboard`, { headers: this.headers }).subscribe({
+      next: (stats) => { this.dashboardStats = stats; }
+    });
+
+    // Load real match scores for all applications
+    this.http.get<any[]>(`${this.baseUrl}/company/applications`, { headers: this.headers }).subscribe({
+      next: (data) => {
+        data.forEach(a => { this.matchScoreMap[a.applicationId] = a.matchingScore; });
+      }
+    });
+
+    // Load per-internship stats
+    this.http.get<any[]>(`${this.baseUrl}/company/internships/stats`, { headers: this.headers }).subscribe({
+      next: (data) => {
+        data.forEach(s => {
+          this.internshipStatsMap[s.internshipId] = {
+            totalApplications: s.totalApplications,
+            pending:  s.pending,
+            accepted: s.accepted,
+            rejected: s.rejected
+          };
+        });
+      }
+    });
+
+    // Load top matching applicants
+    this.http.get<any[]>(`${this.baseUrl}/company/applicants/top-matching`, { headers: this.headers }).subscribe({
+      next: (data) => { this.topMatchingList = data; }
+    });
+
+    // Load closing soon internships
+    this.http.get<any[]>(`${this.baseUrl}/company/internships/closing-soon`, { headers: this.headers }).subscribe({
+      next: (data) => {
+        this.closingSoonList = data.map(i => ({
+          title: i.title,
+          submissionDeadline: i.deadline,
+          applicantsCount: i.applicantsCount
+        }));
+      }
     });
 
     // Load skills for the post-internship modal
@@ -174,19 +222,19 @@ export class RecruiterDashboard implements OnInit {
 
   // TODO (Backend): Replace with API call
   // GET /api/internships?active=true&sort=deadline&limit=2
-  getClosingSoon(): Internship[] {
-    return [...this.internships]
-      .filter(i => i.active)
-      .sort((a, b) => new Date(a.submissionDeadline).getTime() - new Date(b.submissionDeadline).getTime())
-      .slice(0, 2);
+  getClosingSoon() {
+    return this.closingSoonList;
   }
 
   // TODO (Backend): Replace with API call
   // GET /api/applications?sort=matchScore&limit=2
-  getTopCandidates(): Application[] {
-    return [...this.applications]
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 2);
+  getTopCandidates() {
+    return this.topMatchingList;
+  }
+
+  getMajorLabel(major: number | null): string {
+    if (major == null) return '';
+    return this.majorLabels[major as unknown as Majors] ?? '';
   }
 
   // TODO (Backend): Replace with API call
@@ -217,31 +265,15 @@ export class RecruiterDashboard implements OnInit {
 
   // TODO (Backend): Replace computed counts with API aggregates
   // GET /api/applications/stats?internshipId={id}
-  countPending(internshipId: number): number {
-    return this.applications.filter(x => x.internshipId === internshipId && x.status === Status.Pending).length;
-  }
-
-  countAccepted(internshipId: number): number {
-    return this.applications.filter(x => x.internshipId === internshipId && x.status === Status.Accepted).length;
-  }
+  countPending(internshipId: number): number  { return this.internshipStatsMap[internshipId]?.pending  ?? 0; }
+  countAccepted(internshipId: number): number { return this.internshipStatsMap[internshipId]?.accepted ?? 0; }
 
   // TODO (Backend): Replace with API aggregates
   // GET /api/dashboard/stats (returns activeInternships, totalApplicants, pending, accepted)
-  totalApplicants(): number {
-    return this.applications.length;
-  }
-
-  totalPending(): number {
-    return this.applications.filter(x => x.status === Status.Pending).length;
-  }
-
-  totalAccepted(): number {
-    return this.applications.filter(x => x.status === Status.Accepted).length;
-  }
-
-  activeInternships(): number {
-    return this.internships.filter(x => x.active === true).length;
-  }
+  totalApplicants(): number { return this.dashboardStats.totalApplicants; }
+  totalPending(): number    { return this.dashboardStats.pendingReviews; }
+  totalAccepted(): number   { return this.dashboardStats.totalAccepted; }
+  activeInternships(): number { return this.dashboardStats.activeInternships; }
 
   // TODO (Backend): Call API then update local state on success
   // PUT /api/applications/{id}/status   Body: { status: number }
@@ -345,6 +377,7 @@ export class RecruiterDashboard implements OnInit {
       location: this.locationToString[this.internship_form.value.location!],
       isPaid: this.internship_form.value.isPaid === 1,
       status: this.internship_form.value.active === 1,
+      skillIds: this.pendingSkills.map(s => s.skillId)
     };
 
     if (this.isEditing && this.editingId !== null) {
@@ -360,12 +393,13 @@ export class RecruiterDashboard implements OnInit {
               duration: res.updatedListing.duration ?? '',
               isPaid: res.updatedListing.isPaid,
               active: res.updatedListing.status,
+              skills: [...this.pendingSkills]
             };
           }
           this.closeModal();
           this.clearModal();
         },
-        error: (err) => alert(err.error?.message ?? 'Failed to update listing')
+        error: (err) => alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to update listing`)
       });
     } else {
       this.http.post<any>(`${this.baseUrl}/listings`, payload, { headers: this.headers }).subscribe({
@@ -387,7 +421,7 @@ export class RecruiterDashboard implements OnInit {
           this.closeModal();
           this.clearModal();
         },
-        error: (err) => alert(err.error?.message ?? 'Failed to create listing')
+        error: (err) => alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to create listing`)
       });
     }
   }
@@ -395,14 +429,20 @@ export class RecruiterDashboard implements OnInit {
   editInternship(internship: Internship) {
     this.isEditing = true;
     this.editingId = internship.id;
+
+    // Use local date string to avoid timezone shifting the date
+    const d = internship.submissionDeadline;
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
     this.internship_form.patchValue({
       title: internship.title,
-      companyName: internship.companyName ?? '',
+      companyName: this.companyName,
       description: internship.description,
-      submissionDeadline: internship.submissionDeadline.toISOString().split('T')[0],
+      submissionDeadline: dateStr,
       duration: internship.duration,
       location: internship.location,
       isPaid: internship.isPaid ? 1 : 0,
+      active: internship.active ? 1 : 0,
       companyId: internship.companyId,
       postDate: internship.postDate
     });

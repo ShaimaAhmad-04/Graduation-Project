@@ -28,7 +28,7 @@
         Browse Internships
       </a>
       <a class="navbar__browse"
-         [routerLink]="userRole === 1 ? '/recruiter-dashboard' : '/student-dashboard'">
+         [routerLink]="userRole === 2 ? '/admin-dashboard' : userRole === 1 ? '/recruiter-dashboard' : '/student-dashboard'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -54,6 +54,7 @@
         <div class="navbar__dropdown" *ngIf="dropdownOpen">
           <a class="navbar__dropdown-item"
              [routerLink]="userRole === 1 ? '/recruiter-settings' : '/student-settings'"
+             *ngIf="userRole !== 2"
              (click)="closeDropdown()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2">
