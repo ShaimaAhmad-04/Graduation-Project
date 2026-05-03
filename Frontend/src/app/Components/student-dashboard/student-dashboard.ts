@@ -177,6 +177,17 @@ export class StudentDashboard implements OnInit {
     return Math.round((filled / fields.length) * 100);
   }
 
+  withdrawApplication(applicationId: number): void {
+    if (!confirm('Are you sure you want to withdraw this application?')) return;
+    const token = localStorage.getItem('token');
+    this.http.delete(`${this.baseUrl}/student/applications/${applicationId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => { this.applications = this.applications.filter(a => a.id !== applicationId); },
+      error: (err) => alert(err.error?.message ?? 'Failed to withdraw application.')
+    });
+  }
+
   get totalApplications(): number { return this.applications.length; }
   get pendingCount(): number { return this.applications.filter(a => a.status === 'pending').length; }
   get acceptedCount(): number { return this.applications.filter(a => a.status === 'accepted').length; }

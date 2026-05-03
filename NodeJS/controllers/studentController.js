@@ -232,6 +232,22 @@ export const applyToInternship = async (req, res) => {
   }
 }
 
+export const withdrawApplication = async (req, res) => {
+  try {
+    const applicationId = parseInt(req.params.id, 10)
+    const userId = parseInt(req.userId, 10)
+
+    const application = await prisma.application.findUnique({ where: { id: applicationId } })
+    if (!application) return res.status(404).json({ message: 'Application not found' })
+    if (application.studentId !== userId) return res.status(403).json({ message: 'Not authorized' })
+
+    await prisma.application.delete({ where: { id: applicationId } })
+    res.json({ message: 'Application withdrawn successfully' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
 export const getStudentApplications = async (req, res) => {
   try {
     const userId = parseInt(req.userId, 10)
