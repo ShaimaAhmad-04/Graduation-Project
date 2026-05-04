@@ -1,201 +1,155 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 export interface Company {
   id: number;
   name: string;
-  industry: string;
-  description: string;
+  industry: string | null;
+  description: string | null;
   email: string;
-  website: string;
-  location: string;
+  website: string | null;
   isVerified: boolean;
+}
+
+export interface AdminUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: number;
 }
 
 @Component({
   selector: 'admin-dashboard',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.css'],
 })
-export class AdminDashboard {
+export class AdminDashboard implements OnInit {
 
-  // TODO (Backend): Inject AdminService, CompanyService
-  // constructor(private companyService: CompanyService) {}
-
-  activeTab: 'overview' | 'companies' = 'overview';
+  activeTab: 'overview' | 'companies' | 'users' = 'overview';
   companyFilter: 'all' | 'verified' | 'unverified' = 'all';
-  searchQuery: string = '';
+  searchQuery = '';
+  userSearchQuery = '';
 
-  // TODO (Backend): Load from GET /api/companies
-  companies: Company[] = [
-    {
-      id: 1,
-      name: 'TechCorp Solutions',
-      industry: 'Information Technology',
-      description: 'Leading technology solutions provider in the MENA region',
-      email: 'hr@techcorp.com',
-      website: 'https://techcorp.com',
-      location: 'Amman, Jordan',
-      isVerified: true,
-    },
-    {
-      id: 2,
-      name: 'Innovate Jordan',
-      industry: 'Technology & Innovation',
-      description: 'Startup accelerator and innovation hub',
-      email: 'careers@innovate.jo',
-      website: 'https://innovate.jo',
-      location: 'Amman, Jordan',
-      isVerified: true,
-    },
-    {
-      id: 3,
-      name: 'DataTech Analytics',
-      industry: 'Data Science',
-      description: 'Data science and analytics company',
-      email: 'jobs@datatech.com',
-      website: 'https://datatech.com',
-      location: 'Amman, Jordan',
-      isVerified: false,
-    },
-    {
-      id: 4,
-      name: 'CyberGuard Security',
-      industry: 'Cybersecurity',
-      description: 'Leading cybersecurity firm protecting businesses across the Middle East',
-      email: 'hr@cyberguard.jo',
-      website: 'https://cyberguard.jo',
-      location: 'Amman, Jordan',
-      isVerified: false,
-    },
-    {
-      id: 5,
-      name: 'CloudNine Technologies',
-      industry: 'Cloud Services',
-      description: 'Cloud computing and infrastructure solutions provider',
-      email: 'careers@cloudnine.com',
-      website: 'https://cloudnine.com',
-      location: 'Dubai, UAE',
-      isVerified: false,
-    },
-    {
-      id: 6,
-      name: 'NexaCode Labs',
-      industry: 'Software Development',
-      description: 'Custom software development and digital transformation agency',
-      email: 'hello@nexacode.io',
-      website: 'https://nexacode.io',
-      location: 'Amman, Jordan',
-      isVerified: false,
-    },
-    {
-      id: 7,
-      name: 'GreenTech Jordan',
-      industry: 'Clean Energy',
-      description: 'Renewable energy solutions and sustainability consulting',
-      email: 'info@greentech.jo',
-      website: 'https://greentech.jo',
-      location: 'Aqaba, Jordan',
-      isVerified: false,
-    },
-    {
-      id: 8,
-      name: 'FinWave Solutions',
-      industry: 'FinTech',
-      description: 'Digital banking and financial technology services for the Arab world',
-      email: 'careers@finwave.com',
-      website: 'https://finwave.com',
-      location: 'Amman, Jordan',
-      isVerified: false,
-    },
-    {
-      id: 9,
-      name: 'MedConnect',
-      industry: 'HealthTech',
-      description: 'Connecting patients with healthcare providers through digital platforms',
-      email: 'hr@medconnect.jo',
-      website: 'https://medconnect.jo',
-      location: 'Amman, Jordan',
-      isVerified: false,
-    },
-    {
-      id: 10,
-      name: 'LogiTrack',
-      industry: 'Logistics & Supply Chain',
-      description: 'Smart logistics and fleet management solutions across the MENA region',
-      email: 'jobs@logitrack.com',
-      website: 'https://logitrack.com',
-      location: 'Zarqa, Jordan',
-      isVerified: false,
-    },
-  ];
+  companies: Company[] = [];
+  users: AdminUser[] = [];
 
-  // ── Computed counts ─────────────────────────────────────────────────────────
-  // TODO (Backend): Replace with GET /api/companies/stats
-  get totalCompanies(): number {
-    return this.companies.length;
+  totalStudents = 0;
+  totalInternships = 0;
+  totalApplications = 0;
+
+  private baseUrl = 'http://localhost:5002';
+  private get headers() { return { Authorization: `Bearer ${this.authService.getToken() ?? ''}` }; }
+
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
+
+  ngOnInit(): void {
+    const token = this.authService.getToken();
+    if (!token) { this.router.navigate(['/login']); return; }
+
+    this.loadStats();
+    this.loadCompanies();
+    this.loadUsers();
   }
 
-  get verifiedCount(): number {
-    return this.companies.filter(c => c.isVerified).length;
+  private loadStats(): void {
+    this.http.get<any>(`${this.baseUrl}/admin/stats`, { headers: this.headers }).subscribe({
+      next: (stats) => {
+        this.totalStudents     = stats.totalStudents;
+        this.totalInternships  = stats.totalInternships;
+        this.totalApplications = stats.totalApplications;
+      }
+    });
   }
 
-  get unverifiedCount(): number {
-    return this.companies.filter(c => !c.isVerified).length;
+  private loadCompanies(): void {
+    this.http.get<any[]>(`${this.baseUrl}/admin/companies`, { headers: this.headers }).subscribe({
+      next: (data) => {
+        this.companies = data.map(c => ({
+          id:          c.userId,
+          name:        c.name,
+          industry:    c.industry ?? null,
+          description: c.description ?? null,
+          email:       c.user?.email ?? '',
+          website:     c.website ?? null,
+          isVerified:  c.verified
+        }));
+      }
+    });
   }
 
-  get unverifiedCompanies(): Company[] {
-    return this.companies.filter(c => !c.isVerified);
+  private loadUsers(): void {
+    this.http.get<AdminUser[]>(`${this.baseUrl}/admin/users`, { headers: this.headers }).subscribe({
+      next: (data) => { this.users = data; }
+    });
   }
+
+  get totalCompanies(): number  { return this.companies.length; }
+  get verifiedCount(): number   { return this.companies.filter(c =>  c.isVerified).length; }
+  get unverifiedCount(): number { return this.companies.filter(c => !c.isVerified).length; }
+  get unverifiedCompanies(): Company[] { return this.companies.filter(c => !c.isVerified); }
 
   get filteredCompanies(): Company[] {
     let list = this.companies;
-
-    if (this.companyFilter === 'verified')   list = list.filter(c => c.isVerified);
+    if (this.companyFilter === 'verified')   list = list.filter(c =>  c.isVerified);
     if (this.companyFilter === 'unverified') list = list.filter(c => !c.isVerified);
-
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
       list = list.filter(c =>
         c.name.toLowerCase().includes(q) ||
         c.email.toLowerCase().includes(q) ||
-        c.industry.toLowerCase().includes(q)
+        (c.industry ?? '').toLowerCase().includes(q)
       );
     }
-
     return list;
   }
 
-  // ── Actions ─────────────────────────────────────────────────────────────────
-
-  setTab(tab: 'overview' | 'companies'): void {
-    this.activeTab = tab;
+  get filteredUsers(): AdminUser[] {
+    if (!this.userSearchQuery.trim()) return this.users;
+    const q = this.userSearchQuery.toLowerCase();
+    return this.users.filter(u =>
+      u.firstName.toLowerCase().includes(q) ||
+      u.lastName.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q)
+    );
   }
 
-  setFilter(filter: 'all' | 'verified' | 'unverified'): void {
-    this.companyFilter = filter;
+  roleName(role: number): string {
+    if (role === 0) return 'Student';
+    if (role === 1) return 'Recruiter';
+    if (role === 2) return 'Admin';
+    return 'Unknown';
   }
 
-  // TODO (Backend): PUT /api/companies/{id}/verify
-  // this.companyService.verify(id).subscribe(() => { company.isVerified = true; });
+  setTab(tab: 'overview' | 'companies' | 'users'): void { this.activeTab = tab; }
+  setFilter(filter: 'all' | 'verified' | 'unverified'): void { this.companyFilter = filter; }
+
   verifyCompany(company: Company): void {
-    company.isVerified = true;
+    this.http.put(`${this.baseUrl}/admin/companies/${company.id}/verify`, {}, { headers: this.headers }).subscribe({
+      next: () => { company.isVerified = true; }
+    });
   }
 
-  // TODO (Backend): PUT /api/companies/verify-all  (bulk verify unverified)
   goToUnverified(): void {
     this.activeTab = 'companies';
     this.companyFilter = 'unverified';
     this.searchQuery = '';
   }
 
-  verifyAll(): void {
-    this.companies.filter(c => !c.isVerified).forEach(c => c.isVerified = true);
+  deleteUser(user: AdminUser): void {
+    const confirmed = confirm(`Delete user ${user.firstName} ${user.lastName}? This cannot be undone.`);
+    if (!confirmed) return;
+    this.http.delete(`${this.baseUrl}/admin/users/${user.id}`, { headers: this.headers }).subscribe({
+      next: () => { this.users = this.users.filter(u => u.id !== user.id); }
+    });
   }
 
-  getInitial(name: string): string {
-    return name.charAt(0).toUpperCase();
-  }
+  getInitial(name: string): string { return name.charAt(0).toUpperCase(); }
 }

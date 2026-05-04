@@ -1,37 +1,61 @@
-import { ApplicationInitStatus, Component, ElementRef, ViewChild, viewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Internship } from '../../interfaces/iInternship';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePipe, CommonModule } from '@angular/common';
 import { Application } from '../../interfaces/iapplication';
-import { SkillExperience } from '../../ENUMs/skillLevel'
 import { skill } from '../../interfaces/iskill';
 import { Student } from '../../interfaces/istudent';
 import { Status } from '../../ENUMs/applicationStatus';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { internship_location } from '../../ENUMs/internship-location';
 import { InternshipSkill } from '../../interfaces/internshipSkill';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Majors } from '../../ENUMs/Majors';
+import {
+  MajorsLabels
 
+} from '../../ENUMs/MappedMajors';
 @Component({
   selector: 'recruiter-dashboard',
   imports: [CommonModule, NgxPaginationModule, ReactiveFormsModule, DatePipe, FormsModule],
   templateUrl: './recruiter-dashboard.html',
-  styleUrls: ['./recruiter-dashboard.css'], // FIXED
+  styleUrls: ['./recruiter-dashboard.css'],
 })
 
-export class RecruiterDashboard {
+export class RecruiterDashboard implements OnInit {
 
-  // TODO (Backend): Inject services here
-  // constructor(
-  //   private internshipService: InternshipService,
-  //   private applicationService: ApplicationService,
-  //   private companyService: CompanyService
-  // ) {}
-  constructor() { }
+  private baseUrl = 'http://localhost:5002';
+
+  public majorLabels = MajorsLabels;
+  public majors = Majors
+  private get token(): string { return localStorage.getItem('token') ?? ''; }
+  private get headers() { return { Authorization: `Bearer ${this.token}` }; }
+
+  private locationToString: Record<number, string> = {
+    [internship_location.on_site]: 'In_site',
+    [internship_location.remote]: 'Remote',
+    [internship_location.hyprid]: 'Hybrid',
+  };
+
+  constructor(private http: HttpClient, private router: Router) { }
+
+  goToSettings(): void {
+    this.router.navigate(['/recruiter-settings']);
+  }
 
   @ViewChild('postInternshipModal') postInternshipModal!: ElementRef;
   @ViewChild('skills-input') skillsinput!: ElementRef;
+  @ViewChild('applicationModalButton') ApplicationModalButton!: ElementRef;
 
-companyName: string = 'InternPath';
+
+  companyName: string = 'InternPath';
+
+  dashboardStats = { activeInternships: 0, totalApplicants: 0, pendingReviews: 0, totalAccepted: 0 };
+  closingSoonList: { title: string; submissionDeadline: string; applicantsCount: number }[] = [];
+  topMatchingList: { applicantName: string; major: number | null; matchingScore: number }[] = [];
+  internshipStatsMap: Record<number, { totalApplications: number; pending: number; accepted: number; rejected: number }> = {};
+  matchScoreMap: Record<number, number> = {};
 
   paginationConfig = { itemsPerPage: 7, currentPage: 1 };
   breadcrumpSectionName: string = "overview";
@@ -48,6 +72,135 @@ companyName: string = 'InternPath';
   editingId: number | null = null;
 
 
+  ngOnInit(): void {
+    const myId = parseInt(localStorage.getItem('userId') ?? '0');
+
+    // Load company profile
+    this.http.get<any>(`${this.baseUrl}/company/profile`, { headers: this.headers }).subscribe({
+      next: (company) => { this.companyName = company.name; },
+      error: () => { }
+    });
+
+    // Load dashboard summary stats
+    this.http.get<any>(`${this.baseUrl}/company/dashboard`, { headers: this.headers }).subscribe({
+      next: (stats) => { this.dashboardStats = stats; }
+    });
+
+    // Load real match scores for all applications
+    this.http.get<any[]>(`${this.baseUrl}/company/applications`, { headers: this.headers }).subscribe({
+      next: (data) => {
+        data.forEach(a => { this.matchScoreMap[a.applicationId] = a.matchingScore; });
+      }
+    });
+
+    // Load per-internship stats
+    this.http.get<any[]>(`${this.baseUrl}/company/internships/stats`, { headers: this.headers }).subscribe({
+      next: (data) => {
+        data.forEach(s => {
+          this.internshipStatsMap[s.internshipId] = {
+            totalApplications: s.totalApplications,
+            pending:  s.pending,
+            accepted: s.accepted,
+            rejected: s.rejected
+          };
+        });
+      }
+    });
+
+    // Load top matching applicants
+    this.http.get<any[]>(`${this.baseUrl}/company/applicants/top-matching`, { headers: this.headers }).subscribe({
+      next: (data) => { this.topMatchingList = data; }
+    });
+
+    // Load closing soon internships
+    this.http.get<any[]>(`${this.baseUrl}/company/internships/closing-soon`, { headers: this.headers }).subscribe({
+      next: (data) => {
+        this.closingSoonList = data.map(i => ({
+          title: i.title,
+          submissionDeadline: i.deadline,
+          applicantsCount: i.applicantsCount
+        }));
+      }
+    });
+
+    // Load skills for the post-internship modal
+    this.http.get<any[]>(`${this.baseUrl}/skills`).subscribe({
+      next: (skills) => {
+        this.skills = skills.map(s => ({ skill_id: s.id, skill_name: s.name }));
+      }
+    });
+
+    // Load listings then fetch applicants for each
+    this.http.get<any>(`${this.baseUrl}/listings`, { headers: this.headers }).subscribe({
+      next: (res) => {
+        this.internships = res.listings
+          .filter((l: any) => l.companyId === myId)
+          .map((l: any) => ({
+            id: l.id,
+            companyId: l.companyId,
+            title: l.title,
+            description: l.description ?? '',
+            postDate: new Date(l.postDate),
+            submissionDeadline: new Date(l.submissionDeadline),
+            duration: l.duration ?? '',
+            location: ({ 'In_site': internship_location.on_site, 'Remote': internship_location.remote, 'Hybrid': internship_location.hyprid } as any)[l.location] ?? internship_location.on_site,
+            active: l.status,
+            isPaid: l.isPaid,
+            skills: (l.internshipSkills ?? []).map((s: any) => ({ skillId: s.skillId, level: 0 }))
+          }));
+
+        // Fetch applications for each internship
+        this.applications = [];
+        this.students = [];
+        this.internships.forEach(internship => {
+          this.http.get<any[]>(`${this.baseUrl}/applications/${internship.id}`, { headers: this.headers }).subscribe({
+            next: (apps) => {
+              apps.forEach(a => {
+                // Map application
+                this.applications.push({
+                  id: a.id,
+                  studentId: a.studentId,
+                  internshipId: a.internshipId,
+                  status: a.status,
+                  matchScore: 0
+                });
+                // Map student (avoid duplicates)
+                if (!this.students.find(s => s.id === a.studentId)) {
+                  const u = a.student?.user;
+                  const st = a.student;
+                  this.students.push({
+                    id: a.studentId,
+                    first_name: u?.firstName ?? '',
+                    last_name: u?.lastName ?? '',
+                    email: u?.email ?? '',
+                    phone: u?.phoneNumber ?? '',
+                    password: '',
+                    role: 'student',
+                    major: parseInt(st?.major) || 0,
+                    university: st?.university ?? '',
+                    experience: st?.experience ?? null,
+                    gpa: st?.gpa ?? 0,
+                    graduationYear: st?.graduationYear ?? null,
+                    linkedInUrl: st?.linkedinUrl ?? '',
+                    gitHubUrl: st?.githubUrl ?? '',
+                    certifications: [],
+                    cvUrl: st?.cvUrl ?? null,
+                    studentSkills: (st?.studentSkills ?? []).map((ss: any) => ({
+                      skill_id: ss.skillId,
+                      studentId: a.studentId,
+                      experience: ss.experience ?? 0
+                    }))
+                  });
+                }
+              });
+            }
+          });
+        });
+      },
+      error: (err) => console.error('Failed to load listings', err)
+    });
+  }
+
   internship_form = new FormGroup({
     title: new FormControl('', Validators.required),
     companyName: new FormControl('', Validators.required),
@@ -57,330 +210,31 @@ companyName: string = 'InternPath';
     submissionDeadline: new FormControl('', Validators.required),
     duration: new FormControl('', Validators.required),
     location: new FormControl(internship_location.on_site, Validators.required),
-    active: new FormControl(0, Validators.required),
+    active: new FormControl(1, Validators.required),
     isPaid: new FormControl(0, Validators.required),
   })
 
-  // skils
-  skills: skill[] = [
-    { skill_id: 1, skill_name: "Angular" },
-    { skill_id: 2, skill_name: "SQL" },
-    { skill_id: 3, skill_name: "C#" },
-    { skill_id: 4, skill_name: "Flutter" }
-  ];
-
-  //  students
-  students: Student[] = [
-    {
-      id: 1,
-      first_name: "Ahmad Khaled",
-      email: "ahmad.khaled@example.com",
-      password: "",
-      role: "student",
-      major: "Computer Science",
-      university: "University of Jordan",
-      experience: "Internship at TechSoft",
-      gpa: 88,
-      graduationYear: 2026,
-      linkedInUrl: "https://linkedin.com/in/ahmadkhaled",
-      gitHubUrl: "https://github.com/ahmadkhaled",
-      certifications: ["Angular Basics", "SQL Fundamentals"],
-      cvUrl: "https://example.com/cv/ahmad.pdf",
-      phone: "0778899553",
-      studentSkills: [
-        { skill_id: 1, studentId: 1, experience: SkillExperience.Expert },
-        { skill_id: 2, studentId: 1, experience: SkillExperience.Intermediate },
-        { skill_id: 3, studentId: 1, experience: SkillExperience.Beginner, }
-      ]
-    },
-    {
-      id: 2,
-      first_name: "Sara Mahmoud",
-      email: "sara.mahmoud@example.com",
-      password: "",
-      role: "student",
-      major: "Software Engineering",
-      university: "Princess Sumaya University",
-      experience: null,
-      gpa: 92,
-      graduationYear: 2025,
-      linkedInUrl: "https://linkedin.com/in/saramahmoud",
-      gitHubUrl: null,
-      certifications: ["C# Programming"],
-      cvUrl: null,
-      phone: "0778899553",
-      studentSkills: [
-        { skill_id: 1, studentId: 2, experience: SkillExperience.Intermediate },
-        { skill_id: 4, studentId: 2, experience: SkillExperience.Expert }
-      ]
-    },
-    {
-      id: 3,
-      first_name: "Omar",
-      last_name: "Hassan",
-      email: "omar.hassan@example.com",
-      password: "",
-      role: "student",
-      major: "Computer Engineering",
-      university: "Jordan University of Science and Technology",
-      experience: "Part-time developer at StartupJO",
-      gpa: 85,
-      graduationYear: 2026,
-      linkedInUrl: "https://linkedin.com/in/omarhassan",
-      gitHubUrl: "https://github.com/omarhassan",
-      certifications: ["Flutter Fundamentals"],
-      cvUrl: "https://example.com/cv/omar.pdf",
-      phone: "0791234567",
-      studentSkills: [
-        { skill_id: 2, studentId: 3, experience: SkillExperience.Expert },
-        { skill_id: 4, studentId: 3, experience: SkillExperience.Intermediate }
-      ]
-    },
-    {
-      id: 4,
-      first_name: "Lina",
-      last_name: "Nasser",
-      email: "lina.nasser@example.com",
-      password: "",
-      role: "student",
-      major: "Information Technology",
-      university: "German Jordanian University",
-      experience: null,
-      gpa: 90,
-      graduationYear: 2025,
-      linkedInUrl: "https://linkedin.com/in/linanasser",
-      gitHubUrl: "https://github.com/linanasser",
-      certifications: ["Angular Basics", "C# Programming"],
-      cvUrl: "https://example.com/cv/lina.pdf",
-      phone: "0796543210",
-      studentSkills: [
-        { skill_id: 1, studentId: 4, experience: SkillExperience.Expert },
-        { skill_id: 3, studentId: 4, experience: SkillExperience.Intermediate }
-      ]
-    },
-    {
-      id: 5,
-      first_name: "Khalid",
-      last_name: "Ali",
-      email: "khalid.ali@example.com",
-      password: "",
-      role: "student",
-      major: "Software Engineering",
-      university: "Al-Ahliyya Amman University",
-      experience: null,
-      gpa: 78,
-      graduationYear: 2027,
-      linkedInUrl: "https://linkedin.com/in/khalidali",
-      gitHubUrl: null,
-      certifications: [],
-      cvUrl: null,
-      phone: "0789876543",
-      studentSkills: [
-        { skill_id: 2, studentId: 5, experience: SkillExperience.Beginner },
-        { skill_id: 3, studentId: 5, experience: SkillExperience.Intermediate }
-      ]
-    },
-    {
-      id: 6,
-      first_name: "Rania",
-      last_name: "Yousef",
-      email: "rania.yousef@example.com",
-      password: "",
-      role: "student",
-      major: "Computer Science",
-      university: "University of Jordan",
-      experience: "Research Assistant at UJ AI Lab",
-      gpa: 95,
-      graduationYear: 2025,
-      linkedInUrl: "https://linkedin.com/in/raniayousef",
-      gitHubUrl: "https://github.com/raniayousef",
-      certifications: ["SQL Fundamentals", "Angular Basics", "C# Programming"],
-      cvUrl: "https://example.com/cv/rania.pdf",
-      phone: "0771122334",
-      studentSkills: [
-        { skill_id: 1, studentId: 6, experience: SkillExperience.Expert },
-        { skill_id: 2, studentId: 6, experience: SkillExperience.Expert },
-        { skill_id: 3, studentId: 6, experience: SkillExperience.Intermediate }
-      ]
-    }
-  ];
-
-  //  internships
-  internships: Internship[] = [
-    {
-      id: 1,
-      companyId: 1,
-      title: "Frontend Intern",
-      description: "Work on Angular projects",
-      postDate: new Date("2026-01-01"),
-      submissionDeadline: new Date("2026-03-01"),
-      duration: "3 months",
-      location: internship_location.hyprid,
-      isPaid: true,
-      active: true,
-      skills: [
-        { skillId: 1, level: SkillExperience.Beginner },
-        { skillId: 2, level: SkillExperience.Intermediate },
-        { skillId: 3, level: SkillExperience.Beginner }
-      ]
-    },
-    {
-      id: 2,
-      companyId: 1,
-      title: "Frontend Intern",
-      description: "Work on Angular projects",
-      postDate: new Date("2026-01-01"),
-      submissionDeadline: new Date("2026-03-01"),
-      duration: "3 months",
-      location: internship_location.hyprid,
-      isPaid: true,
-      active: true,
-      skills: [
-        { skillId: 1, level: SkillExperience.Intermediate },
-        { skillId: 4, level: SkillExperience.Beginner }
-      ]
-    },
-    {
-      id: 3,
-      companyId: 1,
-      title: "Frontend Intern",
-      description: "Work on Angular projects",
-      postDate: new Date("2026-01-01"),
-      submissionDeadline: new Date("2026-03-01"),
-      duration: "3 months",
-      location: internship_location.on_site,
-      isPaid: true,
-      active: true,
-      skills: [
-        { skillId: 2, level: SkillExperience.Beginner },
-        { skillId: 5, level: SkillExperience.Intermediate },
-        { skillId: 6, level: SkillExperience.Beginner }
-      ]
-    },
-    {
-      id: 4,
-      companyId: 1,
-      title: "Frontend Intern",
-      description: "Work on Angular projects",
-      postDate: new Date("2026-01-01"),
-      submissionDeadline: new Date("2026-03-01"),
-      duration: "3 months",
-      location: internship_location.on_site,
-      isPaid: true,
-      active: true,
-      skills: [
-        { skillId: 1, level: SkillExperience.Beginner },
-        { skillId: 3, level: SkillExperience.Expert }
-      ]
-    },
-    {
-      id: 5,
-      companyId: 1,
-      title: "Frontend Intern",
-      description: "Work on Angular projects",
-      postDate: new Date("2026-01-01"),
-      submissionDeadline: new Date("2026-03-01"),
-      duration: "3 months",
-      location: internship_location.on_site,
-      isPaid: true,
-      active: true,
-      skills: [
-        { skillId: 2, level: SkillExperience.Intermediate },
-        { skillId: 4, level: SkillExperience.Beginner },
-        { skillId: 7, level: SkillExperience.Beginner }
-      ]
-    },
-    {
-      id: 6,
-      companyId: 1,
-      title: "Frontend Intern",
-      description: "Work on Angular projects",
-      postDate: new Date("2026-01-01"),
-      submissionDeadline: new Date("2026-03-01"),
-      duration: "3 months",
-      location: internship_location.remote,
-      isPaid: true,
-      active: true,
-      skills: [
-        { skillId: 1, level: SkillExperience.Expert },
-        { skillId: 5, level: SkillExperience.Intermediate }
-      ]
-    },
-    {
-      id: 7,
-      companyId: 1,
-      title: "Frontend Intern",
-      description: "Work on Angular projects",
-      postDate: new Date("2026-01-01"),
-      submissionDeadline: new Date("2026-03-01"),
-      duration: "3 months",
-      location: internship_location.remote,
-      isPaid: true,
-      active: true,
-      skills: [
-        { skillId: 3, level: SkillExperience.Beginner },
-        { skillId: 6, level: SkillExperience.Intermediate },
-        { skillId: 8, level: SkillExperience.Beginner }
-      ]
-    },
-    {
-      id: 8,
-      companyId: 2,
-      title: "Backend Intern",
-      description: "C# and SQL projects",
-      postDate: new Date("2026-01-10"),
-      submissionDeadline: new Date("2026-03-10"),
-      duration: "6 months",
-      location: internship_location.remote,
-      isPaid: false,
-      active: true,
-      skills: [
-        { skillId: 9, level: SkillExperience.Intermediate },
-        { skillId: 10, level: SkillExperience.Beginner },
-        { skillId: 7, level: SkillExperience.Expert }
-      ]
-    }
-  ];
-
-  //  applications
-  applications: Application[] = [
-    // Internship 1 (Frontend Intern)
-    { id: 1,  studentId: 1, internshipId: 1, status: Status.Pending,  matchScore: 90 },
-    { id: 2,  studentId: 2, internshipId: 1, status: Status.Rejected, matchScore: 30 },
-    { id: 3,  studentId: 3, internshipId: 1, status: Status.Pending,  matchScore: 75 },
-    { id: 4,  studentId: 6, internshipId: 1, status: Status.Accepted, matchScore: 95 },
-    // Internship 2 (Frontend Intern)
-    { id: 5,  studentId: 1, internshipId: 2, status: Status.Accepted, matchScore: 80 },
-    { id: 6,  studentId: 4, internshipId: 2, status: Status.Accepted, matchScore: 88 },
-    { id: 7,  studentId: 5, internshipId: 2, status: Status.Pending,  matchScore: 62 },
-    // Internship 3 (Frontend Intern)
-    { id: 8,  studentId: 4, internshipId: 3, status: Status.Pending,  matchScore: 71 },
-    { id: 9,  studentId: 6, internshipId: 3, status: Status.Accepted, matchScore: 93 },
-    // Internship 5 (Frontend Intern)
-    { id: 10, studentId: 3, internshipId: 5, status: Status.Pending,  matchScore: 68 },
-    { id: 11, studentId: 5, internshipId: 5, status: Status.Rejected, matchScore: 44 },
-    // Internship 8 (Backend Intern)
-    { id: 12, studentId: 2, internshipId: 8, status: Status.Pending,  matchScore: 85 },
-    { id: 13, studentId: 5, internshipId: 8, status: Status.Accepted, matchScore: 77 },
-    { id: 14, studentId: 6, internshipId: 8, status: Status.Pending,  matchScore: 91 },
-  ];
+  skills: skill[] = [];
+  students: Student[] = [];
+  internships: Internship[] = [];
+  applications: Application[] = [];
 
 
   // TODO (Backend): Replace with API call
   // GET /api/internships?active=true&sort=deadline&limit=2
-  getClosingSoon(): Internship[] {
-    return [...this.internships]
-      .filter(i => i.active)
-      .sort((a, b) => new Date(a.submissionDeadline).getTime() - new Date(b.submissionDeadline).getTime())
-      .slice(0, 2);
+  getClosingSoon() {
+    return this.closingSoonList;
   }
 
   // TODO (Backend): Replace with API call
   // GET /api/applications?sort=matchScore&limit=2
-  getTopCandidates(): Application[] {
-    return [...this.applications]
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 2);
+  getTopCandidates() {
+    return this.topMatchingList;
+  }
+
+  getMajorLabel(major: number | null): string {
+    if (major == null) return '';
+    return this.majorLabels[major as unknown as Majors] ?? '';
   }
 
   // TODO (Backend): Replace with API call
@@ -411,44 +265,38 @@ companyName: string = 'InternPath';
 
   // TODO (Backend): Replace computed counts with API aggregates
   // GET /api/applications/stats?internshipId={id}
-  countPending(internshipId: number): number {
-    return this.applications.filter(x => x.internshipId === internshipId && x.status === Status.Pending).length;
-  }
-
-  countAccepted(internshipId: number): number {
-    return this.applications.filter(x => x.internshipId === internshipId && x.status === Status.Accepted).length;
-  }
+  countPending(internshipId: number): number  { return this.internshipStatsMap[internshipId]?.pending  ?? 0; }
+  countAccepted(internshipId: number): number { return this.internshipStatsMap[internshipId]?.accepted ?? 0; }
 
   // TODO (Backend): Replace with API aggregates
   // GET /api/dashboard/stats (returns activeInternships, totalApplicants, pending, accepted)
-  totalApplicants(): number {
-    return this.applications.length;
-  }
-
-  totalPending(): number {
-    return this.applications.filter(x => x.status === Status.Pending).length;
-  }
-
-  totalAccepted(): number {
-    return this.applications.filter(x => x.status === Status.Accepted).length;
-  }
-
-  activeInternships(): number {
-    return this.internships.filter(x => x.active === true).length;
-  }
+  totalApplicants(): number { return this.dashboardStats.totalApplicants; }
+  totalPending(): number    { return this.dashboardStats.pendingReviews; }
+  totalAccepted(): number   { return this.dashboardStats.totalAccepted; }
+  activeInternships(): number { return this.dashboardStats.activeInternships; }
 
   // TODO (Backend): Call API then update local state on success
   // PUT /api/applications/{id}/status   Body: { status: number }
   updateApplicationStatus(status: number): void {
     if (!this.applicationModalApplication) return;
 
-    const index = this.applications.findIndex(a => a.id === this.applicationModalApplication!.id);
-    if (index === -1) return;
+    this.http.put<any>(
+      `${this.baseUrl}/applications/${this.applicationModalApplication.id}/status`,
+      { status },
+      { headers: this.headers }
+    ).subscribe({
+      next: () => {
+        const index = this.applications.findIndex(a => a.id === this.applicationModalApplication!.id);
+        if (index !== -1) {
+          this.applications[index] = { ...this.applications[index], status };
+        }
+        this.applicationModalApplication = { ...this.applicationModalApplication!, status };
+        this.ApplicationModalButton.nativeElement.click()
 
-    // Update in the local array
-    this.applications[index] = { ...this.applications[index], status };
-    // Keep the modal reference in sync so the badge updates immediately
-    this.applicationModalApplication = { ...this.applicationModalApplication, status };
+      },
+      error: (err) => alert(err.error?.message ?? 'Failed to update status')
+    });
+
   }
   searchSkill(query: string) {
     this.searchQuery = query
@@ -461,7 +309,7 @@ companyName: string = 'InternPath';
 
     this.pendingSkills.push({
       skillId: skill.skill_id,
-      level: SkillExperience.Beginner
+      level: 0
     });
     this.searchSkills = [];       // close dropdown
     this.searchQuery = '';        // clear query
@@ -521,58 +369,80 @@ companyName: string = 'InternPath';
       return;
     }
 
-    if (this.isEditing && this.editingId !== null) {
-      // TODO (Backend): PUT /api/internships/{editingId}   Body: updated internship object
-      // this.internshipService.update(this.editingId, payload).subscribe(updated => { ... });
-      const index = this.internships.findIndex(x => x.id === this.editingId);
-      if (index !== -1) {
-        this.internships[index] = {
-          ...this.internships[index],
-          title: this.internship_form.value.title!,
-          companyName: this.internship_form.value.companyName!,
-          description: this.internship_form.value.description!,
-          submissionDeadline: new Date(this.internship_form.value.submissionDeadline!),
-          duration: this.internship_form.value.duration!,
-          location: this.internship_form.value.location!,
-          isPaid: this.internship_form.value.isPaid === 1,
-          skills: [...this.pendingSkills]
-        };
-      }
-    } else {
-      // TODO (Backend): POST /api/internships   Body: newInternship object
-      // this.internshipService.create(payload).subscribe(created => this.internships.push(created));
-      const newInternship: Internship = {
-        id: this.internships.length + 1,
-        companyId: this.internship_form.value.companyId!,
-        companyName: this.internship_form.value.companyName!,
-        title: this.internship_form.value.title!,
-        description: this.internship_form.value.description!,
-        postDate: new Date(),
-        submissionDeadline: new Date(this.internship_form.value.submissionDeadline!),
-        duration: this.internship_form.value.duration!,
-        location: this.internship_form.value.location!,
-        active: true,
-        isPaid: this.internship_form.value.isPaid === 1,
-        skills: [...this.pendingSkills]
-      };
-      this.internships.push(newInternship);
-    }
+    const payload = {
+      title: this.internship_form.value.title,
+      description: this.internship_form.value.description,
+      submissionDeadline: new Date(this.internship_form.value.submissionDeadline!).toISOString(),
+      duration: this.internship_form.value.duration,
+      location: this.locationToString[this.internship_form.value.location!],
+      isPaid: this.internship_form.value.isPaid === 1,
+      status: this.internship_form.value.active === 1,
+      skillIds: this.pendingSkills.map(s => s.skillId)
+    };
 
-    this.closeModal();
-    this.clearModal();
+    if (this.isEditing && this.editingId !== null) {
+      this.http.put<any>(`${this.baseUrl}/listings/${this.editingId}`, payload, { headers: this.headers }).subscribe({
+        next: (res) => {
+          const index = this.internships.findIndex(x => x.id === this.editingId);
+          if (index !== -1) {
+            this.internships[index] = {
+              ...this.internships[index],
+              title: res.updatedListing.title,
+              description: res.updatedListing.description ?? '',
+              submissionDeadline: new Date(res.updatedListing.submissionDeadline),
+              duration: res.updatedListing.duration ?? '',
+              isPaid: res.updatedListing.isPaid,
+              active: res.updatedListing.status,
+              skills: [...this.pendingSkills]
+            };
+          }
+          this.closeModal();
+          this.clearModal();
+        },
+        error: (err) => alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to update listing`)
+      });
+    } else {
+      this.http.post<any>(`${this.baseUrl}/listings`, payload, { headers: this.headers }).subscribe({
+        next: (res) => {
+          const l = res.listing;
+          this.internships.push({
+            id: l.id,
+            companyId: l.companyId,
+            title: l.title,
+            description: l.description ?? '',
+            postDate: new Date(l.postDate),
+            submissionDeadline: new Date(l.submissionDeadline),
+            duration: l.duration ?? '',
+            location: this.internship_form.value.location!,
+            active: l.status,
+            isPaid: l.isPaid,
+            skills: [...this.pendingSkills]
+          });
+          this.closeModal();
+          this.clearModal();
+        },
+        error: (err) => alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to create listing`)
+      });
+    }
   }
 
   editInternship(internship: Internship) {
     this.isEditing = true;
     this.editingId = internship.id;
+
+    // Use local date string to avoid timezone shifting the date
+    const d = internship.submissionDeadline;
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
     this.internship_form.patchValue({
       title: internship.title,
-      companyName: internship.companyName ?? '',
+      companyName: this.companyName,
       description: internship.description,
-      submissionDeadline: internship.submissionDeadline.toISOString().split('T')[0],
+      submissionDeadline: dateStr,
       duration: internship.duration,
       location: internship.location,
       isPaid: internship.isPaid ? 1 : 0,
+      active: internship.active ? 1 : 0,
       companyId: internship.companyId,
       postDate: internship.postDate
     });
@@ -580,9 +450,19 @@ companyName: string = 'InternPath';
     this.pendingSkills = [...internship.skills];
   }
   deleteInternship(internship_id: number) {
-    // TODO (Backend): DELETE /api/internships/{internship_id}
-    // this.internshipService.delete(internship_id).subscribe(() => { ... });
-    this.internships = this.internships.filter(x => x.id !== internship_id);
+    this.http.delete<any>(`${this.baseUrl}/listings/${internship_id}`, { headers: this.headers }).subscribe({
+      next: () => { this.internships = this.internships.filter(x => x.id !== internship_id); },
+      error: (err) => alert(err.error?.message ?? 'Failed to delete listing')
+    });
+  }
+  getStudentMajorLabel(studentId: number): string {
+    const student = this.getStudentById(studentId);
+    if (student?.major == null) return '';
+    return this.majorLabels[student.major as Majors] ?? '';
+  }
+  getModalStudentMajorLabel(): string {
+    if (this.applicationModalStudent?.major == null) return '';
+    return this.majorLabels[this.applicationModalStudent.major as Majors] ?? '';
   }
 }
 

@@ -2,20 +2,32 @@ import prisma from '../prisma/client.js'
 
 export const createListing = async (req, res) => {
   try {
-    const companyId = req.userId;
-    const { title, submissionDeadline, location, isPaid, status, description, duration } = req.body;
+    const companyId = parseInt(req.userId, 10);
+    const { title, submissionDeadline, location, isPaid, status, description, duration, skillIds } = req.body;
     const postDate = new Date();
 
     if (!title || !submissionDeadline || !location || isPaid === undefined || status === undefined) {
-      // these are the required fields via the prisma schema
-      // for isPaid and status they are boolean values they can be validated if they're left blank or not
-      // by checking if they're undefined
       return res.status(400).json({ message: "Required field(s) are missing!" });
+    }
+
+    // Ensure company record exists (safe after DB resets)
+    const companyExists = await prisma.company.findUnique({ where: { userId: companyId } });
+    if (!companyExists) {
+      const user = await prisma.user.findUnique({ where: { id: companyId }, select: { firstName: true } });
+      if (!user) return res.status(404).json({ message: 'User not found. Please log out and sign in again.' });
+      await prisma.company.create({ data: { userId: companyId, name: user.firstName } });
     }
 
     const listing = await prisma.internship.create({
       data: { companyId, title, postDate, submissionDeadline, location, isPaid, status, description, duration }
     });
+
+    // Save required skills
+    if (Array.isArray(skillIds) && skillIds.length > 0) {
+      await prisma.internshipSkill.createMany({
+        data: skillIds.map(skillId => ({ internshipId: listing.id, skillId }))
+      });
+    }
 
     res.status(200).json({ listing });
   } catch (error) {
@@ -48,6 +60,9 @@ export const getListings = async (req, res) => {
         //return internships that have at least one skill matching this skillId
       },
       include: {
+        company: {
+          select: { name: true }
+        },
         internshipSkills: {
           include: {
             skill: {
@@ -69,7 +84,15 @@ export const getListing = async (req, res) => {
     const listingId = parseInt(req.params.id); // cause the id isn't coming from the req.body but from the route
     // parseInt is used cause the route params apparently comes in string and not int
 
-    const listing = await prisma.internship.findUnique({ where: { id: listingId } });
+    const listing = await prisma.internship.findUnique({
+      where: { id: listingId },
+      include: {
+        company: { select: { name: true } },
+        internshipSkills: {
+          include: { skill: { select: { name: true } } }
+        }
+      }
+    });
 
     if (!listing) {
       return res.status(404).json({ message: "Listing not found!" });
@@ -95,13 +118,22 @@ export const updateListing = async (req, res) => {
       return res.status(403).json({ message: "User is not authorized!" });
     }
 
-    const { title, submissionDeadline, location, isPaid, status, description, duration } = req.body;
-    // destructuring only updatable fields to prevent overwriting companyId, postDate, etc.
+    const { title, submissionDeadline, location, isPaid, status, description, duration, skillIds } = req.body;
 
     const updatedListing = await prisma.internship.update({
       where: { id: listingId },
       data: { title, submissionDeadline, location, isPaid, status, description, duration }
     });
+
+    // Update skills if provided
+    if (Array.isArray(skillIds)) {
+      await prisma.internshipSkill.deleteMany({ where: { internshipId: listingId } });
+      if (skillIds.length > 0) {
+        await prisma.internshipSkill.createMany({
+          data: skillIds.map(skillId => ({ internshipId: listingId, skillId }))
+        });
+      }
+    }
 
     res.status(200).json({ updatedListing });
   } catch (error) {

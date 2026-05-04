@@ -35,6 +35,7 @@ export class LoginComponent {
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userName', user.firstName);
             localStorage.setItem('userRole', user.role.toString());
+            localStorage.setItem('userId', user.id.toString());
             if (user.role === 0) {
               this.authService.getStudentProfile(res.token).subscribe({
                 next: (profile) => {
@@ -51,11 +52,18 @@ export class LoginComponent {
                 }
               });
             } else if (user.role === 1) {
+              // For recruiters, show company name in navbar instead of personal name
+              this.authService.getCompanyProfile(res.token).subscribe({
+                next: (company) => {
+                  if (company?.name) localStorage.setItem('userName', company.name);
+                },
+                error: () => {}
+              });
               this.isLoading = false;
               this.router.navigate(['/recruiter-dashboard']);
             } else {
               this.isLoading = false;
-              this.router.navigate(['/homepage']);
+              this.router.navigate(['/admin-dashboard']);
             }
           }
         });
@@ -65,24 +73,6 @@ export class LoginComponent {
         this.errorMessage = err.error?.message ?? 'Login failed. Please try again.';
       }
     });
-  }
-
-  loginAsStudent(): void {
-    this.email = 'sama@test.com';
-    this.password = '123456';
-    this.onLogin();
-  }
-
-  loginAsRecruiter(): void {
-    this.email = 'recruiter@test.com';
-    this.password = '123456';
-    this.onLogin();
-  }
-
-  loginAsAdmin(): void {
-    this.email = 'admin@test.com';
-    this.password = '123456';
-    this.onLogin();
   }
 
   goToSignup(): void {

@@ -2,6 +2,8 @@ import express from "express"
 import { register, login, me } from '../controllers/authController.js'
 import authenticate from '../middleware/authenticate.js'
 import authorizeRole from '../middleware/authorizeRole.js'
+import { changePassword ,deleteAccount} from '../controllers/authController.js';
+
 
 const router = express.Router()  // creates a Express router object, it's a container for grouping
 // related routes together
@@ -22,5 +24,9 @@ router.get("/me", authenticate, me) // protected route
 // router.get("/company-only", authenticate, authorizeRole(2), (req, res) => {
 //   res.json({ message: "Welcome company!" })
 // })
+
+//change password
+router.put("/change-password", authenticate, changePassword)
+router.delete("/delete-account", authenticate, deleteAccount)
 
 export default router

@@ -48,6 +48,23 @@ body {
     color: #fff;
 }
 
+.btn--outline {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    background-color: transparent;
+    color: #7b2cbf;
+    border: 1.5px solid #7b2cbf;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn--outline:hover {
+    background-color: #7b2cbf;
+    color: #fff;
+}
+
 
 /* =========================
    Dashboard Cards

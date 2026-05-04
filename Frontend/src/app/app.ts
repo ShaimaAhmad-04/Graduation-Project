@@ -15,6 +15,7 @@ export class App {
   isLoggedIn = false;
   userName = 'Sama';
   userInitial = 'S';
+  userRole = 0;
   dropdownOpen = false;
 
   constructor(private router: Router) {
@@ -35,6 +36,7 @@ export class App {
     if (this.isLoggedIn) {
       this.userName = localStorage.getItem('userName') ?? 'User';
       this.userInitial = this.userName[0].toUpperCase();
+      this.userRole = parseInt(localStorage.getItem('userRole') ?? '0', 10);
     }
   }
 
@@ -55,10 +57,13 @@ export class App {
   }
 
   logout(): void {
-    // CONNECT TO BACKEND: CLEAR AUTH TOKEN AND SESSION
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userName');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
     this.isLoggedIn = false;
+    this.userRole = 0;
     this.dropdownOpen = false;
     this.router.navigate(['/homepage']);
   }
