@@ -52,11 +52,17 @@ export const getApplicants = async (req, res) => {
   try {
     const internship = await prisma.internship.findFirst({
       where: { id: internshipId, companyId: recruiterId },
+      include:{
+        internshipSkills:{
+          include:{skils:true}
+        }
+      }
     });
 
     if (!internship) {
       return res.status(403).json({ message: "Access denied" });
     }
+    
 
     const applicants = await prisma.application.findMany({
       where: { internshipId},
