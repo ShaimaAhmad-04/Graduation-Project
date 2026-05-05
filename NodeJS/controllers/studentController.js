@@ -1,4 +1,8 @@
 import prisma from '../prisma/client.js'
+import fetch from 'node-fetch'
+import fs from 'fs'
+import FormData from 'form-data'
+
 
 
 // Returns the full profile of the logged in student
@@ -114,7 +118,46 @@ export const uploadCV = async (req, res) => {
       where: { userId: req.userId },
       data: { cvUrl }
     })
-    res.json({ cvUrl: student.cvUrl })
+    const formData = new FormData()
+    formData.append('file', fs.createReadStream(req.file.path), req.file.originalname)
+
+    const pythonRes = await fetch('http://localhost:8000/upload-cv', {
+      method: 'POST',
+      body: formData,
+      headers: formData.getHeaders()
+    })
+
+    if (!pythonRes.ok) {
+      return res.status(500).json({ message: 'CV parsing failed' })
+    }
+
+    const pythonData = await pythonRes.json()
+    const extractedSkills = pythonData.data.skills // array of strings
+
+    // 3. For each skill — find or create in Skill table, then upsert into StudentSkill
+    for (const skillName of extractedSkills) {
+      const skill = await prisma.skill.upsert({
+        where: { name: skillName },
+        update: {},
+        create: { name: skillName }
+      })
+
+    await prisma.studentSkill.upsert({
+        where: {
+          studentId_skillId: {
+            studentId: req.userId,
+            skillId: skill.id
+          }
+        },
+        update: {},
+        create: {
+          studentId: req.userId,
+          skillId: skill.id
+        }
+      })
+    }
+
+    res.json({ cvUrl, skillsExtracted: extractedSkills })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -133,7 +176,7 @@ export const getStudentSkills = async (req, res) => {
       }
     })
 
-    res.json(skills)
+     res.json(skills)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -344,7 +387,7 @@ export const getStudentRoadmaps = async (req, res) => {
       include: {
         nodes: {
           orderBy: {
-            orderIndex: "asc" 
+            orderIndex: "asc"
           }
         }
       }

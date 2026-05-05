@@ -9,6 +9,9 @@ export const createListing = async (req, res) => {
     if (!title || !submissionDeadline || !location || isPaid === undefined || status === undefined) {
       return res.status(400).json({ message: "Required field(s) are missing!" });
     }
+    if (!Array.isArray(skillIds) || skillIds.length === 0) { // we add skills to the validation to make sure every listing has skills that we can use later to create mathcing 
+      return res.status(400).json({ message: "At least one skill is required." });
+    }
 
     // Ensure company record exists (safe after DB resets)
     const companyExists = await prisma.company.findUnique({ where: { userId: companyId } });
