@@ -103,11 +103,20 @@ model Application {
   id            Int        @id @default(autoincrement())
   studentId     Int
   internshipId  Int
+
   student       Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
   internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+
   status        Int        @default(0)
-  matchingScore Int?
+
+  matchingScore Float?
+  matchedSkills Json?
+  missingSkills Json?
+  matchDetails  Json?
+
   createdAt     DateTime   @default(now())
+
+  @@unique([studentId, internshipId])
 }
 
 model Roadmap {

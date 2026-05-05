@@ -11,6 +11,7 @@ import companyRoutes from './routes/companyRoutes.js'
 import skillRoutes from './routes/skillRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
+import matchingRoutes from "./routes/matchingRoutes.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -37,6 +38,7 @@ app.use('/company', companyRoutes);
 app.use('/skills', skillRoutes)
 app.use('/applications', applicationRoutes)
 app.use('/admin', adminRoutes)
+app.use("/matches", matchingRoutes)
 app.listen(PORT, () => { // Start server and listen on PORT.
   console.log(`Server running on http://localhost:${PORT}`); // Log server URL when started.
 });
