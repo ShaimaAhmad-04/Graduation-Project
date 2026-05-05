@@ -95,19 +95,19 @@ model InternshipSkill {
   skillId       Int
   internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
   skill         Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  matchingScore Int?
-  date          DateTime?  @db.Date
 
-  @@id([internshipId, skillId]) // composite PK
+  @@id([internshipId, skillId])
 }
 
 model Application {
-  id           Int        @id @default(autoincrement())
-  studentId    Int        // FK to Student
-  internshipId Int        // FK to Internship
-  student      Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  internship   Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
-  status       Int
+  id            Int        @id @default(autoincrement())
+  studentId     Int
+  internshipId  Int
+  student       Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  status        Int        @default(0)
+  matchingScore Int?
+  createdAt     DateTime   @default(now())
 }
 
 model Roadmap {
