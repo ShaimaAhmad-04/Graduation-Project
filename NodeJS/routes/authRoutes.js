@@ -2,7 +2,9 @@ import express from "express"
 import { register, login, me } from '../controllers/authController.js'
 import authenticate from '../middleware/authenticate.js'
 import authorizeRole from '../middleware/authorizeRole.js'
-import { changePassword ,deleteAccount} from '../controllers/authController.js';
+import { resetPassword } from '../controllers/authController.js'
+
+import { changePassword, deleteAccount, forgotPassword } from '../controllers/authController.js';
 
 
 const router = express.Router()  // creates a Express router object, it's a container for grouping
@@ -28,5 +30,6 @@ router.get("/me", authenticate, me) // protected route
 //change password
 router.put("/change-password", authenticate, changePassword)
 router.delete("/delete-account", authenticate, deleteAccount)
-
+router.post('/forgot-password', forgotPassword)
+router.post('/reset-password', resetPassword)
 export default router

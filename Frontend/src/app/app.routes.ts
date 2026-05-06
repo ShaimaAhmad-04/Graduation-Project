@@ -11,6 +11,8 @@ import { RecruiterSettings } from './Components/recruiter-settings/recruiter-set
 import { ProfileSetup } from './Components/profile-setup/profile-setup';
 import { AdminDashboard } from './Components/admin-dashboard/admin-dashboard';
 import { authGuard } from './auth-guard';
+import { ForgotPasswordComponent } from './Components/forgot-password/forgot-password/forgot-password';
+import { ResetPasswordComponent } from './Components/reset-password/reset-passwords/reset-passwords';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'homepage', pathMatch: 'full' },
@@ -25,4 +27,6 @@ export const routes: Routes = [
   { path: 'recruiter-dashboard', component: RecruiterDashboard, canActivate: [authGuard] },
   { path: 'recruiter-settings', component: RecruiterSettings, canActivate: [authGuard] },
   { path: 'admin-dashboard', component: AdminDashboard, canActivate: [authGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent }
 ];
