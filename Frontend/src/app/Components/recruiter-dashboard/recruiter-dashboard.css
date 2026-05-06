@@ -458,4 +458,35 @@ a {
 .skills-dropdown li:last-child:hover { background: #f0f3ff; }
 .required-input-warning{
     border-color: red;
+}.skills-search-container {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+
+  max-height: 200px;
+  overflow-y: auto;
+
+  z-index: 1000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: #f2f2f2;
 }

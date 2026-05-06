@@ -16,6 +16,9 @@ model User {
   phoneNumber String  @db.VarChar(20)
   role        Int
 
+  resetPasswordToken    String?  
+  resetPasswordExpires  DateTime? 
+
   student Student? // not a column — lets you access the related Student record in code
   company Company? // not a column — lets you access the related Company record in code
 }
