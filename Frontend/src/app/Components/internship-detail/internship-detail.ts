@@ -162,7 +162,7 @@ get locationLabel(): string {
       },
       error: (err) => {
         this.isApplying = false;
-        this.applyError = err.error?.message ?? 'Failed to apply. Please try again.';
+        this.applyError = err.error?.message ?? err.error?.error ?? `Error ${err.status}: Failed to apply. Please try again.`;
       }
     });
   }
