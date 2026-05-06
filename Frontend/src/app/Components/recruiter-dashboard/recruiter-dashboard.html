@@ -32,7 +32,7 @@
                         <div class="col-8">
                             <h5 class="card-title mb-1">Active Internships</h5>
                             <div
-                                class="number fw-bold fs-4">{{activeInternships()}}</div>
+                                class="number fw-bold fs-4">{{activeInternshipsCount}}</div>
                         </div>
                         <div class="col-4 text-end">
                             <div class="card-icon fs-2"
@@ -54,7 +54,7 @@
                         <div class="col-8">
                             <h5 class="card-title mb-1">Total Applicants</h5>
                             <div
-                                class="number fw-bold fs-4">{{totalApplicants()}}</div>
+                                class="number fw-bold fs-4">{{totalApplicantsCount}}</div>
                         </div>
                         <div class="col-4 text-end">
                             <div class="card-icon fs-2"
@@ -76,7 +76,7 @@
                         <div class="col-8">
                             <h5 class="card-title mb-1">Pending Reviews</h5>
                             <div
-                                class="number fw-bold fs-4">{{totalPending()}}</div>
+                                class="number fw-bold fs-4">{{totalPendingCount}}</div>
                         </div>
                         <div class="col-4 text-end">
                             <div class="card-icon fs-2"
@@ -98,7 +98,7 @@
                         <div class="col-8">
                             <h5 class="card-title mb-1">Accepted</h5>
                             <div
-                                class="number fw-bold fs-4">{{totalAccepted()}}</div>
+                                class="number fw-bold fs-4">{{totalAcceptedCount}}</div>
                         </div>
                         <div class="col-4 text-end">
                             <div class="card-icon fs-2"
@@ -498,7 +498,7 @@
                         <span
                             class="badge rounded-pill border text-muted fw-normal px-3 py-1"
                             style="font-size:0.78rem; background:#f8f9fa;">
-                            {{ skills[skill.skill_id].skill_name }}
+                            {{ getSkillName(skill.skill_id) }}
                         </span>
                         }
                     </div>

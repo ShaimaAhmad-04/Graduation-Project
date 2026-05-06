@@ -85,7 +85,7 @@ export class InternshipDetailComponent implements OnInit {
   const icons: Record<number, string> = {
     [internship_location.on_site]: '📋',
     [internship_location.remote]: '🏠',
-    [internship_location.hyprid]: '🏢',
+    [internship_location.hybrid]: '🏢',
   };
   return icons[this.internship?.location ?? -1] ?? '📍';
 }

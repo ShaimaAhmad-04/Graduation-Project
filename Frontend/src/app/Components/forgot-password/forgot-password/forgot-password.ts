@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Route, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-forgot-password',
@@ -47,6 +47,6 @@ export class ForgotPasswordComponent {
   }
 
   goToLogin() {
-    this.router.navigate(['/reset-password'])
+    this.router.navigate(['/login'])
   }
 }
