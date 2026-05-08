@@ -57,6 +57,36 @@ export const verifyCompany = async (req, res) => {
   }
 }
 
+// Get all companies
+export const getAllCompanies = async (req, res) => {
+  try {
+    const companies = await prisma.company.findMany({
+      include: {
+        user: {
+          select: { email: true }
+        }
+      }
+    })
+    res.json(companies)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// Get admin overview stats
+export const getAdminStats = async (req, res) => {
+  try {
+    const [totalStudents, totalInternships, totalApplications] = await Promise.all([
+      prisma.student.count(),
+      prisma.internship.count(),
+      prisma.application.count()
+    ])
+    res.json({ totalStudents, totalInternships, totalApplications })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
 // Get all applications
 export const getAllApplications = async (req, res) => {
   try {
