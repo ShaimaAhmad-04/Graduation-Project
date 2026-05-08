@@ -149,7 +149,8 @@
                     <p>Latest applications</p>
                 </div>
                 <div class="card-body d-flex flex-column gap-2">
-                    @for(internship of getClosingSoon(); track internship.title) {
+                    @for(internship of getClosingSoon(); track internship.title)
+                    {
                     <div class="card p-2 background-card overview-clickable"
                         (click)="setSection('internship')">
                         <div class="row align-items-center">
@@ -178,15 +179,19 @@
                     <p>Highest matching applicants</p>
                 </div>
                 <div class="card-body d-flex flex-column gap-2">
-                    @for(applicant of getTopCandidates(); track applicant.applicantName) {
+                    @for(applicant of getTopCandidates(); track
+                    applicant.applicantName) {
                     <div class="card p-2 background-card">
                         <div class="row align-items-center">
                             <div class="col">
-                                <h5 class="card-title mb-1">{{ applicant.applicantName }}</h5>
-                                <p class="card-text mb-0">{{ getMajorLabel(applicant.major) }}</p>
+                                <h5 class="card-title mb-1">{{
+                                    applicant.applicantName }}</h5>
+                                <p class="card-text mb-0">{{
+                                    getMajorLabel(applicant.major) }}</p>
                             </div>
                             <div class="col-auto">
-                                <span class="match">{{ applicant.matchingScore }}%</span>
+                                <span class="match">{{ applicant.matchingScore
+                                    }}%</span>
                             </div>
                         </div>
                     </div>
@@ -259,7 +264,7 @@
     <!-- internship -->
     <div class="row mt-3">
         <!-- card -->
-        @for(internship of internships; track internship) {
+        @for(internship of internships; track internship.id) {
         <div class="col-12">
             <div class="card p-4 mb-3 border-light-subtle shadow-sm">
 
@@ -352,7 +357,8 @@
                                         {{ student?.first_name }} {{
                                         student?.last_name }}
                                     </span>
-                                    <span class="match">{{ matchScoreMap[app.id] ?? 0 }}%</span>
+                                    <span class="match">{{ matchScoreMap[app.id]
+                                        ?? 0 }}%</span>
                                 </div>
                                 <div class="major">{{
                                     getStudentMajorLabel(app.studentId) }}</div>
@@ -397,7 +403,8 @@
                 <div class="modal-header border-0 px-4 pt-4 pb-2">
                     <h6 class="modal-title fw-semibold text-muted">Application
                         Details</h6>
-                    <button type="button " class="btn-close " #applicationModalButton
+                    <button type="button " class="btn-close "
+                        #applicationModalButton
                         data-bs-dismiss="modal"></button>
                 </div>
 
@@ -421,7 +428,9 @@
                             <div class="d-flex align-items-center gap-2 mt-1">
                                 <span class="badge rounded-pill px-3 py-1"
                                     style="background:#f0e6ff; color:#7c3aed; font-size:0.75rem;">
-                                    {{ matchScoreMap[applicationModalApplication?.id ?? 0] ?? 0 }}% Match
+                                    {{
+                                    matchScoreMap[applicationModalApplication?.id
+                                    ?? 0] ?? 0 }}% Match
                                 </span>
                                 <span class="badge rounded-pill px-3 py-1"
                                     style="font-size:0.75rem;"
@@ -564,7 +573,8 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ isEditing ? 'Edit Internship' : 'Post New Internship' }}</h5>
+                    <h5 class="modal-title">{{ isEditing ? 'Edit Internship' :
+                        'Post New Internship' }}</h5>
                     <button type="button" class="btn-close"
                         data-bs-dismiss="modal" aria-label="Close"
                         (click)="clearModal()"></button>
@@ -678,12 +688,13 @@
                                     <span class="skill-tag">
                                         {{ getSkillName(skill.skillId) }}
                                         <button type="button"
-                                            (mousedown)="removeSkill(skill.skillId)">✕</button>
+                                            (click)="removeSkill(skill.skillId)">✕</button>
                                     </span>
                                     }
                                 </div>
                                 <div class="skills-input-row">
                                     <input class="skills-input"
+                                        #skillsInput
                                         id="skills-input"
                                         name="skills"
                                         type="text"
@@ -691,7 +702,7 @@
                                         autocomplete="off"
                                         [(ngModel)]="searchQuery"
                                         [ngModelOptions]="{standalone: true}"
-                                        (input)="searchSkill($event.target.value)"
+                                        (input)="searchSkill(searchQuery)"
                                         (blur)="skillsTouched = true">
 
                                 </div>
@@ -702,7 +713,7 @@
                                     <ul>
                                         @for(skill of searchSkills; track
                                         skill.skill_id) {
-                                        <li (mousedown)="selectSkill(skill)">
+                                        <li (click)="selectSkill(skill)">
                                             {{ skill.skill_name }}
                                         </li>
                                         }
@@ -711,7 +722,7 @@
                                     @if(searchSkills.length === 0 &&
                                     searchQuery.trim()) {
                                     <div class="add-custom"
-                                        (mousedown)="addCustomSkill(searchQuery)">
+                                        (click)="addCustomSkill(searchQuery)">
                                         + Add "{{ searchQuery }}"
                                     </div>
                                     }
