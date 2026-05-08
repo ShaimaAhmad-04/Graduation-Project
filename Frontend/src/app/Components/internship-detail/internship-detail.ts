@@ -85,7 +85,7 @@ export class InternshipDetailComponent implements OnInit {
   const icons: Record<number, string> = {
     [internship_location.on_site]: '📋',
     [internship_location.remote]: '🏠',
-    [internship_location.hyprid]: '🏢',
+    [internship_location.hybrid]: '🏢',
   };
   return icons[this.internship?.location ?? -1] ?? '📍';
 }
@@ -162,7 +162,7 @@ get locationLabel(): string {
       },
       error: (err) => {
         this.isApplying = false;
-        this.applyError = err.error?.message ?? 'Failed to apply. Please try again.';
+        this.applyError = err.error?.message ?? err.error?.error ?? `Error ${err.status}: Failed to apply. Please try again.`;
       }
     });
   }

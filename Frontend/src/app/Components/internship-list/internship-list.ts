@@ -25,7 +25,7 @@ export class InternshipListComponent implements OnInit {
     { label: 'All Locations', value: -1 },
     { label: 'On-Site', value: internship_location.on_site },
     { label: 'Remote', value: internship_location.remote },
-    { label: 'Hybrid', value: internship_location.hyprid },
+    { label: 'Hybrid', value: internship_location.hybrid },
   ];
 
   types = ['All Types', 'Paid', 'Unpaid'];

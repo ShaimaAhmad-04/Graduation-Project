@@ -51,44 +51,26 @@ export const getCompanyApplications = async (req, res) => {
     const companyId = req.userId
 
     const applications = await prisma.application.findMany({
-      where: {
-        internship: { companyId }
-      },
+      where: { internship: { companyId } },
       include: {
         student: {
           include: {
-            user: {
-              select: { firstName: true, lastName: true }
-            },
-            studentSkills: {
-              include: { skill: true }
-            }
+            user: { select: { firstName: true, lastName: true } }
           }
         },
-        internship: {
-          include: { internshipSkills: true }
-        }
+        internship: { select: { title: true, id: true } }
       }
     })
-    // app short for application
-    const result = applications.map(app => {
-      //filler matching algorithm until we do it
-      //basic skill matching
-      const studentSkillIds = app.student.studentSkills.map(s => s.skillId)
-      const internshipSkillIds = app.internship.internshipSkills.map(s => s.skillId)
-      const matchedSkills = studentSkillIds.filter(id => internshipSkillIds.includes(id))
-      const matchingScore = internshipSkillIds.length > 0
-        ? Math.round((matchedSkills.length / internshipSkillIds.length) * 100)
-        : 0
 
-      return {
-        applicationId: app.id,
-        applicantName: `${app.student.user.firstName} ${app.student.user.lastName}`,
-        major: app.student.major,
-        matchingScore,
-        status: app.status
-      }
-    })
+    const result = applications.map(app => ({
+      applicationId: app.id,
+      applicantName: `${app.student.user.firstName} ${app.student.user.lastName}`,
+      major: app.student.major,
+      matchingScore: app.matchingScore ?? 0,
+      status: app.status,
+      internshipId: app.internshipId,
+      internshipTitle: app.internship.title
+    }))
 
     res.json(result)
   } catch (error) {
@@ -137,40 +119,25 @@ export const getTopMatchingApplicants = async (req, res) => {
     const companyId = req.userId
 
     const applications = await prisma.application.findMany({
-      where: {
-        internship: { companyId }
-      },
+      where: { internship: { companyId } },
       include: {
         student: {
           include: {
-            user: {
-              select: { firstName: true, lastName: true }
-            },
-            studentSkills: true
+            user: { select: { firstName: true, lastName: true } }
           }
-        },
-        internship: {
-          include: { internshipSkills: true }
         }
       }
     })
 
-    const scored = applications.map(app => {
-      const studentSkillIds = app.student.studentSkills.map(s => s.skillId)
-      const internshipSkillIds = app.internship.internshipSkills.map(s => s.skillId)
-      const matchedSkills = studentSkillIds.filter(id => internshipSkillIds.includes(id))
-      const matchingScore = internshipSkillIds.length > 0
-        ? Math.round((matchedSkills.length / internshipSkillIds.length) * 100)
-        : 0
-
-      return {
+    const top3 = applications
+      .map(app => ({
         applicantName: `${app.student.user.firstName} ${app.student.user.lastName}`,
         major: app.student.major,
-        matchingScore
-      }
-    })
+        matchingScore: app.matchingScore ?? 0
+      }))
+      .sort((a, b) => b.matchingScore - a.matchingScore)
+      .slice(0, 3)
 
-    const top3 = scored.sort((a, b) => b.matchingScore - a.matchingScore).slice(0, 3)
     res.json(top3)
   } catch (error) {
     res.status(500).json({ error: error.message })
