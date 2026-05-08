@@ -1061,6 +1061,73 @@
   color: #7c3aed;
 }
 
+/* --- GENERATE FORM --- */
+.roadmap-generate-card {
+  padding: 40px;
+  text-align: center;
+  max-width: 600px;
+  margin: 40px auto;
+}
+
+.roadmap-generate-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px;
+}
+
+.roadmap-generate-sub {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0 0 28px;
+}
+
+.roadmap-form-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.roadmap-select {
+  flex: 1;
+  min-width: 220px;
+  max-width: 340px;
+  padding: 12px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  background: #f9fafb;
+  outline: none;
+  cursor: pointer;
+}
+
+.roadmap-select:focus {
+  border-color: #7c3aed;
+  background: white;
+}
+
+.btn-generate {
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn-generate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-generate:not(:disabled):hover { opacity: 0.9; }
+
 /* --- TIMELINE SHAPE --- */
 .roadmap-steps {
   display: flex;

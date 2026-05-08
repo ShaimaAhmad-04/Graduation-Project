@@ -146,8 +146,8 @@ export class StudentDashboard implements OnInit {
         this.applications = apps.map(a => ({
           id: a.id,
           title: a.internship.title,
-          company: '',
-          appliedDate: new Date(),
+          company: a.internship.company?.name ?? '',
+          appliedDate: a.createdAt ? new Date(a.createdAt) : new Date(),
           status: statusMap[a.status] ?? 'pending',
           matchScore: a.matchScore ?? 0
         }));

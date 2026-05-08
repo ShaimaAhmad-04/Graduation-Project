@@ -7,7 +7,7 @@ export class AuthService {
 
   private baseUrl = 'http://localhost:5002';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   login(email: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/auth/login`, { email, password });
@@ -59,6 +59,17 @@ export class AuthService {
   getCompanyProfile(token: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/company/profile`, {
       headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(email: string, token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/auth/reset-password`, {
+      email,
+      token,
+      newPassword
     });
   }
 }

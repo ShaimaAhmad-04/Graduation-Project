@@ -13,12 +13,18 @@ import applicationRoutes from './routes/applicationRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import matchingRoutes from "./routes/matchingRoutes.js"
 
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 mkdirSync(join(__dirname, 'uploads'), { recursive: true });
 
 const app = express();
 const PORT = process.env.PORT || 5002;
+app.use((req, res, next) => {
+  console.log("➡️ REQUEST:", req.method, req.url);
+  next();
+});
 app.use(cors({ origin: 'http://localhost:4200' }));
 app.use(express.json());
 app.use('/uploads', express.static(join(__dirname, 'uploads')));

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -17,8 +18,17 @@ export class LoginComponent {
   password = '';
   errorMessage = '';
   isLoading = false;
+  currentPassword = '';
+  newPassword = '';
+  confirmNewPassword = '';
+  successMessage = ''
 
-  constructor(private router: Router, private authService: AuthService) {}
+
+  private baseUrl = 'http://localhost:5002';
+  private get headers() { return { Authorization: `Bearer ${this.authService.getToken() ?? ''}` }; }
+
+
+  constructor(private router: Router, private authService: AuthService, private http: HttpClient) { }
 
   onLogin(): void {
     if (!this.email || !this.password) {
@@ -57,7 +67,7 @@ export class LoginComponent {
                 next: (company) => {
                   if (company?.name) localStorage.setItem('userName', company.name);
                 },
-                error: () => {}
+                error: () => { }
               });
               this.isLoading = false;
               this.router.navigate(['/recruiter-dashboard']);
@@ -77,5 +87,10 @@ export class LoginComponent {
 
   goToSignup(): void {
     this.router.navigate(['/signup']);
+  }
+
+
+  goToForgotPassword() {
+    this.router.navigate(['/forgot-password']);
   }
 }

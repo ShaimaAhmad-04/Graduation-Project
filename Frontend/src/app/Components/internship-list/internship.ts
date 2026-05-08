@@ -17,7 +17,7 @@ export class InternshipService {
   private locationMap: Record<string, internship_location> = {
     'In_site': internship_location.on_site,
     'Remote': internship_location.remote,
-    'Hybrid': internship_location.hyprid,
+    'Hybrid': internship_location.hybrid,
   };
 
   constructor(private http: HttpClient) {
@@ -76,7 +76,7 @@ export class InternshipService {
     const labels: Record<number, string> = {
       [internship_location.on_site]: 'On-Site',
       [internship_location.remote]: 'Remote',
-      [internship_location.hyprid]: 'Hybrid',
+      [internship_location.hybrid]: 'Hybrid',
     };
     return labels[location] ?? 'Unknown';
   }
