@@ -1,7 +1,7 @@
 import express from "express"
 import authenticate from '../middleware/authenticate.js'
 import authorizeRole from "../middleware/authorizeRole.js"
-import {createListing,getListings,getListing,updateListing,deleteListing} from "../controllers/listingControllers.js"
+import {createListing,getListings,getListing,updateListing,deleteListing,addSkillToListing} from "../controllers/listingControllers.js"
 
 const router = express.Router();
 // check prisma schema
@@ -11,6 +11,7 @@ router.get("/",getListings);//get all listings, visit site
 router.get("/:id",getListing);// get a specific listing
 router.put("/:id",authenticate,authorizeRole(1),updateListing);//update or edit a listing, recruiter(owner) ONLY
 router.delete("/:id",authenticate,authorizeRole(1,2),deleteListing);// delete listing recruiter + admin
+router.post("/:id/skills", authenticate, authorizeRole(1), addSkillToListing)
 //ownership checked in controller
 
 export default router;

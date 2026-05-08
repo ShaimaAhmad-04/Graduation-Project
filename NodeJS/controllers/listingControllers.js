@@ -165,3 +165,48 @@ export const deleteListing = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 }
+
+export const addSkillToListing = async (req, res) => {
+  try {
+    const internshipId = parseInt(req.params.id)
+    const { skillName } = req.body
+
+    if (!skillName || skillName.trim().length < 2 || skillName.trim().length > 50) {
+      return res.status(400).json({ message: "Invalid skill name" })
+    }
+
+    const internship = await prisma.internship.findUnique({ where: { id: internshipId } })
+
+    if (!internship) {
+      return res.status(404).json({ message: "Internship not found" })
+    }
+
+    if (internship.companyId !== req.userId) {
+      return res.status(403).json({ message: "Access denied" })
+    }
+
+    const skill = await prisma.skill.upsert({
+      where: { name: skillName.trim() },
+      update: {},
+      create: { name: skillName.trim() }
+    })
+
+    const existing = await prisma.internshipSkill.findUnique({
+      where: {
+        internshipId_skillId: { internshipId, skillId: skill.id }
+      }
+    })
+
+    if (existing) {
+      return res.status(400).json({ message: "Skill already added to this internship" })
+    }
+
+    const internshipSkill = await prisma.internshipSkill.create({
+      data: { internshipId, skillId: skill.id }
+    })
+
+    res.json(internshipSkill)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
