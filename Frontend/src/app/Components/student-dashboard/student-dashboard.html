@@ -275,6 +275,25 @@
 
   <!-- ROADMAP TAB -->
   <div class="tab-content" *ngIf="activeTab === 'roadmap'">
+
+    <!-- Generate form (no roadmap yet) -->
+    <div *ngIf="!currentRoadmap" class="roadmap-generate-card card">
+      <h2 class="roadmap-generate-title">Generate Your Learning Roadmap</h2>
+      <p class="roadmap-generate-sub">Choose a career path and we'll build a step-by-step learning plan for you.</p>
+
+      <div class="roadmap-form-row">
+        <select class="roadmap-select" [(ngModel)]="selectedPosition">
+          <option value="" disabled>Select a desired position…</option>
+          <option *ngFor="let p of positions" [value]="p">{{ p }}</option>
+        </select>
+
+        <button class="btn-generate" [disabled]="!selectedPosition || isGenerating" (click)="generateRoadmap()">
+          <span *ngIf="!isGenerating">Generate Roadmap</span>
+          <span *ngIf="isGenerating">Generating…</span>
+        </button>
+      </div>
+    </div>
+
     <div *ngIf="currentRoadmap" class="roadmap-container">
 
       <div class="roadmap-result-header card card--purple">

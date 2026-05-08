@@ -37,10 +37,8 @@ export class SkillSelectionService {
    * Clears results when the query is blank.
    */
   search(query: string): void {
-    if (!query.trim()) {
-      this.searchResultsSubject.next([]);
-      return;
-    }
+    this.searchResultsSubject.next([]); // clear stale results immediately
+    if (!query.trim()) return;
 
     this.api.search(query).subscribe({
       next: results => this.searchResultsSubject.next(results),
