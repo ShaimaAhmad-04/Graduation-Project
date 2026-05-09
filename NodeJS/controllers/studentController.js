@@ -111,6 +111,7 @@ export const getStudentCV = async (req, res) => {
 }
 
 export const uploadCV = async (req, res) => {
+  console.log('uploadCV hit',req.file)  // testing purposes
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' })
     const cvUrl = `/uploads/${req.file.filename}`
@@ -159,6 +160,7 @@ export const uploadCV = async (req, res) => {
 
     res.json({ cvUrl, skillsExtracted: extractedSkills })
   } catch (error) {
+     console.error('uploadCV error:', error.message)  // testing purposes
     res.status(500).json({ error: error.message })
   }
 }

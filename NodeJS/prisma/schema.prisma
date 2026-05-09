@@ -61,8 +61,8 @@ model Internship {
   companyId           Int
   title               String               @db.VarChar(150)
   description         String?              @db.VarChar(200)
-  postDate            DateTime             @db.Date
-  submissionDeadline  DateTime             @db.Date
+  postDate            DateTime
+  submissionDeadline  DateTime
   duration            String?              @db.VarChar(50)
   location            Location
   isPaid              Boolean
@@ -78,7 +78,7 @@ model InternshipSkill {
   internshipId  Int
   skillId       Int
   matchingScore Int?
-  date          DateTime?  @db.Date
+  date          DateTime?  
   internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
   skill         Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
@@ -86,12 +86,14 @@ model InternshipSkill {
 }
 
 model Application {
-  id           Int        @id @default(autoincrement())
-  studentId    Int
-  internshipId Int
-  status       Int
-  internship   Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
-  student      Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  id            Int        @id @default(autoincrement())
+  studentId     Int
+  internshipId  Int
+  status        Int        @default(0)
+  matchingScore Int?
+  createdAt     DateTime   @default(now())
+  internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  student       Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 }
 
 model Roadmap {
