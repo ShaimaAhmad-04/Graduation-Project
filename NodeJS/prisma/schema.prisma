@@ -1,101 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js" // generates the prisma client used to query the db
-}
-
 model User {
-  id          Int     @id @default(autoincrement()) // PK, auto-increment
-  firstName   String  @db.VarChar(50)
-  lastName    String? @db.VarChar(50)               // ? = nullable
-  email       String  @unique @db.VarChar(255)
-  password    String  @db.VarChar(255)
-  phoneNumber String  @db.VarChar(20)
+  id          Int      @id @default(autoincrement())
+  firstName   String   @db.VarChar(50)
+  lastName    String?  @db.VarChar(50)
+  email       String   @unique @db.VarChar(255)
+  password    String   @db.VarChar(255)
+  phoneNumber String   @db.VarChar(20)
   role        Int
-
-  resetPasswordToken    String?  
-  resetPasswordExpires  DateTime? 
-
-  student Student? // not a column — lets you access the related Student record in code
-  company Company? // not a column — lets you access the related Company record in code
+  company     Company?
+  student     Student?
 }
 
 model Student {
-  userId         Int      @id       // PK and FK to User.id — no separate ID
-  user           User     @relation(fields: [userId], references: [id]) // defines the FK relationship
-  major          Int?
-  university     String?  @db.VarChar(100)
-  experience     String?  @db.Text
-  gpa            Decimal?
-  graduationYear Int?
-  linkedinUrl    String?  @db.VarChar(255)
-  githubUrl      String?  @db.VarChar(255)
-  certifications String[]
-  cvUrl          String?  @db.VarChar(255)
-
-  // not columns — navigation helpers to access related records in code
+  userId             Int                 @id
+  major              String?
+  university         String?             @db.VarChar(100)
+  experience         String?
+  gpa                Decimal?
+  graduationYear     Int?
+  linkedinUrl        String?             @db.VarChar(255)
+  githubUrl          String?             @db.VarChar(255)
+  certifications     String[]
+  cvUrl              String?
   applications       Application[]
   roadmaps           Roadmap[]
+  user               User                @relation(fields: [userId], references: [id])
   studentInternships StudentInternship[]
   studentSkills      StudentSkill[]
 }
 
 model Company {
-  userId      Int     @id       // PK and FK to User.id — no separate ID
-  user        User    @relation(fields: [userId], references: [id]) // defines the FK relationship
-  name        String  @db.VarChar(120)
-  description String?
-  industry    String? @db.VarChar(100)
-  website     String? @db.VarChar(255)
-  verified    Boolean @default(false)
-
-  // not columns — navigation helpers to access related records in code
-  internships      Internship[]
+  userId           Int               @id
+  name             String            @db.VarChar(120)
+  description      String?
+  industry         String?           @db.VarChar(100)
+  website          String?           @db.VarChar(255)
+  verified         Boolean           @default(false)
+  user             User              @relation(fields: [userId], references: [id])
   companyLocations CompanyLocation[]
+  internships      Internship[]
 }
 
 model Skill {
-  id   Int    @id @default(autoincrement())
-  name String @unique @db.VarChar(100)
-
-  // not columns — navigation helpers to access related records in code
+  id               Int               @id @default(autoincrement())
+  name             String            @unique @db.VarChar(100)
   internshipSkills InternshipSkill[]
   studentSkills    StudentSkill[]
 }
 
 model Internship {
-  id                 Int      @id @default(autoincrement())
-  companyId          Int      // FK to Company
-  company            Company  @relation(fields: [companyId], references: [userId])
-  title              String   @db.VarChar(150)
-  description        String?  @db.Text
-  postDate           DateTime @db.Date
-  submissionDeadline DateTime @db.Date
-  duration           String?  @db.VarChar(50)
-  location           Location // enum — must be Remote, In_site, or Hybrid
-  isPaid             Boolean
-  status             Boolean
-
-  // not columns — navigation helpers to access related records in code
-  internshipSkills    InternshipSkill[]
+  id                  Int                  @id @default(autoincrement())
+  companyId           Int
+  title               String               @db.VarChar(150)
+  description         String?              @db.VarChar(200)
+  postDate            DateTime             @db.Date
+  submissionDeadline  DateTime             @db.Date
+  duration            String?              @db.VarChar(50)
+  location            Location
+  isPaid              Boolean
+  status              Boolean
   applications        Application[]
-  studentInternships  StudentInternship[]
+  company             Company              @relation(fields: [companyId], references: [userId])
   internshipLocations InternshipLocation[]
-}
-
-// restricts location field to these three values only
-enum Location {
-  Remote
-  In_site
-  Hybrid
+  internshipSkills    InternshipSkill[]
+  studentInternships  StudentInternship[]
 }
 
 model InternshipSkill {
   internshipId  Int
   skillId       Int
+  matchingScore Int?
+  date          DateTime?  @db.Date
   internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
   skill         Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
@@ -103,62 +86,50 @@ model InternshipSkill {
 }
 
 model Application {
-  id            Int        @id @default(autoincrement())
-  studentId     Int
-  internshipId  Int
-
-  student       Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
-
-  status        Int        @default(0)
-
-  matchingScore Float?
-  matchedSkills Json?
-  missingSkills Json?
-  matchDetails  Json?
-
-  createdAt     DateTime   @default(now())
-
-  @@unique([studentId, internshipId])
+  id           Int        @id @default(autoincrement())
+  studentId    Int
+  internshipId Int
+  status       Int
+  internship   Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  student      Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 }
 
 model Roadmap {
-  roadmapId       Int       @id @default(autoincrement())
-  studentId       Int       // FK to Student
-  student         Student   @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  desiredPosition String?   @db.VarChar(100)
+  roadmapId       Int           @id @default(autoincrement())
+  studentId       Int
+  desiredPosition String?       @db.VarChar(100)
   generatedAt     DateTime?
-
-  nodes RoadmapNode[]
+  student         Student       @relation(fields: [studentId], references: [userId], onDelete: Cascade)
+  nodes           RoadmapNode[]
 }
 
 model RoadmapNode {
   nodeId     Int
-  roadmapId  Int     // FK to Roadmap
-  roadmap    Roadmap @relation(fields: [roadmapId], references: [roadmapId], onDelete: Cascade)
+  roadmapId  Int
   title      String  @db.VarChar(150)
-  orderIndex Int     // defines step sequence
+  orderIndex Int
+  roadmap    Roadmap @relation(fields: [roadmapId], references: [roadmapId], onDelete: Cascade)
 
-  @@id([nodeId, roadmapId]) // composite PK
+  @@id([nodeId, roadmapId])
 }
 
 model StudentInternship {
   studentId    Int
   internshipId Int
-  student      Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
   internship   Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  student      Student    @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
-  @@id([studentId, internshipId]) // composite PK
+  @@id([studentId, internshipId])
 }
 
 model StudentSkill {
   studentId  Int
   skillId    Int
-  student    Student @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  skill      Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
   experience Int?
+  skill      Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  student    Student @relation(fields: [studentId], references: [userId], onDelete: Cascade)
 
-  @@id([studentId, skillId]) // composite PK
+  @@id([studentId, skillId])
 }
 
 model CompanyLocation {
@@ -168,7 +139,7 @@ model CompanyLocation {
   street    String? @db.VarChar(50)
   company   Company @relation(fields: [companyId], references: [userId], onDelete: Cascade)
 
-  @@id([companyId, city, country]) // composite PK
+  @@id([companyId, city, country])
 }
 
 model InternshipLocation {
@@ -178,5 +149,11 @@ model InternshipLocation {
   street       String?    @db.VarChar(50)
   internship   Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
 
-  @@id([internshipId, city, country]) // composite PK
+  @@id([internshipId, city, country])
+}
+
+enum Location {
+  on_site
+  remote
+  hybrid
 }

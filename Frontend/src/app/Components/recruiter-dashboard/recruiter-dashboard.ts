@@ -16,6 +16,8 @@ import { MajorsLabels } from '../../ENUMs/MappedMajors';
 import { SkillSelectionService } from '../../services/skill-selection-service';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
+import * as bootstrap from 'bootstrap'
+
 
 @Component({
   selector: 'recruiter-dashboard',
@@ -360,8 +362,12 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
   }
 
   private closeModal(): void {
-    const modal = (window as any).bootstrap?.Modal?.getInstance(this.postInternshipModal.nativeElement);
-    modal?.hide();
+    const modalEl = this.postInternshipModal?.nativeElement
+
+    if (!modalEl) return
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl)
+    modal.hide()
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -439,8 +445,9 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
     this.editingId = internship.id;
 
     const d = internship.submissionDeadline;
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
+    const dateStr = new Date(internship.submissionDeadline)
+      .toISOString()
+      .split('T')[0];
     this.internship_form.patchValue({
       title: internship.title,
       companyName: this.companyName,

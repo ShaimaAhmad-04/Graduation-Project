@@ -222,7 +222,7 @@ export class StudentSettings implements OnInit {
 
     if (confirmed) {
       // 1. Call the backend
-      this.http.delete(`${this.baseUrl}/auth/delete`, { headers: this.headers }).subscribe({
+      this.http.delete(`${this.baseUrl}/auth/delete-account`, { headers: this.headers }).subscribe({
         next: (res: any) => {
           // 2. Clear local session data
           this.authService.logout();
