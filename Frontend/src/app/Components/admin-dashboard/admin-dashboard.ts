@@ -136,15 +136,14 @@ export class AdminDashboard implements OnInit {
       next: () => { company.isVerified = true; }
     });
   }
-  declineCompany(company: any) {
+  declineCompany(company: Company): void {
     if (!confirm(`Are you sure you want to decline ${company.name}?`)) return;
 
-    this.http.declineCompany(company.id).subscribe({
+    this.http.delete(`${this.baseUrl}/admin/companies/${company.id}`, { headers: this.headers }).subscribe({
       next: () => {
-        this.unverifiedCompanies = this.unverifiedCompanies.filter(c => c.id !== company.id);
-        this.getStats(); // refresh counters if you have it
+       this.companies = this.companies.filter(c => c.id !== company.id);
       },
-      error: (err) => console.error(err)
+     error: (err: any) => console.error(err)
     });
   }
   goToUnverified(): void {
