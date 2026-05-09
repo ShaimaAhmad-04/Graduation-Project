@@ -353,7 +353,19 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════════════
 
   clearModal(): void {
-    this.internship_form.reset();
+    this.internship_form.reset({
+      title: '',
+      companyName: '',
+      companyId: parseInt(localStorage.getItem('userId') ?? '0'),
+      description: '',
+      postDate: new Date(),
+      submissionDeadline: '',
+      duration: '',
+      location: internship_location.on_site,
+      active: 1,
+      isPaid: 0
+    });
+
     this.skillsTouched = false;
     this.searchQuery = '';
     this.skillSelectionService.clearAll();
@@ -375,70 +387,131 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════════════
 
   postInternship(): void {
-    if (this.internship_form.invalid) return;
+  console.log("========== POST INTERNSHIP CLICKED ==========");
+  console.log("Mode:", this.isEditing ? "EDIT" : "CREATE");
+  console.log("Editing ID:", this.editingId);
+  console.log("Form value:", this.internship_form.value);
+  console.log("Form valid:", this.internship_form.valid);
+  console.log("Pending skills:", this.pendingSkills);
 
-    const currentSkills = this.skillSelectionService.getSelectedSkills();
-    if (currentSkills.length === 0) {
-      this.skillsTouched = true;
-      return;
-    }
+  Object.keys(this.internship_form.controls).forEach(key => {
+    const control = this.internship_form.get(key);
 
-    const payload = {
-      title: this.internship_form.value.title,
-      description: this.internship_form.value.description,
-      submissionDeadline: new Date(this.internship_form.value.submissionDeadline!).toISOString(),
-      duration: this.internship_form.value.duration,
-      location: this.locationToString[this.internship_form.value.location!],
-      isPaid: this.internship_form.value.isPaid === 1,
-      status: this.internship_form.value.active === 1,
-      skillIds: currentSkills.map(s => s.skillId)
-    };
-
-    if (this.isEditing && this.editingId !== null) {
-      this.http.put<any>(`${this.baseUrl}/listings/${this.editingId}`, payload, { headers: this.headers }).subscribe({
-        next: res => {
-          const index = this.internships.findIndex(x => x.id === this.editingId);
-          if (index !== -1) {
-            this.internships[index] = {
-              ...this.internships[index],
-              title: res.updatedListing.title,
-              description: res.updatedListing.description ?? '',
-              submissionDeadline: new Date(res.updatedListing.submissionDeadline),
-              duration: res.updatedListing.duration ?? '',
-              isPaid: res.updatedListing.isPaid,
-              active: res.updatedListing.status,
-              skills: [...currentSkills]
-            };
-          }
-          this.closeModal();
-          this.clearModal();
-        },
-        error: err => alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to update listing`)
-      });
-    } else {
-      this.http.post<any>(`${this.baseUrl}/listings`, payload, { headers: this.headers }).subscribe({
-        next: res => {
-          const l = res.listing;
-          this.internships.push({
-            id: l.id,
-            companyId: l.companyId,
-            title: l.title,
-            description: l.description ?? '',
-            postDate: new Date(l.postDate),
-            submissionDeadline: new Date(l.submissionDeadline),
-            duration: l.duration ?? '',
-            location: this.internship_form.value.location!,
-            active: l.status,
-            isPaid: l.isPaid,
-            skills: [...currentSkills]
-          });
-          this.closeModal();
-          this.clearModal();
-        },
-        error: err => alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to create listing`)
+    if (control?.invalid) {
+      console.error("Invalid form field:", key, {
+        value: control.value,
+        errors: control.errors
       });
     }
+  });
+
+  if (this.internship_form.invalid) {
+    console.error("Stopped because form is invalid.");
+    return;
   }
+
+  const currentSkills = this.skillSelectionService.getSelectedSkills();
+
+  console.log("Current skills from service:", currentSkills);
+
+  if (currentSkills.length === 0) {
+    console.error("Stopped because no skills were selected.");
+    this.skillsTouched = true;
+    return;
+  }
+
+  const payload = {
+    title: this.internship_form.value.title,
+    description: this.internship_form.value.description,
+    submissionDeadline: new Date(this.internship_form.value.submissionDeadline!).toISOString(),
+    duration: this.internship_form.value.duration,
+    location: this.locationToString[this.internship_form.value.location!],
+    isPaid: this.internship_form.value.isPaid === 1,
+    status: this.internship_form.value.active === 1,
+    skillIds: currentSkills.map(s => s.skillId)
+  };
+
+  console.log("Payload being sent:", payload);
+
+  if (this.isEditing && this.editingId !== null) {
+    console.log("Sending UPDATE request to:", `${this.baseUrl}/listings/${this.editingId}`);
+
+    this.http.put<any>(`${this.baseUrl}/listings/${this.editingId}`, payload, { headers: this.headers }).subscribe({
+      next: res => {
+        console.log("Update success:", res);
+
+        const index = this.internships.findIndex(x => x.id === this.editingId);
+
+        console.log("Internship index found:", index);
+
+        if (index !== -1) {
+          this.internships[index] = {
+            ...this.internships[index],
+            title: res.updatedListing.title,
+            description: res.updatedListing.description ?? '',
+            submissionDeadline: new Date(res.updatedListing.submissionDeadline),
+            duration: res.updatedListing.duration ?? '',
+            isPaid: res.updatedListing.isPaid,
+            active: res.updatedListing.status,
+            skills: [...currentSkills]
+          };
+
+          console.log("Updated local internship:", this.internships[index]);
+        }
+
+        this.closeModal();
+        this.clearModal();
+      },
+      error: err => {
+        console.error("Update failed.");
+        console.error("Full error:", err);
+        console.error("Status:", err.status);
+        console.error("Backend response:", err.error);
+
+        alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to update listing`);
+      }
+    });
+  } else {
+    console.log("Sending CREATE request to:", `${this.baseUrl}/listings`);
+
+    this.http.post<any>(`${this.baseUrl}/listings`, payload, { headers: this.headers }).subscribe({
+      next: res => {
+        console.log("Create success:", res);
+
+        const l = res.listing;
+
+        console.log("Created listing:", l);
+
+        this.internships.push({
+          id: l.id,
+          companyId: l.companyId,
+          title: l.title,
+          description: l.description ?? '',
+          postDate: new Date(l.postDate),
+          submissionDeadline: new Date(l.submissionDeadline),
+          duration: l.duration ?? '',
+          location: this.internship_form.value.location!,
+          active: l.status,
+          isPaid: l.isPaid,
+          skills: [...currentSkills]
+        });
+
+        console.log("Internships after create:", this.internships);
+
+        this.closeModal();
+        this.clearModal();
+      },
+      error: err => {
+        console.error("Create failed.");
+        console.error("Full error:", err);
+        console.error("Status:", err.status);
+        console.error("Backend response:", err.error);
+
+        alert(err.error?.error ?? err.error?.message ?? `Error ${err.status}: Failed to create listing`);
+      }
+    });
+  }
+}
 
   editInternship(internship: Internship): void {
     this.isEditing = true;

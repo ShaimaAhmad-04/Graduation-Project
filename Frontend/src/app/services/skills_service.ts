@@ -11,6 +11,12 @@ export class SkillService {
 
   constructor(private http: HttpClient) {}
 
+  private get headers() {
+    return {
+      Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`
+    };
+  }
+
   /** Search skills by query string. Maps raw API shape → skill interface. */
   search(query: string): Observable<skill[]> {
     return this.http
@@ -21,7 +27,11 @@ export class SkillService {
   /** Add a brand-new skill to the DB. Returns the created skill. */
   add(name: string): Observable<skill> {
     return this.http
-      .post<any>(`${this.baseUrl}/skills`, { name })
+      .post<any>(
+        `${this.baseUrl}/skills`,
+        { name },
+        { headers: this.headers }
+      )
       .pipe(map(s => ({ skill_id: s.id, skill_name: s.name })));
   }
 
