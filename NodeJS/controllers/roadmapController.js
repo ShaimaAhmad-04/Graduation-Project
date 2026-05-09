@@ -1,45 +1,29 @@
 import prisma from '../prisma/client.js'
-import fetch from 'node-fetch'
-import fs from 'fs'
-import FormData from 'form-data'
-import OpenAI from 'OpenAI'
+import OpenAI from 'openai'
 
-
-// setting up AI client
-
-const ai= new openAI({
-  apiKey:process.env.OPENAI_API_KEY,
+const ai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.BASE_URL,
-});
-//When a student uploads a CV, multer saves it temporarily on disk and gives you req.file.
-//now we'll take that file and send it to the FastAPI server
+})
 
 export const generateRoadmap = async (req, res) => {
   const listingId = parseInt(req.params.listingId)
   const studentId = req.userId
 
   try {
-    // 1. Forward CV to Python
-    const formData = new FormData()
-    formData.append('file', fs.createReadStream(req.file.path), req.file.originalname)
-
-    const pythonRes = await fetch('http://localhost:8000/upload-cv', {
-      method: 'POST',
-      body: formData,
-      headers: formData.getHeaders(),
+    // 1. Get student skills from DB
+    const studentSkills = await prisma.studentSkill.findMany({
+      where: { studentId },
+      include: { skill: true }
     })
 
-    if (!pythonRes.ok) {
-      return res.status(500).json({ message: 'CV parsing failed' })
+    if (!studentSkills.length) {
+      return res.status(400).json({ message: 'No skills found. Please upload your CV first.' })
     }
 
-    const pythonData = await pythonRes.json()
-    const studentSkills = pythonData.data.skills
+    const studentSkillNames = studentSkills.map(s => s.skill.name)
 
-    // 2. Cleanup temp file as python already has it
-    fs.unlinkSync(req.file.path)
-
-    // 3. Get internship + required skills from DB
+    // 2. Get internship + required skills from DB
     const internship = await prisma.internship.findUnique({
       where: { id: listingId },
       include: {
@@ -55,7 +39,7 @@ export const generateRoadmap = async (req, res) => {
 
     const requiredSkills = internship.internshipSkills.map(s => s.skill.name)
 
-    // 4. Call AI to generate roadmap
+    // 3. Call AI to generate roadmap
     const aiResponse = await ai.chat.completions.create({
       model: process.env.MODEL_NAME,
       messages: [
@@ -64,9 +48,11 @@ export const generateRoadmap = async (req, res) => {
           content: `
             A student is applying for a "${internship.title}" internship.
             The internship requires these skills: ${requiredSkills.join(', ')}.
-            The student currently has these skills: ${studentSkills.join(', ')}.
+            The student currently has these skills: ${studentSkillNames.join(', ')}.
             Identify the skill gaps and generate a clear structured learning roadmap.
             Include specific resources, estimated time per skill, and a logical learning order.
+            - Each step must be specific to a single technology or concept, not a broad category
+            (e.g. "Learn React hooks" not "Learn frontend development").
           `
         }
       ]

@@ -1,10 +1,10 @@
-  import express from "express"
-  import authenticate from "../middleware/authenticate.js"
-  import authorizeRole from "../middleware/authorizeRole.js"
-  import multer from "multer"
+import express from 'express'
+import authenticate from '../middleware/authenticate.js'
+import authorizeRole from '../middleware/authorizeRole.js'
+import { generateRoadmap } from '../controllers/roadmapController.js'
 
-  const router = express.Router();
-  const upload = multer({dest:"uploads/"}); // we use it as a temp to save the cv in
-  router.post('/:id',authenticate,authorizeRole(0),upload.single("cv"),generateRoadmap);
+const router = express.Router()
 
-  export default router;
+router.post('/:listingId', authenticate, authorizeRole(0), generateRoadmap)
+
+export default router

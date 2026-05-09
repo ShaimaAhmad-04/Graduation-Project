@@ -12,6 +12,8 @@ import skillRoutes from './routes/skillRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import matchingRoutes from "./routes/matchingRoutes.js"
+import roadmapRoutes from './routes/roadmap.routes.js'
+
 
 
 
@@ -45,6 +47,7 @@ app.use('/skills', skillRoutes)
 app.use('/applications', applicationRoutes)
 app.use('/admin', adminRoutes)
 app.use("/matches", matchingRoutes)
+app.use('/roadmap', roadmapRoutes)
 app.listen(PORT, () => { // Start server and listen on PORT.
   console.log(`Server running on http://localhost:${PORT}`); // Log server URL when started.
 });
