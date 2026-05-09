@@ -12,7 +12,7 @@ import skillRoutes from './routes/skillRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import matchingRoutes from "./routes/matchingRoutes.js"
-import roadmapRoutes from './routes/roadmap.routes.js'
+import roadmapRoutes from './routes/roadmapRoutes.js'
 
 
 
