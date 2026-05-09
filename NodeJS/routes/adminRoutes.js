@@ -1,7 +1,7 @@
 import express from "express"
 import authenticate from '../middleware/authenticate.js'
 import authorizeRole from '../middleware/authorizeRole.js'
-import { deleteCompany } from "../controllers/adminController.js"
+import { declineCompany } from "../controllers/adminController.js"
 
 import {
   getAllUsers,
@@ -22,5 +22,5 @@ router.get("/companies", authenticate, authorizeRole(2), getAllCompanies)
 
 router.get("/applications", authenticate, authorizeRole(2), getAllApplications)
 router.get("/stats", authenticate, authorizeRole(2), getAdminStats)
-router.delete("/companies/:id", authenticate, authorizeRole(2), deleteCompany)
+router.put("/companies/:id/decline", authenticate, authorizeRole(2), declineCompany)
 export default router

@@ -70,20 +70,20 @@ export class AdminDashboard implements OnInit {
   }
 
   private loadCompanies(): void {
-    this.http.get<any[]>(`${this.baseUrl}/admin/companies`, { headers: this.headers }).subscribe({
-      next: (data) => {
-        this.companies = data.map(c => ({
-          id: c.userId,
-          name: c.name,
-          industry: c.industry ?? null,
-          description: c.description ?? null,
-          email: c.user?.email ?? '',
-          website: c.website ?? null,
-          isVerified: c.verified
-        }));
-      }
-    });
-  }
+  this.http.get<any[]>(`${this.baseUrl}/admin/companies`, { headers: this.headers }).subscribe({
+    next: (data) => {
+      this.companies = data.map(c => ({
+        id: c.userId,
+        name: c.name,
+        industry: c.industry ?? null,
+        description: c.description ?? null,
+        email: c.user?.email ?? '',
+        website: c.website ?? null,
+        isVerified: c.status === 'verified'  // fix this
+      }));
+    }
+  });
+}
 
   private loadUsers(): void {
     this.http.get<AdminUser[]>(`${this.baseUrl}/admin/users`, { headers: this.headers }).subscribe({
@@ -131,21 +131,29 @@ export class AdminDashboard implements OnInit {
   setTab(tab: 'overview' | 'companies' | 'users'): void { this.activeTab = tab; }
   setFilter(filter: 'all' | 'verified' | 'unverified'): void { this.companyFilter = filter; }
 
-  verifyCompany(company: Company): void {
-    this.http.put(`${this.baseUrl}/admin/companies/${company.id}/verify`, {}, { headers: this.headers }).subscribe({
-      next: () => { company.isVerified = true; }
-    });
-  }
+ verifyCompany(company: Company): void {
+  this.http.put(`${this.baseUrl}/admin/companies/${company.id}/verify`, {}, { headers: this.headers }).subscribe({
+    next: () => { 
+      company.isVerified = true;
+      this.loadCompanies(); // reload to get fresh data
+    }
+  });
+}
   declineCompany(company: Company): void {
-    if (!confirm(`Are you sure you want to decline ${company.name}?`)) return;
+  if (!confirm(`Are you sure you want to decline ${company.name}?`)) return;
 
-    this.http.delete(`${this.baseUrl}/admin/companies/${company.id}`, { headers: this.headers }).subscribe({
-      next: () => {
-       this.companies = this.companies.filter(c => c.id !== company.id);
-      },
-     error: (err: any) => console.error(err)
-    });
-  }
+  this.http.put(`${this.baseUrl}/admin/companies/${company.id}/decline`, {}, { headers: this.headers }).subscribe({
+    next: () => {
+      company.isVerified = false;
+      // update local status
+      const index = this.companies.findIndex(c => c.id === company.id);
+      if (index !== -1) {
+        this.companies[index].isVerified = false;
+      }
+    },
+    error: (err: any) => console.error(err)
+  });
+}
   goToUnverified(): void {
     this.activeTab = 'companies';
     this.companyFilter = 'unverified';

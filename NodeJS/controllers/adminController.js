@@ -48,14 +48,14 @@ export const verifyCompany = async (req, res) => {
 
     const updated = await prisma.company.update({
       where: { userId: companyId },
-      data: { verified: true }
+      data: { status: 'verified' }
     })
 
     res.json(updated)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
-}
+} 
 
 // Get all companies
 export const getAllCompanies = async (req, res) => {
@@ -150,7 +150,7 @@ export const searchUsers = async (req, res) => {
   }
 }
 
-export const deleteCompany = async (req, res) => {
+export const declineCompany = async (req, res) => {
   try {
     const companyId = parseInt(req.params.id)
 
@@ -159,21 +159,13 @@ export const deleteCompany = async (req, res) => {
       return res.status(404).json({ message: "Company not found" })
     }
 
-    await prisma.$transaction(async (tx) => {
-      // delete internship skills and applications first
-      const internships = await tx.internship.findMany({ where: { companyId } })
-      const internshipIds = internships.map(i => i.id)
-
-      await tx.internshipSkill.deleteMany({ where: { internshipId: { in: internshipIds } } })
-      await tx.application.deleteMany({ where: { internshipId: { in: internshipIds } } })
-      await tx.internship.deleteMany({ where: { companyId } })
-      await tx.company.delete({ where: { userId: companyId } })
-      await tx.user.delete({ where: { id: companyId } })
+    const updated = await prisma.company.update({
+      where: { userId: companyId },
+      data: { status: 'unverified' }
     })
 
-    res.json({ message: "Company deleted successfully" })
+    res.json(updated)
   } catch (error) {
-    console.error("deleteCompany error:", error)
     res.status(500).json({ error: error.message })
   }
 }
