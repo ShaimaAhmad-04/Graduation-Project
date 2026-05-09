@@ -149,3 +149,31 @@ export const searchUsers = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+export const deleteCompany = async (req, res) => {
+  try {
+    const companyId = parseInt(req.params.id)
+
+    const company = await prisma.company.findUnique({ where: { userId: companyId } })
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" })
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // delete internship skills and applications first
+      const internships = await tx.internship.findMany({ where: { companyId } })
+      const internshipIds = internships.map(i => i.id)
+
+      await tx.internshipSkill.deleteMany({ where: { internshipId: { in: internshipIds } } })
+      await tx.application.deleteMany({ where: { internshipId: { in: internshipIds } } })
+      await tx.internship.deleteMany({ where: { companyId } })
+      await tx.company.delete({ where: { userId: companyId } })
+      await tx.user.delete({ where: { id: companyId } })
+    })
+
+    res.json({ message: "Company deleted successfully" })
+  } catch (error) {
+    console.error("deleteCompany error:", error)
+    res.status(500).json({ error: error.message })
+  }
+}

@@ -38,15 +38,16 @@ model Student {
 }
 
 model Company {
-  userId           Int               @id
-  name             String            @db.VarChar(120)
-  description      String?
-  industry         String?           @db.VarChar(100)
-  website          String?           @db.VarChar(255)
-  verified         Boolean           @default(false)
-  user             User              @relation(fields: [userId], references: [id])
-  companyLocations CompanyLocation[]
+  userId      Int           @id
+  user        User          @relation(fields: [userId], references: [id])
+  name        String        @db.VarChar(120)
+  description String?
+  industry    String?       @db.VarChar(100)
+  website     String?       @db.VarChar(255)
+  status      CompanyStatus @default(pending) // replaces verified boolean
+
   internships      Internship[]
+  companyLocations CompanyLocation[]
 }
 
 model Skill {
@@ -155,7 +156,12 @@ model InternshipLocation {
 }
 
 enum Location {
-  on_site
-  remote
-  hybrid
+  Remote
+  In_site
+  Hybrid
+}
+enum CompanyStatus {
+  verified
+  pending
+  unverified
 }

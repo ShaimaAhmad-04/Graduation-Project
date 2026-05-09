@@ -40,7 +40,7 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
   searchSubject = new Subject<string>();
 
   private locationToString: Record<number, string> = {
-    [internship_location.on_site]: 'On_site',
+    [internship_location.on_site]: 'In_site',  // was 'On_site'
     [internship_location.remote]: 'Remote',
     [internship_location.hybrid]: 'Hybrid',
   };
@@ -432,6 +432,8 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
   };
 
   console.log("Payload being sent:", payload);
+  console.log("Location being sent:", payload.location);
+  console.log("Full payload:", payload);
 
   if (this.isEditing && this.editingId !== null) {
     console.log("Sending UPDATE request to:", `${this.baseUrl}/listings/${this.editingId}`);

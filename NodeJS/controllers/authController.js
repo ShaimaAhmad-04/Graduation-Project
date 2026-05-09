@@ -7,6 +7,7 @@ import { sendResetEmail } from "../utils/email.js";
 
 export const register = async (req, res) => {
   try {
+    console.log("Register attempt:", req.body)
     const { firstName, lastName, email, password, phoneNumber } = req.body
     const role = parseInt(req.body.role, 10)
 
@@ -40,6 +41,7 @@ export const register = async (req, res) => {
 
     res.json(user)
   } catch (error) {
+    console.error("Register error:", error) // add this
     res.status(500).json({ error: error.message })
   }
 }
