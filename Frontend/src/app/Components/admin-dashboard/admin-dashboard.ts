@@ -48,7 +48,7 @@ export class AdminDashboard implements OnInit {
   private baseUrl = 'http://localhost:5002';
   private get headers() { return { Authorization: `Bearer ${this.authService.getToken() ?? ''}` }; }
 
-  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService) { }
 
   ngOnInit(): void {
     const token = this.authService.getToken();
@@ -62,8 +62,8 @@ export class AdminDashboard implements OnInit {
   private loadStats(): void {
     this.http.get<any>(`${this.baseUrl}/admin/stats`, { headers: this.headers }).subscribe({
       next: (stats) => {
-        this.totalStudents     = stats.totalStudents;
-        this.totalInternships  = stats.totalInternships;
+        this.totalStudents = stats.totalStudents;
+        this.totalInternships = stats.totalInternships;
         this.totalApplications = stats.totalApplications;
       }
     });
@@ -73,13 +73,13 @@ export class AdminDashboard implements OnInit {
     this.http.get<any[]>(`${this.baseUrl}/admin/companies`, { headers: this.headers }).subscribe({
       next: (data) => {
         this.companies = data.map(c => ({
-          id:          c.userId,
-          name:        c.name,
-          industry:    c.industry ?? null,
+          id: c.userId,
+          name: c.name,
+          industry: c.industry ?? null,
           description: c.description ?? null,
-          email:       c.user?.email ?? '',
-          website:     c.website ?? null,
-          isVerified:  c.verified
+          email: c.user?.email ?? '',
+          website: c.website ?? null,
+          isVerified: c.verified
         }));
       }
     });
@@ -91,14 +91,14 @@ export class AdminDashboard implements OnInit {
     });
   }
 
-  get totalCompanies(): number  { return this.companies.length; }
-  get verifiedCount(): number   { return this.companies.filter(c =>  c.isVerified).length; }
+  get totalCompanies(): number { return this.companies.length; }
+  get verifiedCount(): number { return this.companies.filter(c => c.isVerified).length; }
   get unverifiedCount(): number { return this.companies.filter(c => !c.isVerified).length; }
   get unverifiedCompanies(): Company[] { return this.companies.filter(c => !c.isVerified); }
 
   get filteredCompanies(): Company[] {
     let list = this.companies;
-    if (this.companyFilter === 'verified')   list = list.filter(c =>  c.isVerified);
+    if (this.companyFilter === 'verified') list = list.filter(c => c.isVerified);
     if (this.companyFilter === 'unverified') list = list.filter(c => !c.isVerified);
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
@@ -136,7 +136,17 @@ export class AdminDashboard implements OnInit {
       next: () => { company.isVerified = true; }
     });
   }
+  declineCompany(company: any) {
+    if (!confirm(`Are you sure you want to decline ${company.name}?`)) return;
 
+    this.http.declineCompany(company.id).subscribe({
+      next: () => {
+        this.unverifiedCompanies = this.unverifiedCompanies.filter(c => c.id !== company.id);
+        this.getStats(); // refresh counters if you have it
+      },
+      error: (err) => console.error(err)
+    });
+  }
   goToUnverified(): void {
     this.activeTab = 'companies';
     this.companyFilter = 'unverified';

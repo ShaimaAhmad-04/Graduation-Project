@@ -7,7 +7,8 @@
     </div>
     <div>
       <h1 class="admin-header__title">Admin Dashboard</h1>
-      <p class="admin-header__sub">Verify companies and moderate platform content</p>
+      <p class="admin-header__sub">Verify companies and moderate platform
+        content</p>
     </div>
   </div>
 
@@ -78,16 +79,19 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <div class="tab-item" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">
+    <div class="tab-item" [class.active]="activeTab === 'overview'"
+      (click)="setTab('overview')">
       Overview
     </div>
-    <div class="tab-item" [class.active]="activeTab === 'companies'" (click)="setTab('companies')">
+    <div class="tab-item" [class.active]="activeTab === 'companies'"
+      (click)="setTab('companies')">
       Companies
       @if(unverifiedCount > 0) {
-        <span class="tab-badge">{{ unverifiedCount }}</span>
+      <span class="tab-badge">{{ unverifiedCount }}</span>
       }
     </div>
-    <div class="tab-item" [class.active]="activeTab === 'users'" (click)="setTab('users')">
+    <div class="tab-item" [class.active]="activeTab === 'users'"
+      (click)="setTab('users')">
       Users
       <span class="tab-badge">{{ users.length }}</span>
     </div>
@@ -96,197 +100,217 @@
   <!-- ── OVERVIEW TAB ─────────────────────────────────────────────────────── -->
   @if(activeTab === 'overview') {
 
-    <!-- Unverified Companies List -->
-    <div class="section-card">
-      <h2 class="section-card__title">Unverified Companies</h2>
-      <p class="section-card__sub">Companies pending verification</p>
+  <!-- Unverified Companies List -->
+  <div class="section-card">
+    <h2 class="section-card__title">Unverified Companies</h2>
+    <p class="section-card__sub">Companies pending verification</p>
 
-      @if(unverifiedCompanies.length === 0) {
-        <p style="color:#64748b; padding: 1rem 0;">All companies are verified.</p>
-      }
-
-      <div class="company-list">
-        @for(company of unverifiedCompanies; track company.id) {
-        <div class="company-row">
-          <div class="company-row__left">
-            <div class="company-avatar">{{ getInitial(company.name) }}</div>
-            <div>
-              <p class="company-row__name">{{ company.name }}</p>
-              <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
-            </div>
-          </div>
-          <span class="badge-unverified">
-            <i class="bi bi-exclamation-circle me-1"></i> Unverified
-          </span>
-        </div>
-        }
-      </div>
-    </div>
-
-    <!-- Platform Statistics -->
-    <div class="section-card">
-      <h2 class="section-card__title">Platform Statistics</h2>
-      <p class="section-card__sub">Overview of the InternPath platform</p>
-
-      <div class="platform-stats">
-        <div class="platform-stat blue">
-          <i class="bi bi-mortarboard"></i>
-          <span class="platform-stat__number">{{ totalStudents }}</span>
-          <span class="platform-stat__label">Students</span>
-        </div>
-        <div class="platform-stat blue">
-          <i class="bi bi-building"></i>
-          <span class="platform-stat__number">{{ totalCompanies }}</span>
-          <span class="platform-stat__label">Companies</span>
-        </div>
-        <div class="platform-stat green">
-          <i class="bi bi-check2-circle"></i>
-          <span class="platform-stat__number">{{ verifiedCount }}</span>
-          <span class="platform-stat__label">Verified</span>
-        </div>
-        <div class="platform-stat orange">
-          <i class="bi bi-exclamation-circle"></i>
-          <span class="platform-stat__number">{{ unverifiedCount }}</span>
-          <span class="platform-stat__label">Need Review</span>
-        </div>
-        <div class="platform-stat blue">
-          <i class="bi bi-briefcase"></i>
-          <span class="platform-stat__number">{{ totalInternships }}</span>
-          <span class="platform-stat__label">Internships</span>
-        </div>
-        <div class="platform-stat blue">
-          <i class="bi bi-file-earmark-text"></i>
-          <span class="platform-stat__number">{{ totalApplications }}</span>
-          <span class="platform-stat__label">Applications</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Required -->
-    @if(unverifiedCount > 0) {
-    <div class="action-banner">
-      <div class="action-banner__left">
-        <div class="action-banner__icon">
-          <i class="bi bi-exclamation-circle"></i>
-        </div>
-        <div>
-          <p class="action-banner__title">Action Required</p>
-          <p class="action-banner__sub">You have {{ unverifiedCount }} companies awaiting verification</p>
-        </div>
-      </div>
-      <button class="btn-verify-all" (click)="goToUnverified()">
-        Verify {{ unverifiedCount }} Companies
-      </button>
-    </div>
+    @if(unverifiedCompanies.length === 0) {
+    <p style="color:#64748b; padding: 1rem 0;">All companies are verified.</p>
     }
+
+    <div class="company-list">
+      @for(company of unverifiedCompanies; track company.id) {
+      <div class="company-row">
+        <div class="company-row__left">
+          <div class="company-avatar">{{ getInitial(company.name) }}</div>
+          <div>
+            <p class="company-row__name">{{ company.name }}</p>
+            <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
+          </div>
+        </div>
+        <span class="badge-unverified">
+          <i class="bi bi-exclamation-circle me-1"></i> Unverified
+        </span>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Platform Statistics -->
+  <div class="section-card">
+    <h2 class="section-card__title">Platform Statistics</h2>
+    <p class="section-card__sub">Overview of the InternPath platform</p>
+
+    <div class="platform-stats">
+      <div class="platform-stat blue">
+        <i class="bi bi-mortarboard"></i>
+        <span class="platform-stat__number">{{ totalStudents }}</span>
+        <span class="platform-stat__label">Students</span>
+      </div>
+      <div class="platform-stat blue">
+        <i class="bi bi-building"></i>
+        <span class="platform-stat__number">{{ totalCompanies }}</span>
+        <span class="platform-stat__label">Companies</span>
+      </div>
+      <div class="platform-stat green">
+        <i class="bi bi-check2-circle"></i>
+        <span class="platform-stat__number">{{ verifiedCount }}</span>
+        <span class="platform-stat__label">Verified</span>
+      </div>
+      <div class="platform-stat orange">
+        <i class="bi bi-exclamation-circle"></i>
+        <span class="platform-stat__number">{{ unverifiedCount }}</span>
+        <span class="platform-stat__label">Need Review</span>
+      </div>
+      <div class="platform-stat blue">
+        <i class="bi bi-briefcase"></i>
+        <span class="platform-stat__number">{{ totalInternships }}</span>
+        <span class="platform-stat__label">Internships</span>
+      </div>
+      <div class="platform-stat blue">
+        <i class="bi bi-file-earmark-text"></i>
+        <span class="platform-stat__number">{{ totalApplications }}</span>
+        <span class="platform-stat__label">Applications</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Required -->
+  @if(unverifiedCount > 0) {
+  <div class="action-banner">
+    <div class="action-banner__left">
+      <div class="action-banner__icon">
+        <i class="bi bi-exclamation-circle"></i>
+      </div>
+      <div>
+        <p class="action-banner__title">Action Required</p>
+        <p class="action-banner__sub">You have {{ unverifiedCount }} companies
+          awaiting verification</p>
+      </div>
+    </div>
+    <button class="btn-verify-all" (click)="goToUnverified()">
+      Verify {{ unverifiedCount }} Companies
+    </button>
+  </div>
+  }
 
   }
 
   <!-- ── COMPANIES TAB ────────────────────────────────────────────────────── -->
   @if(activeTab === 'companies') {
 
-    <div class="section-card">
-      <div class="companies-toolbar">
-        <div class="search-box">
-          <i class="bi bi-search search-box__icon"></i>
-          <input
-            type="text"
-            placeholder="Search by company name, email, or industry..."
-            [(ngModel)]="searchQuery" />
+  <div class="section-card">
+    <div class="companies-toolbar">
+      <div class="search-box">
+        <i class="bi bi-search search-box__icon"></i>
+        <input
+          type="text"
+          placeholder="Search by company name, email, or industry..."
+          [(ngModel)]="searchQuery" />
+      </div>
+      <div class="filter-btns">
+        <button [class.active]="companyFilter === 'all'"
+          (click)="setFilter('all')">All ({{ totalCompanies }})</button>
+        <button [class.active]="companyFilter === 'verified'"
+          (click)="setFilter('verified')">Verified ({{ verifiedCount
+          }})</button>
+        <button [class.active]="companyFilter === 'unverified'"
+          (click)="setFilter('unverified')">Unverified ({{ unverifiedCount
+          }})</button>
+      </div>
+    </div>
+
+    @for(company of filteredCompanies; track company.id) {
+    <div class="company-card">
+
+      <div class="company-card__header">
+        <div class="company-row__left">
+          <div class="company-avatar">{{ getInitial(company.name) }}</div>
+          <div>
+            <p class="company-row__name">{{ company.name }}</p>
+            <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
+          </div>
         </div>
-        <div class="filter-btns">
-          <button [class.active]="companyFilter === 'all'"        (click)="setFilter('all')">All ({{ totalCompanies }})</button>
-          <button [class.active]="companyFilter === 'verified'"   (click)="setFilter('verified')">Verified ({{ verifiedCount }})</button>
-          <button [class.active]="companyFilter === 'unverified'" (click)="setFilter('unverified')">Unverified ({{ unverifiedCount }})</button>
-        </div>
+        @if(company.isVerified) {
+        <span class="badge-verified"><i class="bi bi-check2-circle me-1"></i>
+          Verified</span>
+        } @else {
+        <span class="badge-unverified"><i
+            class="bi bi-exclamation-circle me-1"></i> Unverified</span>
+        }
       </div>
 
-      @for(company of filteredCompanies; track company.id) {
-      <div class="company-card">
+      @if(company.description) {
+      <p class="company-card__desc">{{ company.description }}</p>
+      }
 
-        <div class="company-card__header">
-          <div class="company-row__left">
-            <div class="company-avatar">{{ getInitial(company.name) }}</div>
-            <div>
-              <p class="company-row__name">{{ company.name }}</p>
-              <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
-            </div>
-          </div>
-          @if(company.isVerified) {
-            <span class="badge-verified"><i class="bi bi-check2-circle me-1"></i> Verified</span>
-          } @else {
-            <span class="badge-unverified"><i class="bi bi-exclamation-circle me-1"></i> Unverified</span>
-          }
-        </div>
-
-        @if(company.description) {
-          <p class="company-card__desc">{{ company.description }}</p>
+      <div class="company-card__meta">
+        <span><i class="bi bi-envelope me-1"></i>{{ company.email }}</span>
+        @if(company.website) {
+        <a [href]="company.website" target="_blank"><i
+            class="bi bi-globe me-1"></i>Website</a>
         }
+      </div>
 
-        <div class="company-card__meta">
-          <span><i class="bi bi-envelope me-1"></i>{{ company.email }}</span>
-          @if(company.website) {
-            <a [href]="company.website" target="_blank"><i class="bi bi-globe me-1"></i>Website</a>
-          }
-        </div>
+      @if(!company.isVerified) {
+      <div class="company-actions">
 
-        @if(!company.isVerified) {
         <button class="btn-verify" (click)="verifyCompany(company)">
-          <i class="bi bi-check2-circle me-2"></i> Verify Company
+          <i class="bi bi-check2-circle me-2"></i> Verify
         </button>
-        }
+
+        <button class="btn-decline" (click)="declineCompany(company)">
+          <i class="bi bi-x-circle me-2"></i> Decline
+        </button>
 
       </div>
       }
 
     </div>
+    }
+
+  </div>
 
   }
 
   <!-- ── USERS TAB ──────────────────────────────────────────────────────── -->
   @if(activeTab === 'users') {
 
-    <div class="section-card">
-      <div class="companies-toolbar">
-        <div class="search-box">
-          <i class="bi bi-search search-box__icon"></i>
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            [(ngModel)]="userSearchQuery" />
+  <div class="section-card">
+    <div class="companies-toolbar">
+      <div class="search-box">
+        <i class="bi bi-search search-box__icon"></i>
+        <input
+          type="text"
+          placeholder="Search by name or email..."
+          [(ngModel)]="userSearchQuery" />
+      </div>
+    </div>
+
+    @for(user of filteredUsers; track user.id) {
+    <div class="company-card">
+      <div class="company-card__header">
+        <div class="company-row__left">
+          <div class="company-avatar">{{ getInitial(user.firstName) }}</div>
+          <div>
+            <p class="company-row__name">{{ user.firstName }} {{ user.lastName
+              }}</p>
+            <p class="company-row__industry">{{ user.email }}</p>
+          </div>
         </div>
+        <span class="badge-verified" style="background:#ede9fe; color:#7c3aed;">
+          {{ roleName(user.role) }}
+        </span>
       </div>
 
-      @for(user of filteredUsers; track user.id) {
-      <div class="company-card">
-        <div class="company-card__header">
-          <div class="company-row__left">
-            <div class="company-avatar">{{ getInitial(user.firstName) }}</div>
-            <div>
-              <p class="company-row__name">{{ user.firstName }} {{ user.lastName }}</p>
-              <p class="company-row__industry">{{ user.email }}</p>
-            </div>
-          </div>
-          <span class="badge-verified" style="background:#ede9fe; color:#7c3aed;">
-            {{ roleName(user.role) }}
-          </span>
-        </div>
-
-        @if(user.phoneNumber) {
-          <div class="company-card__meta">
-            <span><i class="bi bi-telephone me-1"></i>{{ user.phoneNumber }}</span>
-          </div>
-        }
-
-        @if(user.role !== 2) {
-        <button class="btn-verify" style="background:#fee2e2; color:#dc2626; border:none;" (click)="deleteUser(user)">
-          <i class="bi bi-trash me-2"></i> Delete User
-        </button>
-        }
+      @if(user.phoneNumber) {
+      <div class="company-card__meta">
+        <span><i class="bi bi-telephone me-1"></i>{{ user.phoneNumber }}</span>
       </div>
       }
 
+      @if(user.role !== 2) {
+      <button class="btn-verify"
+        style="background:#fee2e2; color:#dc2626; border:none;"
+        (click)="deleteUser(user)">
+        <i class="bi bi-trash me-2"></i> Delete User
+      </button>
+      }
     </div>
+    }
+
+  </div>
 
   }
 
