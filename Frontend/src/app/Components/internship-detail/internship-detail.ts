@@ -23,7 +23,7 @@ export class InternshipDetailComponent implements OnInit {
   skills: string[] = [];
 
 
- 
+
   userState: UserState = 'guest';
 
   matchScore = 50;
@@ -48,7 +48,7 @@ export class InternshipDetailComponent implements OnInit {
     private internshipService: InternshipService,
     private authService: AuthService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -87,16 +87,16 @@ export class InternshipDetailComponent implements OnInit {
   }
 
   get locationIcon(): string {
-  const icons: Record<number, string> = {
-    [internship_location.on_site]: '📋',
-    [internship_location.remote]: '🏠',
-    [internship_location.hybrid]: '🏢',
-  };
-  return icons[this.internship?.location ?? -1] ?? '📍';
-}
-get locationLabel(): string {
-  return this.internshipService.getLocationLabel(this.internship?.location ?? 0);
-}
+    const icons: Record<number, string> = {
+      [internship_location.on_site]: '📋',
+      [internship_location.remote]: '🏠',
+      [internship_location.hybrid]: '🏢',
+    };
+    return icons[this.internship?.location ?? -1] ?? '📍';
+  }
+  get locationLabel(): string {
+    return this.internshipService.getLocationLabel(this.internship?.location ?? 0);
+  }
   goBack(): void {
     this.router.navigate(['/internships']);
   }
@@ -176,21 +176,25 @@ get locationLabel(): string {
     if (!this.internship) return;
     this.isGeneratingRoadmap = true;
     this.roadmapError = '';
-    this.roadmapData = null;
     const token = localStorage.getItem('token');
 
     this.http.post<any>(
-      `${this.baseUrl}/roadmap/${this.internship.id}`,
-      {},
+      `${this.baseUrl}/student/roadmaps/ai`,
+      { desiredPosition: this.internship.title },
       { headers: { Authorization: `Bearer ${token ?? ''}` } }
     ).subscribe({
       next: (res) => {
-        this.roadmapData = res.roadmap;
         this.isGeneratingRoadmap = false;
         this.roadmapRequested = true;
+        // Store it so the dashboard can pick it up
+        localStorage.setItem('pendingRoadmap', JSON.stringify({
+          desiredPosition: this.internship!.title,
+          roadmap: res.roadmap
+        }));
+        this.router.navigate(['/student-dashboard'], { queryParams: { tab: 'roadmap' } });
       },
       error: (err) => {
-        this.roadmapError = err.error?.message ?? err.error?.error ?? 'Failed to generate roadmap. Please try again.';
+        this.roadmapError = err.error?.message ?? err.error?.error ?? 'Failed to generate roadmap.';
         this.isGeneratingRoadmap = false;
       }
     });

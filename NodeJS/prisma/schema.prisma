@@ -157,7 +157,7 @@ model InternshipLocation {
 
 enum Location {
   Remote
-  In_site
+  Onsite
   Hybrid
 }
 enum CompanyStatus {

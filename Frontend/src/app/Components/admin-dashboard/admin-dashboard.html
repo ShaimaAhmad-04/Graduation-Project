@@ -222,7 +222,7 @@
             <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
           </div>
         </div>
-        @if(company.isVerified) {
+        @if(company.status) {
         <span class="badge-verified"><i class="bi bi-check2-circle me-1"></i>
           Verified</span>
         } @else {
@@ -243,7 +243,7 @@
         }
       </div>
 
-      @if(!company.isVerified) {
+      @if(!company.status) {
       <div class="company-actions">
 
         <button class="btn-verify" (click)="verifyCompany(company)">

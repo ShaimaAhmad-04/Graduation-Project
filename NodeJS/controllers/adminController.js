@@ -48,7 +48,7 @@ export const verifyCompany = async (req, res) => {
 
     const updated = await prisma.company.update({
       where: { userId: companyId },
-      data: { verified: true }
+      data: { status: true }
     })
 
     res.json(updated)

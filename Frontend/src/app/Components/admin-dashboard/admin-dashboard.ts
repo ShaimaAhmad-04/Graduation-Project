@@ -12,7 +12,7 @@ export interface Company {
   description: string | null;
   email: string;
   website: string | null;
-  isVerified: boolean;
+  status: boolean;
 }
 
 export interface AdminUser {
@@ -79,7 +79,7 @@ export class AdminDashboard implements OnInit {
         description: c.description ?? null,
         email: c.user?.email ?? '',
         website: c.website ?? null,
-        isVerified: c.verified === true
+        status: c.verified === true
       }));
     }
   });
@@ -92,14 +92,14 @@ export class AdminDashboard implements OnInit {
   }
 
   get totalCompanies(): number { return this.companies.length; }
-  get verifiedCount(): number { return this.companies.filter(c => c.isVerified).length; }
-  get unverifiedCount(): number { return this.companies.filter(c => !c.isVerified).length; }
-  get unverifiedCompanies(): Company[] { return this.companies.filter(c => !c.isVerified); }
+  get verifiedCount(): number { return this.companies.filter(c => c.status).length; }
+  get unverifiedCount(): number { return this.companies.filter(c => !c.status).length; }
+  get unverifiedCompanies(): Company[] { return this.companies.filter(c => !c.status); }
 
   get filteredCompanies(): Company[] {
     let list = this.companies;
-    if (this.companyFilter === 'verified') list = list.filter(c => c.isVerified);
-    if (this.companyFilter === 'unverified') list = list.filter(c => !c.isVerified);
+    if (this.companyFilter === 'verified') list = list.filter(c => c.status);
+    if (this.companyFilter === 'unverified') list = list.filter(c => !c.status);
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
       list = list.filter(c =>
@@ -134,7 +134,7 @@ export class AdminDashboard implements OnInit {
  verifyCompany(company: Company): void {
   this.http.put(`${this.baseUrl}/admin/companies/${company.id}/verify`, {}, { headers: this.headers }).subscribe({
     next: () => { 
-      company.isVerified = true;
+      company.status = true;
       this.loadCompanies(); // reload to get fresh data
     }
   });
@@ -144,11 +144,11 @@ export class AdminDashboard implements OnInit {
 
   this.http.put(`${this.baseUrl}/admin/companies/${company.id}/decline`, {}, { headers: this.headers }).subscribe({
     next: () => {
-      company.isVerified = false;
+      company.status = false;
       // update local status
       const index = this.companies.findIndex(c => c.id === company.id);
       if (index !== -1) {
-        this.companies[index].isVerified = false;
+        this.companies[index].status = false;
       }
     },
     error: (err: any) => console.error(err)

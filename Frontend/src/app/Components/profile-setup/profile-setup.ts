@@ -114,6 +114,7 @@ export class ProfileSetup {
     this.student_form.markAllAsTouched();
     console.log('completeProfile called, form valid:', this.student_form.valid);
     console.log('form errors:', this.student_form.errors);
+
     console.log('major value:', this.student_form.get('major')?.value, 'valid:', this.student_form.get('major')?.valid);
     console.log('university value:', this.student_form.get('university')?.value, 'valid:', this.student_form.get('university')?.valid);
 
@@ -134,9 +135,7 @@ export class ProfileSetup {
     this.isSaving = true;
     this.saveError = '';
 
-    const major_name = rawValue.major?.toLowerCase().replace(/\s+/g, '');
-    const major_id = Majors[major_name as keyof typeof Majors];
-
+    const major_id = rawValue.major;
     const yearVal = rawValue.graduationYear ? parseInt(rawValue.graduationYear as any, 10) : null;
     const certsRaw = rawValue.certifications ?? '';
     const certsArray = Array.isArray(certsRaw)
@@ -156,6 +155,7 @@ export class ProfileSetup {
     };
 
     const headers = { 'Authorization': `Bearer ${token}` };
+    console.log('Token being sent:', token);
 
     this._profilesetup_http.put('http://localhost:5002/student/profile', profilePayload, { headers })
       .subscribe({

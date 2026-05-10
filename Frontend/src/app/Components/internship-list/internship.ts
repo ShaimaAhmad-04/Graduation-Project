@@ -15,7 +15,7 @@ export class InternshipService {
   private type$ = new BehaviorSubject<string>('All Types');
 
   private locationMap: Record<string, internship_location> = {
-    'In_site': internship_location.on_site,
+    'Onsite': internship_location.on_site,
     'Remote': internship_location.remote,
     'Hybrid': internship_location.hybrid,
   };
@@ -36,8 +36,8 @@ export class InternshipService {
       id: l.id,
       companyId: l.companyId,
       companyName: l.company?.name ?? '',
-      companyVerified: l.company?.verified === true,
-      title: l.title,
+      companyVerified: l.company?.status === 'approved',
+       title: l.title,
       description: l.description ?? '',
       postDate: new Date(l.postDate),
       submissionDeadline: new Date(l.submissionDeadline),

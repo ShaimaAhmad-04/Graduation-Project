@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Majors } from '../../ENUMs/Majors';
 import { MajorsLabels } from '../../ENUMs/MappedMajors';
+import { ActivatedRoute, Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-student-dashboard',
@@ -111,9 +112,29 @@ export class StudentDashboard implements OnInit {
     'Advanced Concepts': { description: 'Dive deeper into advanced topics and best practices.', resources: ['https://www.educative.io', 'https://leetcode.com', 'https://www.hackerrank.com'] },
   };
 
-  constructor(private router: Router, private http: HttpClient) { }
+  constructor(private router: Router, private route: ActivatedRoute, private http: HttpClient) { }
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.activeTab = params['tab'];
+      }
+    });
+
+    // Pick up any roadmap generated from internship detail page
+    const pending = localStorage.getItem('pendingRoadmap');
+    if (pending) {
+      const parsed = JSON.parse(pending);
+      this.aiRoadmap = parsed.roadmap;
+      this.currentRoadmap = {
+        roadmapId: 0,
+        desiredPosition: parsed.desiredPosition,
+        generatedAt: new Date().toISOString(),
+        nodes: []
+      };
+      this.selectedPosition = parsed.desiredPosition;
+      localStorage.removeItem('pendingRoadmap'); // clean up
+    }
     const token = localStorage.getItem('token');
     if (!token) {
       this.router.navigate(['/login']);

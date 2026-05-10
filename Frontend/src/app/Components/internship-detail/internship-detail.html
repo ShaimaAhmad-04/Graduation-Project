@@ -101,54 +101,7 @@
 
       <!-- AI Roadmap Result -->
       <ng-container *ngIf="isGeneratingRoadmap || roadmapData || roadmapError">
-        <hr class="divider"/>
-        <div class="section roadmap-section">
-          <h2>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" style="margin-right:8px; vertical-align:middle;">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            AI Learning Roadmap
-          </h2>
-
-          <!-- Loading -->
-          <div *ngIf="isGeneratingRoadmap" class="roadmap-loading">
-            <div class="roadmap-spinner"></div>
-            <p>Analyzing your skill gaps and generating a personalized roadmap…</p>
-          </div>
-
-          <!-- Error -->
-          <p *ngIf="roadmapError" style="color:#dc2626; font-size:0.9rem;">{{ roadmapError }}</p>
-
-          <!-- Result -->
-          <ng-container *ngIf="roadmapData">
-            <p class="ai-roadmap-summary">{{ roadmapData.summary }}</p>
-
-            <div class="ai-roadmap-steps">
-              <div class="ai-roadmap-step" *ngFor="let step of roadmapData.steps; let i = index; let last = last">
-                <!-- Connector line -->
-                <div class="ai-step-sidebar">
-                  <div class="ai-step-circle">{{ i + 1 }}</div>
-                  <div class="ai-step-line" *ngIf="!last"></div>
-                </div>
-                <!-- Content -->
-                <div class="ai-step-body">
-                  <div class="ai-step-header">
-                    <h3>{{ step.title }}</h3>
-                    <span class="ai-step-duration">{{ step.duration }}</span>
-                  </div>
-                  <p>{{ step.description }}</p>
-                  <div class="ai-step-resources" *ngIf="step.resources?.length">
-                    <span class="res-label">Resources</span>
-                    <div class="res-links">
-                      <a *ngFor="let r of step.resources" [href]="r.startsWith('http') ? r : 'https://www.google.com/search?q=' + r"
-                        target="_blank" class="res-link">{{ r }}</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-        </div>
+ 
       </ng-container>
 
     </div>
