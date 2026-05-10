@@ -26,7 +26,16 @@
             </svg>
           </div>
           <div>
-            <p class="company-name">{{ companyName }}</p>
+            <p class="company-name">
+              {{ companyName }}
+              <span *ngIf="internship.companyVerified" class="verified-badge" title="Verified Company">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#7c3aed">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" opacity="0.15"/>
+                  <path d="M9 12l2 2 4-4" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  <circle cx="12" cy="12" r="10" stroke="#7c3aed" stroke-width="2" fill="none"/>
+                </svg>
+              </span>
+            </p>
             <h1 class="job-title">{{ internship.title }}</h1>
           </div>
         </div>
@@ -90,6 +99,58 @@
         <p class="location-text">Amman, Jordan</p>
       </div>
 
+      <!-- AI Roadmap Result -->
+      <ng-container *ngIf="isGeneratingRoadmap || roadmapData || roadmapError">
+        <hr class="divider"/>
+        <div class="section roadmap-section">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" style="margin-right:8px; vertical-align:middle;">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            AI Learning Roadmap
+          </h2>
+
+          <!-- Loading -->
+          <div *ngIf="isGeneratingRoadmap" class="roadmap-loading">
+            <div class="roadmap-spinner"></div>
+            <p>Analyzing your skill gaps and generating a personalized roadmap…</p>
+          </div>
+
+          <!-- Error -->
+          <p *ngIf="roadmapError" style="color:#dc2626; font-size:0.9rem;">{{ roadmapError }}</p>
+
+          <!-- Result -->
+          <ng-container *ngIf="roadmapData">
+            <p class="ai-roadmap-summary">{{ roadmapData.summary }}</p>
+
+            <div class="ai-roadmap-steps">
+              <div class="ai-roadmap-step" *ngFor="let step of roadmapData.steps; let i = index; let last = last">
+                <!-- Connector line -->
+                <div class="ai-step-sidebar">
+                  <div class="ai-step-circle">{{ i + 1 }}</div>
+                  <div class="ai-step-line" *ngIf="!last"></div>
+                </div>
+                <!-- Content -->
+                <div class="ai-step-body">
+                  <div class="ai-step-header">
+                    <h3>{{ step.title }}</h3>
+                    <span class="ai-step-duration">{{ step.duration }}</span>
+                  </div>
+                  <p>{{ step.description }}</p>
+                  <div class="ai-step-resources" *ngIf="step.resources?.length">
+                    <span class="res-label">Resources</span>
+                    <div class="res-links">
+                      <a *ngFor="let r of step.resources" [href]="r.startsWith('http') ? r : 'https://www.google.com/search?q=' + r"
+                        target="_blank" class="res-link">{{ r }}</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
     </div>
 
 
@@ -140,6 +201,14 @@
             {{ isApplying ? 'Submitting...' : 'Apply Now' }}
           </button>
           <p *ngIf="applyError" style="color:red; font-size:0.85rem; margin-top:8px;">{{ applyError }}</p>
+          <button class="btn-outline" (click)="generateRoadmap()" [disabled]="isGeneratingRoadmap || roadmapRequested">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            {{ isGeneratingRoadmap ? 'Generating...' : roadmapRequested ? 'Roadmap Generated ✓' : 'Generate AI Roadmap' }}
+          </button>
+          <p *ngIf="roadmapError" style="color:red; font-size:0.85rem; margin-top:8px;">{{ roadmapError }}</p>
         </ng-container>
 
         <!-- MATCH CALCULATED STATE -->
@@ -156,13 +225,14 @@
             {{ isApplying ? 'Submitting...' : 'Apply Now' }}
           </button>
           <p *ngIf="applyError" style="color:red; font-size:0.85rem; margin-top:8px;">{{ applyError }}</p>
-          <button class="btn-outline" (click)="generateRoadmap()" [disabled]="roadmapRequested">
+          <button class="btn-outline" (click)="generateRoadmap()" [disabled]="isGeneratingRoadmap || roadmapRequested">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            {{ roadmapRequested ? 'Roadmap Generated!' : 'Generate Learning Roadmap' }}
+            {{ isGeneratingRoadmap ? 'Generating...' : roadmapRequested ? 'Roadmap Generated ✓' : 'Generate AI Roadmap' }}
           </button>
+          <p *ngIf="roadmapError" style="color:red; font-size:0.85rem; margin-top:8px;">{{ roadmapError }}</p>
         </ng-container>
 
         <!-- APPLIED STATE -->
@@ -183,7 +253,15 @@
       <!-- COMPANY  -->
       <div class="sidebar-card">
         <h3>Company Info</h3>
-        <p class="company-info-name">{{ companyName }}</p>
+        <p class="company-info-name">
+          {{ companyName }}
+          <span *ngIf="internship.companyVerified" class="verified-badge" title="Verified Company">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="#7c3aed" stroke-width="2"/>
+              <path d="M9 12l2 2 4-4" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </p>
         <p class="company-info-date">
           Posted on {{ internship.postDate | date:'dd/MM/yyyy' }}
         </p>

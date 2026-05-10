@@ -1061,6 +1061,28 @@
   color: #7c3aed;
 }
 
+/* AI step header with duration badge */
+.ai-step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.ai-step-header h3 { margin: 0; }
+
+.ai-step-duration {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #7c3aed;
+  background: #f5f3ff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 /* --- GENERATE FORM --- */
 .roadmap-generate-card {
   padding: 40px;

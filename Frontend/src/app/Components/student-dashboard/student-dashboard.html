@@ -301,19 +301,18 @@
           <div class="title-with-icon">
             <h2>{{ currentRoadmap.desiredPosition }} Learning Path</h2>
           </div>
-          <p class="meta-date">Generated on {{ currentRoadmap.generatedAt |
-            date:'M/d/yyyy' }}</p>
+          <p class="meta-date" *ngIf="aiRoadmap">{{ aiRoadmap.summary }}</p>
         </div>
-
         <button class="btn-generate-new"
-          (click)="currentRoadmap = null; selectedPosition = ''">
+          (click)="currentRoadmap = null; aiRoadmap = null; selectedPosition = ''">
           Generate New
         </button>
       </div>
 
-      <div class="roadmap-steps">
+      <!-- AI Steps -->
+      <div class="roadmap-steps" *ngIf="aiRoadmap">
         <div class="roadmap-step"
-          *ngFor="let node of currentRoadmap.nodes; let i = index; let last = last">
+          *ngFor="let step of aiRoadmap.steps; let i = index; let last = last">
 
           <div class="step-sidebar">
             <div class="step-circle">{{ i + 1 }}</div>
@@ -321,16 +320,18 @@
           </div>
 
           <div class="step-body card">
-            <h3>{{ node.title }}</h3>
-            <p>{{ getStepMeta(node.title).description }}</p>
+            <div class="ai-step-header">
+              <h3>{{ step.title }}</h3>
+              <span class="ai-step-duration">{{ step.duration }}</span>
+            </div>
+            <p>{{ step.description }}</p>
 
-            <div class="step-resources">
-              <span class="res-label"> Learning Resources</span>
+            <div class="step-resources" *ngIf="step.resources?.length">
+              <span class="res-label">Learning Resources</span>
               <div class="res-links">
-                <a *ngFor="let r of getStepMeta(node.title).resources"
-                  [href]="r" target="_blank" class="res-link">
-                  {{ r }}
-                </a>
+                <a *ngFor="let r of step.resources"
+                  [href]="r.startsWith('http') ? r : 'https://www.google.com/search?q=' + r"
+                  target="_blank" class="res-link">{{ r }}</a>
               </div>
             </div>
           </div>
@@ -338,5 +339,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Error -->
+    <p *ngIf="roadmapError && !currentRoadmap" style="color:#dc2626; text-align:center; padding:20px;">{{ roadmapError }}</p>
+
   </div>
 </div>

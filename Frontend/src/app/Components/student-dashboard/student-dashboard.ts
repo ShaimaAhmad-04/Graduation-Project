@@ -51,7 +51,9 @@ export class StudentDashboard implements OnInit {
 
   selectedPosition = '';
   isGenerating = false;
+  roadmapError = '';
   currentRoadmap: { roadmapId: number; desiredPosition: string; generatedAt: string; nodes: { title: string; orderIndex: number }[] } | null = null;
+  aiRoadmap: { summary: string; steps: { title: string; description: string; duration: string; resources: string[] }[] } | null = null;
 
   stepMeta: Record<string, { description: string; resources: string[] }> = {
     'Frontend Basics': { description: 'Learn HTML, CSS, and JavaScript to build modern UIs.', resources: ['https://www.freecodecamp.org', 'https://www.codecademy.com', 'https://developer.mozilla.org'] },
@@ -205,14 +207,21 @@ export class StudentDashboard implements OnInit {
   generateRoadmap(): void {
     if (!this.selectedPosition) return;
     this.isGenerating = true;
+    this.roadmapError = '';
+    this.aiRoadmap = null;
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token ?? ''}` };
-    this.http.post<any>(`${this.baseUrl}/student/roadmaps`, { desiredPosition: this.selectedPosition }, { headers }).subscribe({
-      next: (roadmap) => {
-        this.currentRoadmap = roadmap;
+
+    this.http.post<any>(`${this.baseUrl}/student/roadmaps/ai`, { desiredPosition: this.selectedPosition }, { headers }).subscribe({
+      next: (res) => {
+        this.aiRoadmap = res.roadmap;
+        this.currentRoadmap = { roadmapId: 0, desiredPosition: this.selectedPosition, generatedAt: new Date().toISOString(), nodes: [] };
         this.isGenerating = false;
       },
-      error: () => { this.isGenerating = false; }
+      error: (err) => {
+        this.roadmapError = err.error?.message ?? err.error?.error ?? 'Failed to generate roadmap.';
+        this.isGenerating = false;
+      }
     });
   }
 

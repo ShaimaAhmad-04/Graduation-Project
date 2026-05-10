@@ -79,7 +79,7 @@ export class AdminDashboard implements OnInit {
         description: c.description ?? null,
         email: c.user?.email ?? '',
         website: c.website ?? null,
-        isVerified: c.status === 'verified'  // fix this
+        isVerified: c.verified === true
       }));
     }
   });

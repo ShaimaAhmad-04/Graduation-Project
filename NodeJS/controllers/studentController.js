@@ -2,6 +2,7 @@ import prisma from '../prisma/client.js'
 import fetch from 'node-fetch'
 import fs from 'fs'
 import FormData from 'form-data'
+import OpenAI from 'openai'
 
 
 
@@ -406,6 +407,79 @@ export const getStudentRoadmaps = async (req, res) => {
 
     res.json(roadmaps)
   } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+export const generateAIRoadmap = async (req, res) => {
+  const { desiredPosition } = req.body
+  const studentId = req.userId
+
+  if (!desiredPosition) {
+    return res.status(400).json({ message: 'desiredPosition is required' })
+  }
+
+  try {
+    const ai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      baseURL: process.env.BASE_URL,
+    })
+
+    const studentSkills = await prisma.studentSkill.findMany({
+      where: { studentId },
+      include: { skill: true }
+    })
+
+    const skillNames = studentSkills.length
+      ? studentSkills.map(s => s.skill.name).join(', ')
+      : 'No skills listed yet'
+
+    const aiResponse = await ai.chat.completions.create({
+      model: process.env.MODEL_NAME,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a career advisor. Always respond with valid JSON only — no markdown, no explanation outside the JSON.'
+        },
+        {
+          role: 'user',
+          content: `A student wants to become a "${desiredPosition}".
+Their current skills: ${skillNames}.
+
+Generate a personalized learning roadmap as a JSON object in this exact format:
+{
+  "summary": "One sentence describing what this student needs to focus on to reach their goal.",
+  "steps": [
+    {
+      "title": "Specific skill or topic",
+      "description": "What to learn and why it matters for this role.",
+      "duration": "Estimated time (e.g. 2 weeks)",
+      "resources": ["resource name or URL", "resource name or URL"]
+    }
+  ]
+}
+
+Rules:
+- 4 to 7 steps, ordered logically (prerequisites first).
+- Each step covers exactly one skill or concept.
+- Prioritize skills the student is missing for this role.
+- If they already have strong foundations, focus on advanced topics.`
+        }
+      ]
+    })
+
+    let roadmap
+    try {
+      const raw = aiResponse.choices[0].message.content.trim()
+      const cleaned = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+      roadmap = JSON.parse(cleaned)
+    } catch {
+      roadmap = { summary: aiResponse.choices[0].message.content, steps: [] }
+    }
+
+    res.json({ roadmap })
+  } catch (error) {
+    console.error('[generateAIRoadmap]', error.message)
     res.status(500).json({ error: error.message })
   }
 }

@@ -36,6 +36,7 @@ export class InternshipService {
       id: l.id,
       companyId: l.companyId,
       companyName: l.company?.name ?? '',
+      companyVerified: l.company?.verified === true,
       title: l.title,
       description: l.description ?? '',
       postDate: new Date(l.postDate),

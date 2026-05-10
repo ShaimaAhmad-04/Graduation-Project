@@ -64,7 +64,7 @@ export const getListings = async (req, res) => {
       },
       include: {
         company: {
-          select: { name: true }
+          select: { name: true, verified: true }
         },
         internshipSkills: {
           include: {
@@ -90,7 +90,7 @@ export const getListing = async (req, res) => {
     const listing = await prisma.internship.findUnique({
       where: { id: listingId },
       include: {
-        company: { select: { name: true } },
+        company: { select: { name: true, verified: true } },
         internshipSkills: {
           include: { skill: { select: { name: true } } }
         }

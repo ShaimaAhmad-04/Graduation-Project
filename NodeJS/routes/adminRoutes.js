@@ -1,12 +1,11 @@
 import express from "express"
 import authenticate from '../middleware/authenticate.js'
 import authorizeRole from '../middleware/authorizeRole.js'
-import { declineCompany } from "../controllers/adminController.js"
-
 import {
   getAllUsers,
   deleteUser,
   verifyCompany,
+  declineCompany,
   getAllApplications,
   getAdminStats,
   getAllCompanies

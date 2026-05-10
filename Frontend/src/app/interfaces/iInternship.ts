@@ -5,6 +5,7 @@ export interface Internship {
   id: number;
   companyId: number;
   companyName?: string;
+  companyVerified?: boolean;
   title: string;
   description?: string;
   postDate: Date;

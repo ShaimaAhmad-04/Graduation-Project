@@ -3,7 +3,7 @@ import authenticate from "../middleware/authenticate.js"
 import authorizeRole from "../middleware/authorizeRole.js"
 import multer from "multer"
 import path from "path"
-import { getStudentProfile, updateStudentProfile, getStudentCV, uploadCV, getStudentSkills, addStudentSkill, removeStudentSkill, getStudentApplications, withdrawApplication, getStudentRoadmaps, createRoadmap, applyToInternship, updateStudentUserInfo } from "../controllers/studentController.js"
+import { getStudentProfile, updateStudentProfile, getStudentCV, uploadCV, getStudentSkills, addStudentSkill, removeStudentSkill, getStudentApplications, withdrawApplication, getStudentRoadmaps, createRoadmap, applyToInternship, updateStudentUserInfo, generateAIRoadmap } from "../controllers/studentController.js"
 
 const router = express.Router()
 
@@ -35,6 +35,7 @@ router.post("/applications", authenticate, authorizeRole(0), applyToInternship)
 router.delete("/applications/:id", authenticate, authorizeRole(0), withdrawApplication)
 router.get("/roadmaps", authenticate, authorizeRole(0), getStudentRoadmaps)
 router.post("/roadmaps", authenticate, authorizeRole(0), createRoadmap)
+router.post("/roadmaps/ai", authenticate, authorizeRole(0), generateAIRoadmap)
 router.put("/info", authenticate, authorizeRole(0), updateStudentUserInfo)
 
 

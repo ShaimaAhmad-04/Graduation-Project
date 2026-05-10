@@ -35,6 +35,11 @@ export class InternshipDetailComponent implements OnInit {
   isApplying = false;
   applyError = '';
 
+  // AI Roadmap
+  roadmapData: { summary: string; steps: { title: string; description: string; duration: string; resources: string[] }[] } | null = null;
+  isGeneratingRoadmap = false;
+  roadmapError = '';
+
   private baseUrl = 'http://localhost:5002';
 
   constructor(
@@ -168,7 +173,26 @@ get locationLabel(): string {
   }
 
   generateRoadmap(): void {
-    this.roadmapRequested = true;
-    // Latercall AI roadmap API
+    if (!this.internship) return;
+    this.isGeneratingRoadmap = true;
+    this.roadmapError = '';
+    this.roadmapData = null;
+    const token = localStorage.getItem('token');
+
+    this.http.post<any>(
+      `${this.baseUrl}/roadmap/${this.internship.id}`,
+      {},
+      { headers: { Authorization: `Bearer ${token ?? ''}` } }
+    ).subscribe({
+      next: (res) => {
+        this.roadmapData = res.roadmap;
+        this.isGeneratingRoadmap = false;
+        this.roadmapRequested = true;
+      },
+      error: (err) => {
+        this.roadmapError = err.error?.message ?? err.error?.error ?? 'Failed to generate roadmap. Please try again.';
+        this.isGeneratingRoadmap = false;
+      }
+    });
   }
 }
