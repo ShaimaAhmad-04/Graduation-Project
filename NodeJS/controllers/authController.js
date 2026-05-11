@@ -11,9 +11,24 @@ export const register = async (req, res) => {
     const { firstName, lastName, email, password, phoneNumber } = req.body
     const role = parseInt(req.body.role, 10)
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" })
+    }
+
+    const phoneRegex = /^\+?[\d\s\-()]{7,15}$/
+    if (!phoneRegex.test(phoneNumber)) {
+      return res.status(400).json({ message: "Invalid phone number format" })
+    }
+
     const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
       return res.status(400).json({ message: "Email is already in use" })
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({ message: "Password must be at least 8 characters and include uppercase, lowercase, and a number" })
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -41,7 +56,7 @@ export const register = async (req, res) => {
 
     res.json(user)
   } catch (error) {
-    console.error("Register error:", error) // add this
+    console.error("Register error:", error)
     res.status(500).json({ error: error.message })
   }
 }
@@ -106,6 +121,11 @@ export const changePassword = async (req, res) => {
     const validPassword = await bcrypt.compare(currentPassword, user.password)
     if (!validPassword) {
       return res.status(400).json({ message: "Current password is incorrect" })
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({ message: "Password must be at least 8 characters and include uppercase, lowercase, and a number" })
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10)
@@ -174,7 +194,6 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    // Read from body first, fall back to query params
     const email = req.body.email || req.query.email;
     const token = req.body.token || req.query.token;
     const { newPassword } = req.body;
@@ -199,6 +218,11 @@ export const resetPassword = async (req, res) => {
 
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired reset token" });
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({ message: "Password must be at least 8 characters and include uppercase, lowercase, and a number" })
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
