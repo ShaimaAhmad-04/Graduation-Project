@@ -48,14 +48,14 @@ export const verifyCompany = async (req, res) => {
 
     const updated = await prisma.company.update({
       where: { userId: companyId },
-      data: { status: true }
+      data: { status: 'verified' }
     })
 
     res.json(updated)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
-} 
+}
 
 // Get all companies
 export const getAllCompanies = async (req, res) => {
