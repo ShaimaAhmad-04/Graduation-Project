@@ -9,7 +9,7 @@ export const createListing = async (req, res) => {
     if (!title || !submissionDeadline || !location || isPaid === undefined || status === undefined) {
       return res.status(400).json({ message: "Required field(s) are missing!" });
     }
-    if (!Array.isArray(skillIds) || skillIds.length === 0) { // we add skills to the validation to make sure every listing has skills that we can use later to create mathcing 
+    if (!Array.isArray(skillIds) || skillIds.length === 0) { // we add skills to the validation to make sure every listing has skills that we can use later to create mathcing
       return res.status(400).json({ message: "At least one skill is required." });
     }
 
@@ -20,7 +20,9 @@ export const createListing = async (req, res) => {
       if (!user) return res.status(404).json({ message: 'User not found. Please log out and sign in again.' });
       await prisma.company.create({ data: { userId: companyId, name: user.firstName } });
     }
-
+    if (new Date(submissionDeadline)<= new Date()){
+      return res.status(400).json({message:"submission deadline must be a future date!"})
+    }
     const listing = await prisma.internship.create({
       data: { companyId, title, postDate, submissionDeadline, location, isPaid, status, description, duration }
     });
@@ -122,7 +124,9 @@ export const updateListing = async (req, res) => {
     }
 
     const { title, submissionDeadline, location, isPaid, status, description, duration, skillIds } = req.body;
-
+    if (new Date(submissionDeadline)<= new Date()){
+      return res.status(400).json({message:"submission deadline must be a future date!"})
+    }
     const updatedListing = await prisma.internship.update({
       where: { id: listingId },
       data: { title, submissionDeadline, location, isPaid, status, description, duration }
