@@ -32,7 +32,7 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
 
   public majorLabels = MajorsLabels;
   public majors = Majors;
-
+  minDate: string = new Date().toISOString().split('T')[0];
   private get token(): string { return localStorage.getItem('token') ?? ''; }
   private get headers() { return { Authorization: `Bearer ${this.token}` }; }
 
@@ -67,6 +67,7 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
   applicationModalApplication: Application | undefined;
   applicationStatus = Status;
   locationOptions = Object.entries(internship_location);
+  companyStatus: 'verified' | 'pending' | 'unverified' = 'pending';
 
   // ── Skill UI state (driven by SkillSelectionService) ─────────────────────────
   /** Live search results shown in the dropdown */
@@ -118,7 +119,10 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
     const myId = parseInt(localStorage.getItem('userId') ?? '0');
 
     this.http.get<any>(`${this.baseUrl}/company/profile`, { headers: this.headers }).subscribe({
-      next: company => { this.companyName = company.name; },
+      next: company => {
+        this.companyName = company.name;
+        this.companyStatus = company.status;
+      },
       error: () => { }
     });
 
@@ -171,10 +175,9 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
     this.http.get<any>(`${this.baseUrl}/listings`, { headers: this.headers }).subscribe({
       next: res => {
         this.internships = res.listings
-          .filter((l: any) => l.companyId === myId)
-          .map((l: any) => ({
+          .filter((l: any) => l.company?.userId === myId).map((l: any) => ({
             id: l.id,
-            companyId: l.companyId,
+            companyId: l.company.userId,
             title: l.title,
             description: l.description ?? '',
             postDate: new Date(l.postDate),
@@ -201,10 +204,10 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
             next: res => {
 
               this.internships = res.listings
-                .filter((l: any) => l.companyId === myId)
+                .filter((l: any) => l.company.userId === myId)
                 .map((l: any) => ({
                   id: l.id,
-                  companyId: l.companyId,
+                  companyId: l.company.userId,
                   title: l.title,
                   description: l.description ?? '',
                   postDate: new Date(l.postDate),
@@ -297,7 +300,6 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
 
   internship_form = new FormGroup({
     title: new FormControl('', Validators.required),
-    companyName: new FormControl('', Validators.required),
     companyId: new FormControl(parseInt(localStorage.getItem('userId') ?? '0'), Validators.required),
     description: new FormControl('', Validators.required),
     postDate: new FormControl(new Date(), Validators.required),
@@ -357,7 +359,6 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
   clearModal(): void {
     this.internship_form.reset({
       title: '',
-      companyName: '',
       companyId: parseInt(localStorage.getItem('userId') ?? '0'),
       description: '',
       postDate: new Date(),
@@ -483,7 +484,7 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
 
           this.internships.push({
             id: l.id,
-            companyId: l.companyId,
+            company: l.company,
             title: l.title,
             description: l.description ?? '',
             postDate: new Date(l.postDate),
@@ -522,14 +523,12 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
       .split('T')[0];
     this.internship_form.patchValue({
       title: internship.title,
-      companyName: this.companyName,
       description: internship.description,
       submissionDeadline: dateStr,
       duration: internship.duration,
       location: internship.location,
       isPaid: internship.isPaid ? 1 : 0,
       active: internship.active ? 1 : 0,
-      companyId: internship.companyId,
       postDate: internship.postDate
     });
 

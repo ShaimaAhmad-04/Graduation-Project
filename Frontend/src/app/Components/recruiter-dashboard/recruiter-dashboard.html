@@ -4,6 +4,10 @@
     <div class="row mb-4">
         <div class="col-12 header">
             <h1 class="mb-0">{{ companyName }}</h1>
+            <span *ngIf="companyStatus === 'verified'"
+                class="badge bg-primary ms-2">
+                <i class="bi bi-patch-check"></i> Verified
+            </span>
 
             <div style="display:flex;gap:8px;">
                 <button class="btn btn--outline" (click)="goToSettings()">
@@ -600,7 +604,7 @@
                         </div>
 
                         <!-- Company Name -->
-                        <div class="mb-4">
+                        <!-- <div class="mb-4">
                             <label
                                 class="form-label fw-semibold small text-muted text-uppercase">
                                 Company Name <span class="text-danger">*</span>
@@ -616,7 +620,7 @@
                                     formControlName="companyName"
                                     [class.required-input-warning]="internship_form.get('companyName')?.invalid && internship_form.get('companyName')?.touched">
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Description -->
                         <div class="mb-4">
@@ -648,6 +652,7 @@
                                     <input type="date"
                                         class="form-control border-start-0 ps-0"
                                         formControlName="submissionDeadline"
+                                        [min]="minDate"
                                         [class.required-input-warning]="internship_form.get('submissionDeadline')?.invalid && internship_form.get('submissionDeadline')?.touched">
                                 </div>
                             </div>

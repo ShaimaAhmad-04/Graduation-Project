@@ -23,7 +23,7 @@ export class Signup {
   errorMessage = '';
   isLoading = false;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) { }
 
   selectRole(role: 'student' | 'recruiter'): void {
     this.selectedRole = role;
@@ -31,16 +31,59 @@ export class Signup {
   }
 
   onCreateAccount(): void {
-    if (!this.firstName || !this.lastName || !this.email || !this.phone || !this.password || !this.confirmPassword) {
+
+    // Remove old errors
+    this.errorMessage = '';
+
+    // Check empty fields
+    if (
+      !this.firstName ||
+      !this.lastName ||
+      !this.email ||
+      !this.phone ||
+      !this.password ||
+      !this.confirmPassword
+    ) {
       this.errorMessage = 'Please fill in all fields.';
       return;
     }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(this.email)) {
+      this.errorMessage = 'Please enter a valid email address.';
+      return;
+    }
+
+    // Phone validation
+    // Allows numbers only, 9–15 digits
+    const phoneRegex = /^[0-9]{9,15}$/;
+
+    if (!phoneRegex.test(this.phone)) {
+      this.errorMessage = 'Please enter a valid phone number.';
+      return;
+    }
+
+    // Password validation
+    // Minimum 8 chars, uppercase, lowercase, number
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!passwordRegex.test(this.password)) {
+      this.errorMessage =
+        'Password must be at least 8 characters and include uppercase, lowercase, and a number.';
+      return;
+    }
+
+    // Confirm password
     if (this.password !== this.confirmPassword) {
       this.errorMessage = 'Passwords do not match.';
       return;
     }
 
     this.isLoading = true;
+
     const roleNumber = this.selectedRole === 'student' ? 0 : 1;
 
     this.authService.register({
@@ -52,13 +95,27 @@ export class Signup {
       role: roleNumber
     }).subscribe({
       next: (res) => {
-        this.isLoading = false;
-        // After register, navigate to login
-        this.router.navigate(['/login']);
+  console.log('Registration response:', res); // Is this logged?        this.isLoading = false;
+
+        // Save auth data
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('userId', String(res.user.id));
+        localStorage.setItem('role', String(res.user.role));
+        console.log(res.user.role)
+        // Recruiter
+        if (this.selectedRole === 'recruiter') {
+
+          this.router.navigate(['/company-setup']);
+
+        } else {
+
+          this.router.navigate(['/student-dashboard']);
+        }
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message ?? 'Registration failed. Please try again.';
+        this.errorMessage =
+          err.error?.message ?? 'Registration failed. Please try again.';
       }
     });
   }

@@ -18,10 +18,10 @@ export class InternshipCardComponent {
   constructor(
     private internshipService: InternshipService,
     private router: Router
-  ) {}
+  ) { }
 
   get companyName(): string {
-    return this.internshipService.getCompanyName(this.internship.companyId);
+    return this.internship.company?.name ?? 'Unknown Company';
   }
 
   get locationLabel(): string {
@@ -37,18 +37,18 @@ export class InternshipCardComponent {
     return icons[this.internship.location] ?? '📍';
   }
 
- get skillNames(): string[] {
-  return this.internshipService.getSkillNames(this.internship);
-}
+  get skillNames(): string[] {
+    return this.internshipService.getSkillNames(this.internship);
+  }
 
-get visibleSkills(): string[] {
-  return this.skillNames.slice(0, 3);
-}
+  get visibleSkills(): string[] {
+    return this.skillNames.slice(0, 3);
+  }
 
-get extraCount(): number {
-  return Math.max(0, this.skillNames.length - 3);
-}
- 
+  get extraCount(): number {
+    return Math.max(0, this.skillNames.length - 3);
+  }
+
 
   goToDetail(): void {
     this.router.navigate(['/internships', this.internship.id]);

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 export const authGuard = () => {
   const router = inject(Router);
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const isLoggedIn = !!localStorage.getItem('token'); // ← fix here
   if (!isLoggedIn) {
     router.navigate(['/login']);
     return false;

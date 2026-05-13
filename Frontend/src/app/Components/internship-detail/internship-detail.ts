@@ -8,6 +8,13 @@ import { internship_location } from '../../ENUMs/internship-location';
 import { AuthService } from '../../services/auth.service';
 
 type UserState = 'guest' | 'loggedIn' | 'matchCalculated' | 'applied';
+type Company = {
+  name: string;
+  description?: string;
+  industry?: string;
+  website?: string;
+  status: string;
+};
 
 @Component({
   selector: 'app-internship-detail',
@@ -17,21 +24,15 @@ type UserState = 'guest' | 'loggedIn' | 'matchCalculated' | 'applied';
   styleUrls: ['./internship-detail.css']
 })
 export class InternshipDetailComponent implements OnInit {
-
-  internship: Internship | undefined;
-  companyName = '';
+  company?: Company;
+   internship: Internship | undefined;
   skills: string[] = [];
-
-
-
   userState: UserState = 'guest';
-
-  matchScore = 50;
+  matchScore = 0;
   matchLabel = 'Skill Gap';
   matchMessage = 'Consider improving your skills to better match this role';
   isCalculating = false;
   roadmapRequested = false;
-
   isApplying = false;
   applyError = '';
 
@@ -70,7 +71,6 @@ export class InternshipDetailComponent implements OnInit {
         });
       }
     }
-
     const cached = this.internshipService.getById(id);
     if (cached) {
       this.internship = cached;
@@ -79,6 +79,8 @@ export class InternshipDetailComponent implements OnInit {
       this.internshipService.fetchById(id).subscribe({
         next: (internship) => {
           this.internship = internship;
+          this.company = internship.company;
+
           this.skills = this.internshipService.getSkillNames(internship);
         },
         error: () => this.router.navigate(['/internships'])

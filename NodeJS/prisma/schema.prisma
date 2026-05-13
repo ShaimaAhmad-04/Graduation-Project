@@ -15,6 +15,10 @@ model User {
   password    String   @db.VarChar(255)
   phoneNumber String   @db.VarChar(20)
   role        Int
+
+   resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  
   company     Company?
   student     Student?
 }
@@ -38,18 +42,14 @@ model Student {
 }
 
 model Company {
-  userId      Int           @id
-  user        User          @relation(fields: [userId], references: [id])
-  name        String        @db.VarChar(120)
+  id          Int @id @default(autoincrement())
+  userId      Int @unique
+  name        String
+  industry    String?
+  website     String?
+  status      String
   description String?
-  industry    String?       @db.VarChar(100)
-  website     String?       @db.VarChar(255)
-  status      CompanyStatus @default(pending) // replaces verified boolean
-
-  internships      Internship[]
-  companyLocations CompanyLocation[]
 }
-
 model Skill {
   id               Int               @id @default(autoincrement())
   name             String            @unique @db.VarChar(100)
@@ -65,13 +65,13 @@ model Internship {
   postDate            DateTime
   submissionDeadline  DateTime
   duration            String?              @db.VarChar(50)
-  location            Location
+
   isPaid              Boolean
   status              Boolean
   applications        Application[]
   company             Company              @relation(fields: [companyId], references: [userId])
-  internshipLocations InternshipLocation[]
-  internshipSkills    InternshipSkill[]
+ location    String?       @db.VarChar(255)
+   internshipSkills    InternshipSkill[]
   studentInternships  StudentInternship[]
 }
 
@@ -135,25 +135,9 @@ model StudentSkill {
   @@id([studentId, skillId])
 }
 
-model CompanyLocation {
-  companyId Int
-  city      Int
-  country   Int
-  street    String? @db.VarChar(50)
-  company   Company @relation(fields: [companyId], references: [userId], onDelete: Cascade)
 
-  @@id([companyId, city, country])
-}
 
-model InternshipLocation {
-  internshipId Int
-  city         Int
-  country      Int
-  street       String?    @db.VarChar(50)
-  internship   Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
 
-  @@id([internshipId, city, country])
-}
 
 enum Location {
   Remote

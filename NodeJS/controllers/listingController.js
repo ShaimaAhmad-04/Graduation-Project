@@ -14,14 +14,17 @@ export const createListing = async (req, res) => {
     }
 
     // Ensure company record exists (safe after DB resets)
-    const companyExists = await prisma.company.findUnique({ where: { userId: companyId } });
+    const companyExists = await prisma.company.findUnique({
+      where: { userId: companyId }
+    });
+
     if (!companyExists) {
-      const user = await prisma.user.findUnique({ where: { id: companyId }, select: { firstName: true } });
-      if (!user) return res.status(404).json({ message: 'User not found. Please log out and sign in again.' });
-      await prisma.company.create({ data: { userId: companyId, name: user.firstName } });
+      return res.status(400).json({
+        message: "Company profile not created yet. Please create your company first."
+      });
     }
-    if (new Date(submissionDeadline)<= new Date()){
-      return res.status(400).json({message:"submission deadline must be a future date!"})
+    if (new Date(submissionDeadline) <= new Date()) {
+      return res.status(400).json({ message: "submission deadline must be a future date!" })
     }
     const listing = await prisma.internship.create({
       data: { companyId, title, postDate, submissionDeadline, location, isPaid, status, description, duration }
@@ -66,7 +69,15 @@ export const getListings = async (req, res) => {
       },
       include: {
         company: {
-          select: { name: true, status: true }
+          select: {
+            userId: true,
+            name: true,
+            status: true,
+            industry: true,
+            description: true,
+            website: true,
+            location: true
+          }
         },
         internshipSkills: {
           include: {
@@ -92,7 +103,17 @@ export const getListing = async (req, res) => {
     const listing = await prisma.internship.findUnique({
       where: { id: listingId },
       include: {
-        company: { select: { name: true, status: true } },
+        company: {
+          select: {
+            userId: true,
+            name: true,
+            status: true,
+            industry: true,
+            description: true,
+            website: true,
+            location: true
+          }
+        },
         internshipSkills: {
           include: { skill: { select: { name: true } } }
         }
@@ -124,8 +145,8 @@ export const updateListing = async (req, res) => {
     }
 
     const { title, submissionDeadline, location, isPaid, status, description, duration, skillIds } = req.body;
-    if (new Date(submissionDeadline)<= new Date()){
-      return res.status(400).json({message:"submission deadline must be a future date!"})
+    if (new Date(submissionDeadline) <= new Date()) {
+      return res.status(400).json({ message: "submission deadline must be a future date!" })
     }
     const updatedListing = await prisma.internship.update({
       where: { id: listingId },

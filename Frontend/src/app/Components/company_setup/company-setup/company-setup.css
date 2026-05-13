@@ -1,0 +1,122 @@
+.company-setup-wrapper {
+    background-color: #f8f7ff;
+    min-height: 100vh;
+    width: 100%;
+    padding: 60px 80px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.homepage-Body {
+    width: 100%;
+}
+
+/* Header/Icon Section */
+.title {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.icon-container.hero-icon-wrapper {
+    background-color: #9c27b0;
+    /* Purple from the logo */
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+}
+
+.hero-briefcase-icon {
+    color: white;
+    font-size: 1.8rem;
+}
+
+.title-heading {
+    color: #1a2b4b;
+    /* Dark navy for text */
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.gradient-text {
+    color: #1a2b4b;
+}
+
+.subtitle {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.colored-background {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 50px;
+
+    border: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Form Labels and Inputs */
+.form-label {
+    font-weight: 500;
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 15px;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    background-color: #fff;
+    border-color: #9c27b0;
+    box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
+    outline: none;
+}
+
+/* Buttons */
+.introduction-buttons .btn {
+    padding: 12px;
+    font-weight: 600;
+    border-radius: 10px;
+}
+
+/* The Gradient "Continue" Button */
+.btn-white-gradient {
+    background: linear-gradient(90deg, #8e44ad 0%, #e91e63 100%);
+    border: none;
+    color: white !important;
+    transition: opacity 0.3s ease;
+}
+
+.btn-white-gradient:hover {
+    opacity: 0.9;
+}
+
+.btn-white-gradient:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-light {
+    background-color: transparent;
+    border: 1px solid #e5e7eb;
+    color: #6c757d;
+}
+
+.btn-light:hover {
+    background-color: #f9fafb;
+}
+
+.arrow-icon {
+    margin-left: 8px;
+    font-weight: bold;
+}

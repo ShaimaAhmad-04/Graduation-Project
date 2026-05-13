@@ -24,7 +24,6 @@ mkdirSync(join(__dirname, 'uploads'), { recursive: true });
 const app = express();
 const PORT = process.env.PORT || 5002;
 app.use((req, res, next) => {
-  console.log("➡️ REQUEST:", req.method, req.url);
   next();
 });
 app.use(cors({ origin: 'http://localhost:4200' }));
@@ -48,6 +47,7 @@ app.use('/applications', applicationRoutes)
 app.use('/admin', adminRoutes)
 app.use("/matches", matchingRoutes)
 app.use('/roadmap', roadmapRoutes)
-app.listen(PORT, () => { // Start server and listen on PORT.
-  console.log(`Server running on http://localhost:${PORT}`); // Log server URL when started.
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
+

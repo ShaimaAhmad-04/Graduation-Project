@@ -1,6 +1,7 @@
 import express from "express"
 import authenticate from "../middleware/authenticate.js"
 import authorizeRole from "../middleware/authorizeRole.js"
+
 import {
   getCompanyProfile,
   updateCompanyProfile,
@@ -9,18 +10,30 @@ import {
   getTopMatchingApplicants,
   getInternshipStats,
   getCompanyDashboardSummary,
-  updateCompanyUserInfo
+  updateCompanyUserInfo,
+  createCompanyProfile
 } from "../controllers/companyController.js"
 
 const router = express.Router()
-//role =1 for company
-router.get("/profile", authenticate, authorizeRole(1), getCompanyProfile)
-router.put("/profile", authenticate, authorizeRole(1), updateCompanyProfile)
-router.get("/applications", authenticate, authorizeRole(1), getCompanyApplications)
-router.get("/internships/closing-soon", authenticate, authorizeRole(1), getClosingSoonInternships)
-router.get("/applicants/top-matching", authenticate, authorizeRole(1), getTopMatchingApplicants)
-router.get("/internships/stats", authenticate, authorizeRole(1), getInternshipStats)
-router.get("/dashboard", authenticate, authorizeRole(1), getCompanyDashboardSummary)
-router.put("/info", authenticate, authorizeRole(1), updateCompanyUserInfo)
+
+// 🔐 ALL company routes should be protected
+const companyAccess = [authenticate, authorizeRole(1)]
+
+// Create company profile
+router.post('/', authenticate, authorizeRole(1), createCompanyProfile)
+
+// Company profile
+router.get('/profile', ...companyAccess, getCompanyProfile)
+router.put('/', ...companyAccess, updateCompanyProfile)
+
+// Dashboard data
+router.get("/applications", ...companyAccess, getCompanyApplications)
+router.get("/internships/closing-soon", ...companyAccess, getClosingSoonInternships)
+router.get("/applicants/top-matching", ...companyAccess, getTopMatchingApplicants)
+router.get("/internships/stats", ...companyAccess, getInternshipStats)
+router.get("/dashboard", ...companyAccess, getCompanyDashboardSummary)
+
+// User info update
+router.put("/info", ...companyAccess, updateCompanyUserInfo)
 
 export default router

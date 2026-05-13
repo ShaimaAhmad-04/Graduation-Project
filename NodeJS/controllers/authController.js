@@ -7,7 +7,6 @@ import { sendResetEmail } from "../utils/email.js";
 
 export const register = async (req, res) => {
   try {
-    console.log("Register attempt:", req.body)
     const { firstName, lastName, email, password, phoneNumber } = req.body
     const role = parseInt(req.body.role, 10)
 
@@ -41,8 +40,7 @@ export const register = async (req, res) => {
         phoneNumber,
         password: hashedPassword,
         role,
-        ...(role === 0 && { student: { create: {} } }),
-        ...(role === 1 && { company: { create: { name: firstName } } })
+        ...(role === 0 && { student: { create: {} } })
       },
       select: {
         id: true,
@@ -53,8 +51,14 @@ export const register = async (req, res) => {
         role: true
       }
     })
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    res.json(user)
+
+    res.json({ user, token })
   } catch (error) {
     console.error("Register error:", error)
     res.status(500).json({ error: error.message })

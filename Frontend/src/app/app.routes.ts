@@ -10,9 +10,11 @@ import { StudentSettings } from './Components/student-settings/student-settings'
 import { RecruiterSettings } from './Components/recruiter-settings/recruiter-settings';
 import { ProfileSetup } from './Components/profile-setup/profile-setup';
 import { AdminDashboard } from './Components/admin-dashboard/admin-dashboard';
-import { authGuard } from './auth-guard';
+import { authGuard } from './Guards/auth-guard';
 import { ForgotPasswordComponent } from './Components/forgot-password/forgot-password/forgot-password';
 import { ResetPasswordComponent } from './Components/reset-password/reset-passwords/reset-passwords';
+import { CompanySetup } from './Components/company_setup/company-setup/company-setup';
+import { RecruiterGuard } from './Guards/guards/recruiter-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'homepage', pathMatch: 'full' },
@@ -24,9 +26,12 @@ export const routes: Routes = [
   { path: 'profile-setup', component: ProfileSetup, canActivate: [authGuard] },
   { path: 'internships', component: InternshipListComponent },
   { path: 'internships/:id', component: InternshipDetailComponent },
-  { path: 'recruiter-dashboard', component: RecruiterDashboard, canActivate: [authGuard] },
+  { path: 'recruiter-dashboard', component: RecruiterDashboard, canActivate: [RecruiterGuard] },
   { path: 'recruiter-settings', component: RecruiterSettings, canActivate: [authGuard] },
   { path: 'admin-dashboard', component: AdminDashboard, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent }
+  { path: 'reset-password', component: ResetPasswordComponent },
+  {
+    path: 'company-setup', component: CompanySetup, canActivate: [authGuard]
+  }
 ];

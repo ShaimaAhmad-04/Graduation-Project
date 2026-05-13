@@ -28,23 +28,29 @@ export const getCompanyProfile = async (req, res) => {
 
 export const updateCompanyProfile = async (req, res) => {
   try {
-    const { name, description, industry, website } = req.body
+    const { name, description, industry, website, location } = req.body;
 
     if (!name) {
       return res.status(400).json({ message: "Required fields are missing!" })
     }
 
+    const [city, country] = location ? location.split(',').map(s => s.trim()) : ['', ''];
+
     const company = await prisma.company.update({
       where: { userId: req.userId },
-      data: { name, description, industry, website }
-    })
+      data: {
+        name,
+        description,
+        industry,
+        website,
+        location}
+      });
 
     res.json(company)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
 }
-
 // return all listings for a company with match score for each applicant
 export const getCompanyApplications = async (req, res) => {
   try {
@@ -230,5 +236,72 @@ export const updateCompanyUserInfo = async (req, res) => {
     res.json(user)
   } catch (error) {
     res.status(500).json({ error: error.message })
+  }
+}
+
+export const createCompanyProfile = async (req, res) => {
+  try {
+    const { name, description, industry, website } = req.body
+
+    // 1. Validate required fields
+    if (!name) {
+      return res.status(400).json({
+        message: "Company name is required!"
+      })
+    }
+
+    // 2. Prevent duplicate company for same user
+    const existingCompany = await prisma.company.findUnique({
+      where: { userId: req.userId }
+    })
+
+    if (existingCompany) {
+      return res.status(409).json({
+        message: "Company profile already exists!"
+      })
+    }
+
+    // 3. Create company
+    const company = await prisma.company.create({
+      data: {
+        userId: req.userId,
+        name,
+        description: description || null,
+        industry: industry || null,
+        website: website || null,
+        status: "pending"
+      },
+      include: {
+        user: {
+          select: {
+            firstName: true,
+            email: true,
+            phoneNumber: true,
+            role: true
+          }
+        }
+      }
+    })
+
+    // 4. Mark onboarding complete (optional but recommended)
+    await prisma.user.update({
+      where: { id: req.userId },
+      data: {
+        companyCompleted: true // if you have this field
+      }
+    })
+
+    return res.status(201).json({
+      message: "Company profile created successfully",
+      company
+    })
+
+  } catch (error) {
+    console.error("CREATE COMPANY ERROR:", error)
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    })
   }
 }

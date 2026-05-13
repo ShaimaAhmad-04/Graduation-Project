@@ -34,9 +34,7 @@ export class InternshipService {
   mapListing(l: any): Internship {
     return {
       id: l.id,
-      companyId: l.companyId,
-      companyName: l.company?.name ?? '',
-      companyVerified: l.company?.status === 'approved',
+      company: l.company,
        title: l.title,
       description: l.description ?? '',
       postDate: new Date(l.postDate),
