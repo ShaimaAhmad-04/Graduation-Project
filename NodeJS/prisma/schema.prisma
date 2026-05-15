@@ -42,29 +42,14 @@ model Student {
 }
 
 model Company {
-<<<<<<< HEAD
-  userId      Int      @id
+  userId      Int           @id
   name        String
   industry    String?
   website     String?
   status      CompanyStatus @default(pending)
   description String?
-  location    String?  @db.VarChar(255)
-  user        User     @relation(fields: [userId], references: [id])
-=======
-  id               Int     @id @default(autoincrement())
-  userId           Int     @unique
-  name             String
-  industry         String?
-  website          String?
-  status           String
-  description      String?
-  location         String? @db.VarChar(255)   
-  companyCompleted Boolean @default(false)
-
-  user User @relation(fields: [userId], references: [id])
-
->>>>>>> 4f8ab15cb2ee5cc4442f6b7c54433922b75010f9
+  location    String?       @db.VarChar(255)
+  user        User          @relation(fields: [userId], references: [id])
   internships Internship[]
 }
 
@@ -76,7 +61,6 @@ model Skill {
 }
 
 model Internship {
-<<<<<<< HEAD
   id                  Int                  @id @default(autoincrement())
   companyId           Int
   title               String               @db.VarChar(150)
@@ -84,7 +68,6 @@ model Internship {
   postDate            DateTime
   submissionDeadline  DateTime
   duration            String?              @db.VarChar(50)
-
   isPaid              Boolean
   status              Boolean
   applications        Application[]
@@ -92,23 +75,6 @@ model Internship {
   location            String?              @db.VarChar(255)
   internshipSkills    InternshipSkill[]
   studentInternships  StudentInternship[]
-=======
-  id                 Int      @id @default(autoincrement())
-  companyId          Int
-  title              String   @db.VarChar(150)
-  description        String?  @db.VarChar(200)
-  postDate           DateTime
-  submissionDeadline DateTime
-  duration           String?  @db.VarChar(50)
-
-  isPaid             Boolean
-  status             Boolean
-  applications       Application[]
-  company            Company             @relation(fields: [companyId], references: [id])
-  location           String?             @db.VarChar(255)
-  internshipSkills   InternshipSkill[]
-  studentInternships StudentInternship[]
->>>>>>> 4f8ab15cb2ee5cc4442f6b7c54433922b75010f9
 }
 
 model InternshipSkill {
@@ -170,18 +136,6 @@ model StudentSkill {
 
   @@id([studentId, skillId])
 }
-
-<<<<<<< HEAD
-
-
-
-=======
-enum Location {
-  Remote
-  Onsite
-  Hybrid
-}
->>>>>>> 4f8ab15cb2ee5cc4442f6b7c54433922b75010f9
 
 enum CompanyStatus {
   verified
