@@ -5,6 +5,7 @@ import {
   getAllUsers,
   deleteUser,
   verifyCompany,
+  unverifyCompany,
   declineCompany,
   getAllApplications,
   getAdminStats,
@@ -22,4 +23,5 @@ router.get("/companies", authenticate, authorizeRole(2), getAllCompanies)
 router.get("/applications", authenticate, authorizeRole(2), getAllApplications)
 router.get("/stats", authenticate, authorizeRole(2), getAdminStats)
 router.put("/companies/:id/decline", authenticate, authorizeRole(2), declineCompany)
+router.put("/companies/:id/unverify", authenticate, authorizeRole(2), unverifyCompany)
 export default router

@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Company" ALTER COLUMN "name" SET DATA TYPE TEXT,
+ALTER COLUMN "industry" SET DATA TYPE TEXT,
+ALTER COLUMN "website" SET DATA TYPE TEXT,
+ALTER COLUMN "status" DROP DEFAULT;
+
+-- DropEnum
+DROP TYPE "Location";

@@ -327,7 +327,7 @@ export const getStudentApplications = async (req, res) => {
             isPaid: true,
             status: true,
             submissionDeadline: true,
-            company: { select: { name: true } }
+            company: { select: { name: true, status: true } }
           }
         }
       }
@@ -436,34 +436,42 @@ export const generateAIRoadmap = async (req, res) => {
 
     const aiResponse = await ai.chat.completions.create({
       model: process.env.MODEL_NAME,
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'system',
-          content: 'You are a career advisor. Always respond with valid JSON only — no markdown, no explanation outside the JSON.'
+          content: 'You are a senior technical career coach. Always respond with valid JSON only matching the exact schema provided. Never omit any field. Recommend modern tools relevant to 2025/2026.'
         },
         {
           role: 'user',
-          content: `A student wants to become a "${desiredPosition}".
-Their current skills: ${skillNames}.
+          content: `A student is preparing to land a "${desiredPosition}" internship.
+Their CURRENT skills (do NOT include these as steps): ${skillNames}.
 
-Generate a personalized learning roadmap as a JSON object in this exact format:
+Return a JSON object that EXACTLY matches this schema — every field is required:
 {
-  "summary": "One sentence describing what this student needs to focus on to reach their goal.",
+  "summary": "2-3 sentences covering: what the student already knows, their key gaps, and how long to close them.",
+  "totalWeeks": 12,
   "steps": [
     {
-      "title": "Specific skill or topic",
-      "description": "What to learn and why it matters for this role.",
-      "duration": "Estimated time (e.g. 2 weeks)",
-      "resources": ["resource name or URL", "resource name or URL"]
+      "title": "TypeScript",
+      "description": "Why this skill is needed for ${desiredPosition} and what specifically to learn.",
+      "duration": "3 weeks",
+      "priority": "essential",
+      "practiceTask": "Build a typed REST API client that fetches and displays data with strict TypeScript.",
+      "resources": ["https://www.typescriptlang.org/docs/", "https://www.freecodecamp.org/learn/"]
     }
   ]
 }
 
 Rules:
-- 4 to 7 steps, ordered logically (prerequisites first).
-- Each step covers exactly one skill or concept.
-- Prioritize skills the student is missing for this role.
-- If they already have strong foundations, focus on advanced topics.`
+- totalWeeks = sum of all step duration weeks as a number.
+- priority must be exactly "essential" or "recommended" — essential for skills in most ${desiredPosition} job posts.
+- practiceTask must be a single actionable sentence describing a mini-project.
+- SKIP any skill already in the student's list: ${skillNames}.
+- 4 to 6 steps, most critical first.
+- Each step = ONE specific tool or skill, not a broad topic.
+- Prefer modern tools (Vite over Webpack, Tailwind over Bootstrap, Vitest over legacy runners).
+- All resource URLs must be free and real.`
         }
       ]
     })

@@ -150,6 +150,22 @@ export const searchUsers = async (req, res) => {
   }
 }
 
+export const unverifyCompany = async (req, res) => {
+  try {
+    const companyId = parseInt(req.params.id)
+    const company = await prisma.company.findUnique({ where: { userId: companyId } })
+    if (!company) return res.status(404).json({ message: "Company not found" })
+
+    const updated = await prisma.company.update({
+      where: { userId: companyId },
+      data: { status: 'pending' }
+    })
+    res.json(updated)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
 export const declineCompany = async (req, res) => {
   try {
     const companyId = parseInt(req.params.id)

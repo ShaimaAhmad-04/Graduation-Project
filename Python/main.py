@@ -1,8 +1,10 @@
 import os
 import json
+import uuid
 import fitz
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from docx2python import docx2python
@@ -13,6 +15,11 @@ from matching import router as matching_router
 load_dotenv()
 
 app = FastAPI()
+
+# Serve uploaded CVs as static files at /uploads
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # Include matching routes
 app.include_router(matching_router)
@@ -101,9 +108,18 @@ async def create_profile_from_cv(file: UploadFile = File(...)):
 
         structured_data = json.loads(ai_response.choices[0].message.content)
 
+        # Save the original file so recruiters can download it
+        ext = file_extension if file_extension in ("pdf", "docx") else "pdf"
+        saved_filename = f"{uuid.uuid4()}.{ext}"
+        saved_path = os.path.join(UPLOAD_DIR, saved_filename)
+        with open(saved_path, "wb") as f:
+            f.write(file_bytes)
+        cv_url = f"http://localhost:8000/uploads/{saved_filename}"
+
         return {
             "status": "success",
-            "data": structured_data
+            "data": structured_data,
+            "cvUrl": cv_url
         }
 
     except Exception as e:

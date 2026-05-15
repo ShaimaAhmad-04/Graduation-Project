@@ -42,13 +42,15 @@ model Student {
 }
 
 model Company {
-  id          Int @id @default(autoincrement())
-  userId      Int @unique
+  userId      Int      @id
   name        String
   industry    String?
   website     String?
-  status      String
+  status      CompanyStatus @default(pending)
   description String?
+  location    String?  @db.VarChar(255)
+  user        User     @relation(fields: [userId], references: [id])
+  internships Internship[]
 }
 model Skill {
   id               Int               @id @default(autoincrement())
@@ -61,7 +63,7 @@ model Internship {
   id                  Int                  @id @default(autoincrement())
   companyId           Int
   title               String               @db.VarChar(150)
-  description         String?              @db.VarChar(200)
+  description         String?
   postDate            DateTime
   submissionDeadline  DateTime
   duration            String?              @db.VarChar(50)
@@ -70,8 +72,8 @@ model Internship {
   status              Boolean
   applications        Application[]
   company             Company              @relation(fields: [companyId], references: [userId])
- location    String?       @db.VarChar(255)
-   internshipSkills    InternshipSkill[]
+  location            String?              @db.VarChar(255)
+  internshipSkills    InternshipSkill[]
   studentInternships  StudentInternship[]
 }
 
@@ -139,11 +141,6 @@ model StudentSkill {
 
 
 
-enum Location {
-  Remote
-  Onsite
-  Hybrid
-}
 enum CompanyStatus {
   verified
   pending

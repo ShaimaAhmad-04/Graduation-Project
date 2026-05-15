@@ -45,36 +45,43 @@ export const generateRoadmap = async (req, res) => {
     // 3. Call AI to generate roadmap as structured JSON
     const aiResponse = await ai.chat.completions.create({
       model: process.env.MODEL_NAME,
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'system',
-          content: `You are a career advisor. Always respond with valid JSON only — no markdown, no explanation outside the JSON.`
+          content: 'You are a senior technical career coach. Always respond with valid JSON only matching the exact schema provided. Never omit any field. Recommend modern tools relevant to 2025/2026.'
         },
         {
           role: 'user',
           content: `A student is applying for a "${internship.title}" internship.
 Required skills: ${requiredSkills.join(', ')}.
-Student's current skills: ${studentSkillNames.join(', ')}.
+Student's CURRENT skills (do NOT include these as steps): ${studentSkillNames.join(', ')}.
 
-Identify the skill gaps and return a learning roadmap as a JSON object in this exact format:
+Return a JSON object that EXACTLY matches this schema — every field is required:
 {
-  "summary": "One sentence describing the student's situation and what they need to focus on.",
+  "summary": "2-3 sentences: which required skills the student already has, which are missing, and how prepared they are overall.",
+  "totalWeeks": 8,
   "steps": [
     {
-      "title": "Short skill or topic name",
-      "description": "What to learn and why it matters for this role.",
-      "duration": "Estimated time (e.g. 1 week)",
-      "resources": ["resource name or URL", "resource name or URL"]
+      "title": "TypeScript",
+      "description": "Why this skill is required for ${internship.title} and what to learn.",
+      "duration": "2 weeks",
+      "priority": "essential",
+      "practiceTask": "Build a typed component or module that uses this skill in a real scenario.",
+      "resources": ["https://official-docs.com", "https://freecodecamp.org"]
     }
   ]
 }
 
 Rules:
-- Each step covers exactly one skill or concept (not a broad category).
-- Order steps logically (prerequisites first).
-- 3 to 6 steps total.
-- Only include skills the student is missing.
-- If the student already has all required skills, return steps for deepening expertise.`
+- totalWeeks = sum of all step duration weeks as a number.
+- priority must be exactly "essential" or "recommended".
+- practiceTask must be a single actionable sentence.
+- ONLY include skills from the required list that are NOT in the student's current skills.
+- 3 to 6 steps, essential gaps first.
+- Each step = ONE specific skill or tool.
+- All resource URLs must be free and real.
+- If student has all required skills, return 3 steps to deepen expertise for interviews.`
         }
       ]
     })

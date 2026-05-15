@@ -20,11 +20,28 @@ export const createListing = async (req, res) => {
       if (!user) return res.status(404).json({ message: 'User not found. Please log out and sign in again.' });
       await prisma.company.create({ data: { userId: companyId, name: user.firstName } });
     }
-    if (new Date(submissionDeadline) <= new Date()) {
+    const validLocations = ['Remote', 'Onsite', 'Hybrid'];
+    if (!validLocations.includes(location)) {
+      return res.status(400).json({ message: "Invalid location. Expected one of: Remote, Onsite, Hybrid." });
+    }
+
+    const deadlineDate = new Date(submissionDeadline);
+    if (deadlineDate <= new Date()) {
       return res.status(400).json({ message: "submission deadline must be a future date!" })
     }
+
     const listing = await prisma.internship.create({
-      data: { companyId, title, postDate, submissionDeadline, location, isPaid, status, description, duration }
+      data: {
+        companyId,
+        title,
+        postDate,
+        submissionDeadline: deadlineDate,
+        location,
+        isPaid,
+        status,
+        description,
+        duration
+      }
     });
 
     // Save required skills
@@ -129,12 +146,27 @@ export const updateListing = async (req, res) => {
     }
 
     const { title, submissionDeadline, location, isPaid, status, description, duration, skillIds } = req.body;
-    if (new Date(submissionDeadline) <= new Date()) {
+    const validLocations = ['Remote', 'Onsite', 'Hybrid'];
+    if (!validLocations.includes(location)) {
+      return res.status(400).json({ message: "Invalid location. Expected one of: Remote, Onsite, Hybrid." });
+    }
+
+    const deadlineDate = new Date(submissionDeadline);
+    if (deadlineDate <= new Date()) {
       return res.status(400).json({ message: "submission deadline must be a future date!" })
     }
+
     const updatedListing = await prisma.internship.update({
       where: { id: listingId },
-      data: { title, submissionDeadline, location, isPaid, status, description, duration }
+      data: {
+        title,
+        submissionDeadline: deadlineDate,
+        location,
+        isPaid,
+        status,
+        description,
+        duration
+      }
     });
 
     // Update skills if provided

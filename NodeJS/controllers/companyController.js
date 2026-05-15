@@ -241,7 +241,7 @@ export const updateCompanyUserInfo = async (req, res) => {
 
 export const createCompanyProfile = async (req, res) => {
   try {
-    const { name, description, industry, website } = req.body
+    const { name, description, industry, website, location } = req.body
 
     // 1. Validate required fields
     if (!name) {
@@ -269,6 +269,7 @@ export const createCompanyProfile = async (req, res) => {
         description: description || null,
         industry: industry || null,
         website: website || null,
+        location: location || null,
         status: "pending"
       },
       include: {
@@ -280,14 +281,6 @@ export const createCompanyProfile = async (req, res) => {
             role: true
           }
         }
-      }
-    })
-
-    // 4. Mark onboarding complete (optional but recommended)
-    await prisma.user.update({
-      where: { id: req.userId },
-      data: {
-        companyCompleted: true // if you have this field
       }
     })
 
