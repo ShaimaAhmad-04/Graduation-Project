@@ -8,19 +8,19 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  firstName   String   @db.VarChar(50)
-  lastName    String?  @db.VarChar(50)
-  email       String   @unique @db.VarChar(255)
-  password    String   @db.VarChar(255)
-  phoneNumber String   @db.VarChar(20)
+  id          Int     @id @default(autoincrement())
+  firstName   String  @db.VarChar(50)
+  lastName    String? @db.VarChar(50)
+  email       String  @unique @db.VarChar(255)
+  password    String  @db.VarChar(255)
+  phoneNumber String  @db.VarChar(20)
   role        Int
 
-   resetPasswordToken   String?
+  resetPasswordToken   String?
   resetPasswordExpires DateTime?
-  
-  company     Company?
-  student     Student?
+
+  company Company?
+  student Student?
 }
 
 model Student {
@@ -42,14 +42,21 @@ model Student {
 }
 
 model Company {
-  id          Int @id @default(autoincrement())
-  userId      Int @unique
-  name        String
-  industry    String?
-  website     String?
-  status      String
-  description String?
+  id               Int     @id @default(autoincrement())
+  userId           Int     @unique
+  name             String
+  industry         String?
+  website          String?
+  status           String
+  description      String?
+  location         String? @db.VarChar(255)   
+  companyCompleted Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  internships Internship[]
 }
+
 model Skill {
   id               Int               @id @default(autoincrement())
   name             String            @unique @db.VarChar(100)
@@ -58,28 +65,28 @@ model Skill {
 }
 
 model Internship {
-  id                  Int                  @id @default(autoincrement())
-  companyId           Int
-  title               String               @db.VarChar(150)
-  description         String?              @db.VarChar(200)
-  postDate            DateTime
-  submissionDeadline  DateTime
-  duration            String?              @db.VarChar(50)
+  id                 Int      @id @default(autoincrement())
+  companyId          Int
+  title              String   @db.VarChar(150)
+  description        String?  @db.VarChar(200)
+  postDate           DateTime
+  submissionDeadline DateTime
+  duration           String?  @db.VarChar(50)
 
-  isPaid              Boolean
-  status              Boolean
-  applications        Application[]
-  company             Company              @relation(fields: [companyId], references: [userId])
- location    String?       @db.VarChar(255)
-   internshipSkills    InternshipSkill[]
-  studentInternships  StudentInternship[]
+  isPaid             Boolean
+  status             Boolean
+  applications       Application[]
+  company            Company             @relation(fields: [companyId], references: [id])
+  location           String?             @db.VarChar(255)
+  internshipSkills   InternshipSkill[]
+  studentInternships StudentInternship[]
 }
 
 model InternshipSkill {
   internshipId  Int
   skillId       Int
   matchingScore Int?
-  date          DateTime?  
+  date          DateTime?
   internship    Internship @relation(fields: [internshipId], references: [id], onDelete: Cascade)
   skill         Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
@@ -135,15 +142,12 @@ model StudentSkill {
   @@id([studentId, skillId])
 }
 
-
-
-
-
 enum Location {
   Remote
   Onsite
   Hybrid
 }
+
 enum CompanyStatus {
   verified
   pending

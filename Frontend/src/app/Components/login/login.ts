@@ -39,13 +39,14 @@ export class LoginComponent {
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
         this.authService.saveToken(res.token);
-        // Get user info after login
         this.authService.getMe(res.token).subscribe({
           next: (user) => {
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('userName', user.firstName);
             localStorage.setItem('userRole', user.role.toString());
             localStorage.setItem('userId', user.id.toString());
+            localStorage.setItem('companyCompleted', res.companyCompleted);
+
             if (user.role === 0) {
               this.authService.getStudentProfile(res.token).subscribe({
                 next: (profile) => {
@@ -61,16 +62,23 @@ export class LoginComponent {
                   this.router.navigate(['/profile-setup']);
                 }
               });
+
+              // ✅ REPLACE YOUR OLD else if (user.role === 1) BLOCK WITH THIS
             } else if (user.role === 1) {
-              // For recruiters, show company name in navbar instead of personal name
-              this.authService.getCompanyProfile(res.token).subscribe({
-                next: (company) => {
-                  if (company?.name) localStorage.setItem('userName', company.name);
-                },
-                error: () => { }
-              });
               this.isLoading = false;
-              this.router.navigate(['/recruiter-dashboard']);
+
+              if (!res.companyCompleted) {
+                this.router.navigate(['/company-setup']);
+              } else {
+                this.authService.getCompanyProfile(res.token).subscribe({
+                  next: (company) => {
+                    if (company?.name) localStorage.setItem('userName', company.name);
+                  },
+                  error: () => { }
+                });
+                this.router.navigate(['/recruiter-dashboard']);
+              }
+
             } else {
               this.isLoading = false;
               this.router.navigate(['/admin-dashboard']);
@@ -84,7 +92,6 @@ export class LoginComponent {
       }
     });
   }
-
   goToSignup(): void {
     this.router.navigate(['/signup']);
   }

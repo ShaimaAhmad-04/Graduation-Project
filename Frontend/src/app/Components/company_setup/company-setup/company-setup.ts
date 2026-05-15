@@ -52,7 +52,7 @@ export class CompanySetup {
 
     this.isSubmitting = true;
 
-    this.http.put(                        // ← was POST, now PUT
+    this.http.post(                        // ← was POST, now PUT
       `${this.baseUrl}/company`,
       this.companyForm.value,
       { headers: this.headers }
