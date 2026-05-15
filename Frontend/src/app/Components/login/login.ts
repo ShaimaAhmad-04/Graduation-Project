@@ -45,10 +45,7 @@ export class LoginComponent {
             localStorage.setItem('userName', user.firstName);
             localStorage.setItem('userRole', user.role.toString());
             localStorage.setItem('userId', user.id.toString());
-<<<<<<< HEAD
-=======
             localStorage.setItem('companyCompleted', res.companyCompleted);
->>>>>>> 4f8ab15cb2ee5cc4442f6b7c54433922b75010f9
 
             if (user.role === 0) {
               this.authService.getStudentProfile(res.token).subscribe({
