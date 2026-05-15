@@ -46,6 +46,7 @@ export class LoginComponent {
             localStorage.setItem('userName', user.firstName);
             localStorage.setItem('userRole', user.role.toString());
             localStorage.setItem('userId', user.id.toString());
+
             if (user.role === 0) {
               this.authService.getStudentProfile(res.token).subscribe({
                 next: (profile) => {
@@ -75,6 +76,10 @@ export class LoginComponent {
               this.isLoading = false;
               this.router.navigate(['/admin-dashboard']);
             }
+          },
+          error: () => {
+            this.isLoading = false;
+            this.errorMessage = 'Login failed. Please try again.';
           }
         });
       },

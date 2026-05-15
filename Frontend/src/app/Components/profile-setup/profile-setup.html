@@ -68,9 +68,20 @@
     </div>
     }
 
+    @if (extractError) {
+    <div style="background:#fff1f2; border:1px solid #fca5a5; border-radius:8px; padding:12px; margin-bottom:16px;">
+      <p style="color:#dc2626; font-size:0.875rem; margin:0;">{{ extractError }}</p>
+    </div>
+    }
+
     <button class="btn-continue" (click)="goToStep2()"
-      [disabled]="isExtracting || !uploadSuccess">Continue to Next
-      Step</button>
+      [disabled]="isExtracting || !uploadSuccess">Continue to Next Step</button>
+
+    @if (extractError && !isExtracting) {
+    <button class="btn-continue" style="background:#6b7280; margin-top:8px;" (click)="goToStep2()">
+      Skip — Fill in Manually
+    </button>
+    }
   </div>
   }
 

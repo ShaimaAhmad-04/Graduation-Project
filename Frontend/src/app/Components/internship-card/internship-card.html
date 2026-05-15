@@ -5,6 +5,10 @@
         <i class="bi bi-building" style="font-size:1.1rem; color:white;"></i>
       </div>
       <span class="company-name">{{ companyName }}</span>
+      <span *ngIf="internship.company?.status === 'verified'" title="Verified Company"
+        style="color:#7c3aed; line-height:1;">
+        <i class="bi bi-patch-check-fill" style="font-size:0.85rem;"></i>
+      </span>
     </div>
     <span class="badge" [class.paid]="internship.isPaid" [class.unpaid]="!internship.isPaid">
       {{ internship.isPaid ? 'Paid' : 'Unpaid' }}

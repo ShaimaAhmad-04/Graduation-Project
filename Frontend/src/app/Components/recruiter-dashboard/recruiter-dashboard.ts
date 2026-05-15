@@ -629,4 +629,9 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
 
   countPending(internshipId: number): number { return this.internshipStatsMap[internshipId]?.pending ?? 0; }
   countAccepted(internshipId: number): number { return this.internshipStatsMap[internshipId]?.accepted ?? 0; }
+
+  isExactSkillMatch(): boolean {
+    const q = this.searchQuery.trim().toLowerCase();
+    return this.searchSkills.some(s => s.skill_name.toLowerCase() === q);
+  }
 }

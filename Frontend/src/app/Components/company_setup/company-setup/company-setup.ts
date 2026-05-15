@@ -28,9 +28,9 @@ export class CompanySetup {
 
   companyForm = new FormGroup({
     name: new FormControl('', Validators.required),
-    description: new FormControl('', Validators.required),
+    description: new FormControl(''),
     website: new FormControl(''),
-    industry: new FormControl('', Validators.required),
+    industry: new FormControl(''),
     location: new FormControl('', Validators.required)
   });
 
@@ -52,7 +52,7 @@ export class CompanySetup {
 
     this.isSubmitting = true;
 
-    this.http.put(                        // ← was POST, now PUT
+    this.http.post(
       `${this.baseUrl}/company`,
       this.companyForm.value,
       { headers: this.headers }

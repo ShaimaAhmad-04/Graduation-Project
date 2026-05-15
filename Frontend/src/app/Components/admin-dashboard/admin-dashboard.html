@@ -222,12 +222,12 @@
             <p class="company-row__industry">{{ company.industry ?? 'N/A' }}</p>
           </div>
         </div>
-        @if(company.status) {
-        <span class="badge-verified"><i class="bi bi-check2-circle me-1"></i>
-          Verified</span>
+        @if(company.status === 'verified') {
+        <span class="badge-verified"><i class="bi bi-check2-circle me-1"></i> Verified</span>
+        } @else if(company.status === 'pending') {
+        <span class="badge-unverified"><i class="bi bi-clock me-1"></i> Pending</span>
         } @else {
-        <span class="badge-unverified"><i
-            class="bi bi-exclamation-circle me-1"></i> Unverified</span>
+        <span class="badge-unverified"><i class="bi bi-exclamation-circle me-1"></i> Unverified</span>
         }
       </div>
 
@@ -243,17 +243,20 @@
         }
       </div>
 
-      @if(!company.status) {
+      @if(company.status !== 'verified') {
       <div class="company-actions">
-
         <button class="btn-verify" (click)="verifyCompany(company)">
           <i class="bi bi-check2-circle me-2"></i> Verify
         </button>
-
         <button class="btn-decline" (click)="declineCompany(company)">
           <i class="bi bi-x-circle me-2"></i> Decline
         </button>
-
+      </div>
+      } @else {
+      <div class="company-actions">
+        <button class="btn-decline" (click)="unverifyCompany(company)">
+          <i class="bi bi-shield-x me-2"></i> Remove Verification
+        </button>
       </div>
       }
 

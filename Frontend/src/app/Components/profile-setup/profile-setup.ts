@@ -4,6 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { provideHttpClient } from '@angular/common/http';
+import { forkJoin, of } from 'rxjs';
 import { Majors } from '../../ENUMs/Majors';
 
 @Component({
@@ -20,12 +21,13 @@ export class ProfileSetup {
   ) { }
 
   // This turns your Enum into a clean list of choices
-  isExtracting: boolean = false; // To show a loading spinner
+  isExtracting: boolean = false;
   currentStep: 1 | 2 = 1;
 
   // STEP 1
   uploadedFileName = '';
   uploadSuccess = false;
+  extractError = '';
   extractedSkills: string[] = [];
   newSkill = ""
   extractedCV = ''
@@ -61,7 +63,10 @@ export class ProfileSetup {
         next: (response) => {
           this.uploadSuccess = true;
           this.isExtracting = false;
-          this.extractedCV = response.data
+          this.extractedCV = response.data;
+          if (response.cvUrl) {
+            this.student_form.get('cvUrl')?.setValue(response.cvUrl);
+          }
           const extractedData = response.data;
 
 
@@ -78,7 +83,7 @@ export class ProfileSetup {
         error: (err) => {
           this.isExtracting = false;
           console.error('Extraction failed:', err);
-          alert('Error extracting CV data. Check console for details.');
+          this.extractError = 'CV extraction service is unavailable. You can fill in your profile manually.';
         }
       });
     }
@@ -166,12 +171,16 @@ export class ProfileSetup {
                 const matched = allSkills.filter(s =>
                   this.pendingSkillNames.some(n => n.toLowerCase() === s.name.toLowerCase())
                 );
-                matched.forEach(s => {
+                const saves = matched.map(s =>
                   this._profilesetup_http.post('http://localhost:5002/student/skills',
                     { skillId: s.id, experience: 0 }, { headers }
-                  ).subscribe();
+                  )
+                );
+                // Wait for ALL skill saves to complete before navigating
+                forkJoin(saves.length ? saves : [of(null)]).subscribe({
+                  next: () => this.router.navigate(['/student-dashboard']),
+                  error: () => this.router.navigate(['/student-dashboard'])
                 });
-                this.router.navigate(['/student-dashboard']);
               },
               error: () => this.router.navigate(['/student-dashboard'])
             });

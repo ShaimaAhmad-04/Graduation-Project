@@ -12,7 +12,7 @@ export interface Company {
   description: string | null;
   email: string;
   website: string | null;
-  status: boolean;
+  status: 'verified' | 'pending' | 'unverified';
 }
 
 export interface AdminUser {
@@ -79,7 +79,7 @@ export class AdminDashboard implements OnInit {
         description: c.description ?? null,
         email: c.user?.email ?? '',
         website: c.website ?? null,
-        status: c.verified === true
+        status: c.status ?? 'pending'
       }));
     }
   });
@@ -92,14 +92,14 @@ export class AdminDashboard implements OnInit {
   }
 
   get totalCompanies(): number { return this.companies.length; }
-  get verifiedCount(): number { return this.companies.filter(c => c.status).length; }
-  get unverifiedCount(): number { return this.companies.filter(c => !c.status).length; }
-  get unverifiedCompanies(): Company[] { return this.companies.filter(c => !c.status); }
+  get verifiedCount(): number { return this.companies.filter(c => c.status === 'verified').length; }
+  get unverifiedCount(): number { return this.companies.filter(c => c.status !== 'verified').length; }
+  get unverifiedCompanies(): Company[] { return this.companies.filter(c => c.status !== 'verified'); }
 
   get filteredCompanies(): Company[] {
     let list = this.companies;
-    if (this.companyFilter === 'verified') list = list.filter(c => c.status);
-    if (this.companyFilter === 'unverified') list = list.filter(c => !c.status);
+    if (this.companyFilter === 'verified') list = list.filter(c => c.status === 'verified');
+    if (this.companyFilter === 'unverified') list = list.filter(c => c.status !== 'verified');
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
       list = list.filter(c =>
@@ -131,26 +131,25 @@ export class AdminDashboard implements OnInit {
   setTab(tab: 'overview' | 'companies' | 'users'): void { this.activeTab = tab; }
   setFilter(filter: 'all' | 'verified' | 'unverified'): void { this.companyFilter = filter; }
 
- verifyCompany(company: Company): void {
-  this.http.put(`${this.baseUrl}/admin/companies/${company.id}/verify`, {}, { headers: this.headers }).subscribe({
-    next: () => { 
-      company.status = true;
-      this.loadCompanies(); // reload to get fresh data
-    }
-  });
-}
+  verifyCompany(company: Company): void {
+    this.http.put(`${this.baseUrl}/admin/companies/${company.id}/verify`, {}, { headers: this.headers }).subscribe({
+      next: () => this.loadCompanies(),
+      error: (err: any) => console.error('Verify failed:', err)
+    });
+  }
+
+  unverifyCompany(company: Company): void {
+    if (!confirm(`Remove verification from ${company.name}? It will return to pending.`)) return;
+    this.http.put(`${this.baseUrl}/admin/companies/${company.id}/unverify`, {}, { headers: this.headers }).subscribe({
+      next: () => this.loadCompanies(),
+      error: (err: any) => console.error('Unverify failed:', err)
+    });
+  }
   declineCompany(company: Company): void {
   if (!confirm(`Are you sure you want to decline ${company.name}?`)) return;
 
   this.http.put(`${this.baseUrl}/admin/companies/${company.id}/decline`, {}, { headers: this.headers }).subscribe({
-    next: () => {
-      company.status = false;
-      // update local status
-      const index = this.companies.findIndex(c => c.id === company.id);
-      if (index !== -1) {
-        this.companies[index].status = false;
-      }
-    },
+    next: () => this.loadCompanies(),
     error: (err: any) => console.error(err)
   });
 }

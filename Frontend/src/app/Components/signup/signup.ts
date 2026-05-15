@@ -95,13 +95,14 @@ export class Signup {
       role: roleNumber
     }).subscribe({
       next: (res) => {
-  console.log('Registration response:', res); // Is this logged?        this.isLoading = false;
+        this.isLoading = false;
 
         // Save auth data
         localStorage.setItem('token', res.token);
         localStorage.setItem('userId', String(res.user.id));
-        localStorage.setItem('role', String(res.user.role));
-        console.log(res.user.role)
+        localStorage.setItem('userRole', String(res.user.role));
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userName', res.user.firstName);
         // Recruiter
         if (this.selectedRole === 'recruiter') {
 
@@ -109,7 +110,7 @@ export class Signup {
 
         } else {
 
-          this.router.navigate(['/student-dashboard']);
+          this.router.navigate(['/profile-setup']);
         }
       },
       error: (err) => {

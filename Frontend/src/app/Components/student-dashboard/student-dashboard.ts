@@ -34,6 +34,7 @@ export class StudentDashboard implements OnInit {
     id: number;
     title: string;
     company: string;
+    companyVerified: boolean;
     appliedDate: Date;
     status: string;
     matchScore: number;
@@ -54,7 +55,7 @@ export class StudentDashboard implements OnInit {
   isGenerating = false;
   roadmapError = '';
   currentRoadmap: { roadmapId: number; desiredPosition: string; generatedAt: string; nodes: { title: string; orderIndex: number }[] } | null = null;
-  aiRoadmap: { summary: string; steps: { title: string; description: string; duration: string; resources: string[] }[] } | null = null;
+  aiRoadmap: { summary: string; totalWeeks?: number; steps: { title: string; description: string; duration: string; priority?: string; practiceTask?: string; resources: string[] }[] } | null = null;
 
   stepMeta: Record<string, { description: string; resources: string[] }> = {
     'Frontend Basics': { description: 'Learn HTML, CSS, and JavaScript to build modern UIs.', resources: ['https://www.freecodecamp.org', 'https://www.codecademy.com', 'https://developer.mozilla.org'] },
@@ -123,6 +124,7 @@ export class StudentDashboard implements OnInit {
 
     // Pick up any roadmap generated from internship detail page
     const pending = localStorage.getItem('pendingRoadmap');
+    const hasPendingRoadmap = !!pending;
     if (pending) {
       const parsed = JSON.parse(pending);
       this.aiRoadmap = parsed.roadmap;
@@ -133,8 +135,9 @@ export class StudentDashboard implements OnInit {
         nodes: []
       };
       this.selectedPosition = parsed.desiredPosition;
-      localStorage.removeItem('pendingRoadmap'); // clean up
+      localStorage.removeItem('pendingRoadmap');
     }
+
     const token = localStorage.getItem('token');
     if (!token) {
       this.router.navigate(['/login']);
@@ -144,9 +147,7 @@ export class StudentDashboard implements OnInit {
 
     this.http.get<any>(`${this.baseUrl}/student/profile`, { headers }).subscribe({
       next: (profile) => {
-        // 1. Find the name of the major based on the ID number from the database
         const majorLabel = MajorsLabels[profile.major as Majors] ?? '';
-
         this.student = {
           firstName: profile.user.firstName,
           lastName: profile.user.lastName ?? '',
@@ -154,7 +155,6 @@ export class StudentDashboard implements OnInit {
           phone: profile.user.phoneNumber,
           university: profile.university ?? '',
           gpa: profile.gpa ? String(profile.gpa) : '',
-          // 2. Assign the Name instead of the Number string
           major: majorLabel,
           skills: this.student.skills,
           profileCompletion: this.calcCompletion(profile)
@@ -170,6 +170,7 @@ export class StudentDashboard implements OnInit {
           id: a.id,
           title: a.internship.title,
           company: a.internship.company?.name ?? '',
+          companyVerified: a.internship.company?.status === 'verified',
           appliedDate: a.createdAt ? new Date(a.createdAt) : new Date(),
           status: statusMap[a.status] ?? 'pending',
           matchScore: a.matchScore ?? 0
@@ -183,15 +184,17 @@ export class StudentDashboard implements OnInit {
       }
     });
 
-    // Load most recent roadmap if exists
-    this.http.get<any[]>(`${this.baseUrl}/student/roadmaps`, { headers }).subscribe({
-      next: (roadmaps) => {
-        if (roadmaps.length > 0) {
-          this.currentRoadmap = roadmaps[roadmaps.length - 1];
-          this.selectedPosition = this.currentRoadmap!.desiredPosition ?? '';
+    // Only load saved DB roadmap if we didn't just receive one from the internship detail page
+    if (!hasPendingRoadmap) {
+      this.http.get<any[]>(`${this.baseUrl}/student/roadmaps`, { headers }).subscribe({
+        next: (roadmaps) => {
+          if (roadmaps.length > 0) {
+            this.currentRoadmap = roadmaps[roadmaps.length - 1];
+            this.selectedPosition = this.currentRoadmap!.desiredPosition ?? '';
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   private calcCompletion(profile: any): number {

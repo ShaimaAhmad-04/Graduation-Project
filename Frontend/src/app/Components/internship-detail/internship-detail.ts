@@ -35,6 +35,7 @@ export class InternshipDetailComponent implements OnInit {
   roadmapRequested = false;
   isApplying = false;
   applyError = '';
+  profileIncomplete = false;
 
   // AI Roadmap
   roadmapData: { summary: string; steps: { title: string; description: string; duration: string; resources: string[] }[] } | null = null;
@@ -56,10 +57,10 @@ export class InternshipDetailComponent implements OnInit {
 
     if (this.authService.isLoggedIn()) {
       this.userState = 'loggedIn';
-      // Check if student already applied
       const token = localStorage.getItem('token');
       const role = localStorage.getItem('userRole');
       if (role === '0' && token) {
+        // Check if student already applied
         this.http.get<any[]>(`${this.baseUrl}/student/applications`, {
           headers: { Authorization: `Bearer ${token}` }
         }).subscribe({
@@ -67,6 +68,17 @@ export class InternshipDetailComponent implements OnInit {
             if (apps.some(a => a.internshipId === id)) {
               this.userState = 'applied';
             }
+          }
+        });
+        // Check if student profile is complete enough to apply
+        this.http.get<any>(`${this.baseUrl}/student/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).subscribe({
+          next: (profile) => {
+            this.profileIncomplete = !profile.university;
+          },
+          error: () => {
+            this.profileIncomplete = true;
           }
         });
       }
@@ -105,6 +117,10 @@ export class InternshipDetailComponent implements OnInit {
 
   loginToApply(): void {
     this.router.navigate(['/login']);
+  }
+
+  goToProfileSetup(): void {
+    this.router.navigate(['/profile-setup']);
   }
 
   calculateMatch(): void {
@@ -181,14 +197,13 @@ export class InternshipDetailComponent implements OnInit {
     const token = localStorage.getItem('token');
 
     this.http.post<any>(
-      `${this.baseUrl}/student/roadmaps/ai`,
-      { desiredPosition: this.internship.title },
+      `${this.baseUrl}/roadmap/${this.internship.id}`,
+      {},
       { headers: { Authorization: `Bearer ${token ?? ''}` } }
     ).subscribe({
       next: (res) => {
         this.isGeneratingRoadmap = false;
         this.roadmapRequested = true;
-        // Store it so the dashboard can pick it up
         localStorage.setItem('pendingRoadmap', JSON.stringify({
           desiredPosition: this.internship!.title,
           roadmap: res.roadmap
