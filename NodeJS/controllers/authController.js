@@ -87,8 +87,19 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
+    let companyCompleted = null;
+    if (user.role === 1) {
+      const company = await prisma.company.findUnique({
+        where: { userId: user.id }
+      });
+      companyCompleted = !!company;
+    }
 
-    res.json({ token });
+    res.json({
+      token,
+      role: user.role,
+      companyCompleted  // null for students/admins, true/false for recruiters
+    });
 
   } catch (error) {
     res.status(500).json({ error: error.message });

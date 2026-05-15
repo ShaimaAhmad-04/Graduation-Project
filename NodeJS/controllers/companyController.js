@@ -43,8 +43,9 @@ export const updateCompanyProfile = async (req, res) => {
         description,
         industry,
         website,
-        location}
-      });
+        location
+      }
+    });
 
     res.json(company)
   } catch (error) {
@@ -241,7 +242,11 @@ export const updateCompanyUserInfo = async (req, res) => {
 
 export const createCompanyProfile = async (req, res) => {
   try {
+<<<<<<< HEAD
     const { name, description, industry, website, location } = req.body
+=======
+    const { name, description, industry, website,location } = req.body
+>>>>>>> 4f8ab15cb2ee5cc4442f6b7c54433922b75010f9
 
     // 1. Validate required fields
     if (!name) {
