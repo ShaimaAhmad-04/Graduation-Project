@@ -115,7 +115,7 @@ export const uploadCV = async (req, res) => {
   console.log('uploadCV hit',req.file)  // testing purposes
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' })
-    const cvUrl = `/uploads/${req.file.filename}`
+    const cvUrl = `http://localhost:5002/uploads/${req.file.filename}`
     const student = await prisma.student.update({
       where: { userId: req.userId },
       data: { cvUrl }

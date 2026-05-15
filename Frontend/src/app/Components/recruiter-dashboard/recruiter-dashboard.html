@@ -546,8 +546,8 @@
                             <i class="bi bi-github"></i> GitHub
                         </a>
                         <a *ngIf="applicationModalStudent?.cvUrl"
-                            [href]="applicationModalStudent?.cvUrl"
-                            target="_blank"
+                            [href]="getCvUrl(applicationModalStudent?.cvUrl)"
+                            target="_blank" rel="noopener"
                             class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
                             <i class="bi bi-file-earmark-pdf"></i> Resume
                         </a>

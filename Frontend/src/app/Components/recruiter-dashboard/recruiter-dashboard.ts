@@ -619,6 +619,11 @@ export class RecruiterDashboard implements OnInit, OnDestroy {
     return this.majorLabels[this.applicationModalStudent.major as Majors] ?? '';
   }
 
+  getCvUrl(cvUrl: string | null | undefined): string {
+    if (!cvUrl) return '';
+    return cvUrl.startsWith('http') ? cvUrl : `http://localhost:5002${cvUrl}`;
+  }
+
 
   activeInternshipsCount = 0;
   totalApplicantsCount = 0;
