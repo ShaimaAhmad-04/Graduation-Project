@@ -21,7 +21,7 @@
     </div>
 
     <select [(ngModel)]="selectedLocation" (change)="onLocationChange()">
-      <option *ngFor="let loc of locations" [value]="loc.value">{{ loc.label }}</option>
+      <option *ngFor="let loc of locations" [ngValue]="loc.value">{{ loc.label }}</option>
     </select>
 
     <select [(ngModel)]="selectedType" (change)="onTypeChange()">
